@@ -4,6 +4,6 @@ abstract class Failure{
   Failure({required this.message});
  
 }
-class ServerFailure extends Failure{
-  ServerFailure({required super.message});
+class CustomFailure extends Failure{
+  CustomFailure({required super.message});
 }

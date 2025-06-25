@@ -75,6 +75,7 @@ class CustomTextFormField extends StatelessWidget {
         hintMaxLines: maxLines,
         isDense: isDense,
         labelText: labelText,
+        labelStyle: TextStyles.bold13.copyWith(color: const Color(0xff949D9E)),
         contentPadding: contentPadding,
         suffixIcon: suffixIcon,
         suffixIconColor: const Color(0xff949D9E),
