@@ -1,22 +1,16 @@
-// import 'dart:convert';
+import 'dart:convert';
+
+import 'package:stepforward/core/helper_functions/cache_helper.dart';
+import 'package:stepforward/core/utils/chache_helper_keys.dart';
+import 'package:stepforward/features/auth/data/models/user_model.dart';
 
 
 
-// UserModel getUserData() {
-//   var userEntity = UserModel.fromJson(
-//       jsonDecode(CacheHelper.getData(key: kSaveUserDataKey)));
-//   return userEntity;
-// }
+UserModel getUserData() {
+  var userEntity = UserModel.fromJson(
+      jsonDecode(CacheHelper.getData(key: kSaveUserDataKey)));
+  return userEntity;
+}
 
-// ShippingAddressModel? getShippingAddress() {
-//   try {
-//     final data = CacheHelper.getData(key: kSaveUserLocationKey);
-//     if (data != null) {
-//       return ShippingAddressModel.fromJson(jsonDecode(data));
-//     }
-//     return null; // Return null if no data is found
-//   } catch (e) {
-    
-//     return null;
-//   }
-// }
+
+

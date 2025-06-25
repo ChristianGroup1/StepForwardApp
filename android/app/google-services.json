@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "888953774658",
+    "project_id": "stepforward-b4fba",
+    "storage_bucket": "stepforward-b4fba.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:888953774658:android:6bd51949e10f6ee51a03db",
+        "android_client_info": {
+          "package_name": "com.JohnDev.stepforward"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByxxcc9HwM7GzsQnByo1AP0S6lkyOf2rU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

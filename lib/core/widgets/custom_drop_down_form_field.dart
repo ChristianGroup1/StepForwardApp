@@ -14,17 +14,19 @@ class CustomDropDownButtonFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-     final String? selectedValue = (items != null && items!.any((item) => item.value == value))
+    final String? selectedValue =
+        (items != null && items!.any((item) => item.value == value))
         ? value
         : null;
     return DropdownButtonFormField<String>(
-      
+      hint: Text(
+        'المحافظة',
+        style: TextStyles.bold13.copyWith(color: const Color(0xff949D9E)),
+      ),
       value: selectedValue, // Default selected value
       decoration: InputDecoration(
-        
-        
         labelStyle: TextStyles.bold16.copyWith(color: const Color(0xff949D9E)),
-        
+
         hintStyle: TextStyles.bold13.copyWith(color: const Color(0xff949D9E)),
         filled: true,
         fillColor: const Color(0xffF9FAFA),
