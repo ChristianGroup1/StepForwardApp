@@ -9,6 +9,8 @@ import 'package:stepforward/core/services/firestore_service.dart';
 import 'package:stepforward/core/services/storage_service.dart';
 import 'package:stepforward/features/auth/domain/repos/auth_repo.dart';
 import 'package:stepforward/features/auth/domain/repos/auth_repo_impl.dart';
+import 'package:stepforward/features/home/domain/repos/home_repo.dart';
+import 'package:stepforward/features/home/domain/repos/home_repo_impl.dart';
 
 final getIt = GetIt.instance;
 
@@ -23,5 +25,8 @@ void setupGetIt() {
   ));
   getIt.registerSingleton<ImagesRepo>(ImagesRepoImpl(
     storageService: getIt<StorageService>(),
+  ));
+   getIt.registerSingleton<HomeRepo>(HomeRepoImpl(
+    databaseService: getIt.get<DatabaseService>(),
   ));
 }

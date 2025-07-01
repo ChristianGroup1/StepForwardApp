@@ -9,6 +9,7 @@ class UserModel {
   final String churchName;
   final String frontId;
   final String backId;
+  final List<String>? favorites;
 
   UserModel({
     required this.id,
@@ -16,6 +17,7 @@ class UserModel {
     required this.lastName,
     this.isApproved = false,
     required this.email,
+    this.favorites,
     required this.phoneNumber,
     required this.government,
     required this.churchName,
@@ -34,6 +36,7 @@ class UserModel {
       churchName: json['churchName'],
       frontId: json['frontId'],
       backId: json['backId'],
+      favorites: List<String>.from(json['favorites'] ?? []),
     );
   }
   toJson() {
@@ -48,6 +51,7 @@ class UserModel {
       'churchName': churchName,
       'frontId': frontId,
       'backId': backId,
+      'favorites': favorites
     };
   }
 }

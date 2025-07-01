@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
         ),
         debugShowCheckedModeBanner: false,
         onGenerateRoute: onGenerateRoutes,
-        initialRoute: Routes.loginView,
+        initialRoute: Routes.mainView,
       ),
     );
   }

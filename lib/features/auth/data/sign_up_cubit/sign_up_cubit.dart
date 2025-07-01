@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 import 'package:stepforward/core/repos/image_repo.dart';
 import 'package:stepforward/features/auth/data/models/user_model.dart';
 import 'package:stepforward/features/auth/domain/repos/auth_repo.dart';

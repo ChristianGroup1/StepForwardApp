@@ -215,7 +215,7 @@ Future<List<Map<String, dynamic>>> searchProducts(String searchText) async {
         .collection('products')
         .orderBy('name')
         .startAt([searchText])
-        .endAt([searchText + '\uf8ff'])
+        .endAt(['$searchText\uf8ff'])
         .get();
 
     return snapshot.docs.map((doc) => doc.data()).toList();
