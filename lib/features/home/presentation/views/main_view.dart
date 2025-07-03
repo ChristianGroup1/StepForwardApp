@@ -8,6 +8,7 @@ import 'package:stepforward/features/home/domain/repos/home_repo.dart';
 import 'package:stepforward/features/home/presentation/views/home_view.dart';
 import 'package:stepforward/features/home/presentation/views/ministers_view.dart';
 import 'package:stepforward/features/home/presentation/views/games_view.dart';
+import 'package:stepforward/features/home/presentation/views/more_view.dart';
 
 class MainView extends StatefulWidget {
   const MainView({super.key});
@@ -43,7 +44,7 @@ class _MainViewState extends State<MainView> {
               HomeView(),
               GamesView(),
               MinistersView(),
-              HomeView(),
+              MoreView(),
             ],
           ),
         ),

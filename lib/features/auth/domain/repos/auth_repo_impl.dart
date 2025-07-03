@@ -64,17 +64,17 @@ class AuthRepoImpl extends AuthRepo {
     );
   }
 
-   @override
+  @override
   Future<Either<Failure, UserModel>> login({
     required String email,
     required String password,
   }) async {
     try {
-     var user= await firebaseAuthService.signInWithEmailAndPassword(
+      var user = await firebaseAuthService.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      var userData= await getUserData(id: user.uid);
+      var userData = await getUserData(id: user.uid);
       await saveUserData(userModel: userData);
       return Right(userData);
     } catch (e) {
@@ -97,9 +97,11 @@ class AuthRepoImpl extends AuthRepo {
     var userData = jsonEncode(userModel.toJson());
     await CacheHelper.saveData(key: kSaveUserDataKey, value: userData);
   }
- @override
-  Future<Either<Failure, void>> sendPasswordResetEmail(
-      {required String email}) async {
+
+  @override
+  Future<Either<Failure, void>> sendPasswordResetEmail({
+    required String email,
+  }) async {
     try {
       await firebaseAuthService.sendEmailToResetPassword(email: email);
       return right(null);
@@ -108,5 +110,38 @@ class AuthRepoImpl extends AuthRepo {
     }
   }
 
- 
+  @override
+  Future<Either<Failure, void>> updateUserData({
+    required String uId,
+    required String firstName,
+    required String lastName,
+    required String churchName,
+    required String phoneNumber,
+  }) async {
+    try {
+      // Update user data in the database
+      await databaseService.updateData(
+        path: BackendEndpoints.addUserData,
+        documentId: uId,
+        data: {
+          'firstName': firstName,
+          'lastName': lastName,
+          'churchName': churchName,
+          'phoneNumber': phoneNumber,
+        },
+      );
+
+      // Save updated user data to cache
+
+      return const Right(null);
+    } on CustomException catch (e) {
+      return Left(CustomFailure(message: e.message));
+    } catch (e) {
+      return Left(
+        CustomFailure(
+          message: 'An unexpected error occurred while updating user data.',
+        ),
+      );
+    }
+  }
 }

@@ -7,8 +7,8 @@ class UserModel {
   final String phoneNumber;
   final String government;
   final String churchName;
-  final String frontId;
-  final String backId;
+  final String? frontId;
+  final String? backId;
   final List<String>? favorites;
 
   UserModel({
@@ -21,8 +21,8 @@ class UserModel {
     required this.phoneNumber,
     required this.government,
     required this.churchName,
-    required this.frontId,
-    required this.backId,
+     this.frontId,
+     this.backId,
   });
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(

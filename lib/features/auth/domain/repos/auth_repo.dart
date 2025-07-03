@@ -25,4 +25,12 @@ abstract class AuthRepo {
 
   Future saveUserData({required UserModel userModel});
   Future<Either<Failure, void>> sendPasswordResetEmail({required String email});
+  
+  Future<Either<Failure, void>> updateUserData({
+    required String uId,
+    required String firstName,
+    required String lastName,
+    required String phoneNumber,
+    required String churchName,
+  });
 }

@@ -4,7 +4,6 @@ import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_sliver_app_bar.dart';
 import 'package:stepforward/core/widgets/my_divider.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_hashtag_list.dart';
-import 'package:stepforward/features/home/presentation/views/widgets/tags_list.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
 

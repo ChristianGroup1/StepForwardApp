@@ -7,6 +7,7 @@ import 'package:stepforward/features/auth/presentation/views/sign_up_view.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
 import 'package:stepforward/features/home/presentation/views/game_details.dart';
 import 'package:stepforward/features/home/presentation/views/main_view.dart';
+import 'package:stepforward/features/home/presentation/views/update_user_profile_view.dart';
 
 Route onGenerateRoutes(RouteSettings settings) {
   switch (settings.name) {
@@ -42,9 +43,13 @@ Route onGenerateRoutes(RouteSettings settings) {
       final game = settings.arguments as GameModel;
       return PageTransition(
         duration: Duration(milliseconds: 50),
-        child:  GameDetails(
-          game: game,
-        ),
+        child: GameDetails(game: game),
+        type: PageTransitionType.fade,
+      );
+    case Routes.updateUserProfile:
+      return PageTransition(
+        duration: Duration(milliseconds: 50),
+        child: UpdateUserProfileView(),
         type: PageTransitionType.fade,
       );
     default:

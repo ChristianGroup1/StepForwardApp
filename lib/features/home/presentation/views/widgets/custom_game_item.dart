@@ -10,7 +10,6 @@ import 'package:stepforward/core/widgets/custom_cached_network_image.dart';
 import 'package:stepforward/features/home/data/home_cubit/home_cubit.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_hashtag_list.dart';
-import 'package:stepforward/features/home/presentation/views/widgets/tags_list.dart';
 
 class CustomGameItem extends StatelessWidget {
   final GameModel gameModel;
