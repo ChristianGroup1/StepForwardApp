@@ -7,7 +7,7 @@ import 'package:stepforward/features/home/data/home_cubit/home_cubit.dart';
 import 'package:stepforward/features/home/domain/repos/home_repo.dart';
 import 'package:stepforward/features/home/presentation/views/home_view.dart';
 import 'package:stepforward/features/home/presentation/views/ministers_view.dart';
-import 'package:stepforward/features/home/presentation/views/widgets/games_view.dart';
+import 'package:stepforward/features/home/presentation/views/games_view.dart';
 
 class MainView extends StatefulWidget {
   const MainView({super.key});

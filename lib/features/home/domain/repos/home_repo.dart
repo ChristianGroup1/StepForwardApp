@@ -6,4 +6,5 @@ abstract class HomeRepo{
   Future<Either<Failure,List<GameModel>>>getGames();
   Future<Either<Failure,void>>changeGameFavoriteState({required String gameId});
   Future<Either<Failure, List<String>>> getUserFavorites();
+   Future<Either<Failure, List<GameModel>>> searchGames(String searchText);
 }

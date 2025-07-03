@@ -24,3 +24,12 @@ final class AddGameToFavoritesFailureState extends HomeState {
 class HomeFavoritesUpdated extends HomeState {}
 
 final class RemoveGameFromFavoritesSuccessState extends HomeState {}
+final class SearchGameSuccessState extends HomeState {
+  final List<GameModel> games;
+  SearchGameSuccessState({required this.games});
+
+}
+final class SearchGameFailureState extends HomeState {
+  final String errorMessage;
+  SearchGameFailureState({required this.errorMessage});
+}

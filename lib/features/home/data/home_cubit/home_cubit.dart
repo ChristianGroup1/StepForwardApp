@@ -15,6 +15,9 @@ class HomeCubit extends Cubit<HomeState> {
   final HomeRepo homeRepo;
     final AuthRepo authRepo ;
   List<String> userFavorites = [];
+    List<GameModel> allGames = [];
+  List<String> selectedTags = [];
+  final TextEditingController searchController = TextEditingController();
   HomeCubit(this.homeRepo,this.authRepo) : super(HomeInitialState());
 
   Future<void> getGames() async {
@@ -41,7 +44,10 @@ class HomeCubit extends Cubit<HomeState> {
     final result = await homeRepo.getGames();
     result.fold(
       (failure) => emit(GetGameFailureState(errorMessage: failure.message)),
-      (games) => emit(GetGamesSuccessState(games: games)),
+      (games) {
+        allGames = games;
+        emit(GetGamesSuccessState(games: _filteredGames()));
+      },  
     );
   }
 
@@ -76,6 +82,17 @@ class HomeCubit extends Cubit<HomeState> {
       },
     );
   }
+  Future<void>searchGames()async{
+    emit(GetGamesLoadingState());
+    final result = await homeRepo.searchGames(searchController.text);
+    result.fold(
+      (failure) => emit(GetGameFailureState(errorMessage: failure.message)),
+      (games) {
+        allGames = games;
+        emit(GetGamesSuccessState(games: _filteredGames()));
+      },
+    );
+  }
 
   Future<void> getUserApprovedDataIfNotApproved() async {
     final cachedUser = getUserData();
@@ -94,5 +111,19 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
+void toggleTag(String tag) {
+    if (selectedTags.contains(tag)) {
+      selectedTags.remove(tag);
+    } else {
+      selectedTags.add(tag);
+    }
+    emit(GetGamesSuccessState(games: _filteredGames()));
+  }
 
+  List<GameModel> _filteredGames() {
+    if (selectedTags.isEmpty) return allGames;
+    return allGames.where((game) {
+      return game.tags.any((tag) => selectedTags.contains(tag));
+    }).toList();
+  }
 }

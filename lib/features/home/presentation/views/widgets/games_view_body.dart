@@ -25,7 +25,10 @@ class GamesViewBody extends StatelessWidget {
       ),
       child: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(child: SearchTextField()),
+          SliverToBoxAdapter(child: SearchTextField(
+            controller: context.read<HomeCubit>().searchController,
+            onChanged:  (value) => context.read<HomeCubit>().searchGames(),
+          )),
           SliverToBoxAdapter(child: verticalSpace(20)),
           SliverToBoxAdapter(
             child: TagsList(tags: ['اطفال', 'اعدادي', 'ثانوي', 'جامعة']),

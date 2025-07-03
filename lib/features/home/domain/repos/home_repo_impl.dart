@@ -72,5 +72,13 @@ Future<Either<Failure, List<String>>> getUserFavorites() async {
     return left(CustomFailure(message: e.toString()));
   }
 }
-
+ @override
+ Future<Either<Failure, List<GameModel>>> searchGames(String searchText) async {
+    try {
+      var data = await databaseService.searchGames(searchText);
+      return right(data.map((e) => GameModel.fromJson(e)).toList());
+    } catch (e) {
+      return left(CustomFailure(message: e.toString()));
+    }
+  }
 }
