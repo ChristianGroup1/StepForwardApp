@@ -24,6 +24,10 @@ final class AddGameToFavoritesFailureState extends HomeState {
 class HomeFavoritesUpdated extends HomeState {}
 
 final class RemoveGameFromFavoritesSuccessState extends HomeState {}
+final class RemoveGameFromFavoritesFailureState extends HomeState {
+  final String errorMessage;
+  RemoveGameFromFavoritesFailureState({required this.errorMessage});
+}
 final class SearchGameSuccessState extends HomeState {
   final List<GameModel> games;
   SearchGameSuccessState({required this.games});
@@ -32,4 +36,15 @@ final class SearchGameSuccessState extends HomeState {
 final class SearchGameFailureState extends HomeState {
   final String errorMessage;
   SearchGameFailureState({required this.errorMessage});
+}
+
+
+final class FetchUserFavoritesSuccessState extends HomeState {
+  final List<GameModel> favorites;
+  FetchUserFavoritesSuccessState({required this.favorites});
+}
+final class FetchUserFavoritesLoadingState extends HomeState {}
+final class FetchUserFavoritesFailureState extends HomeState {
+  final String errorMessage;
+  FetchUserFavoritesFailureState({required this.errorMessage});
 }

@@ -12,3 +12,4 @@ final class UpdateUserProfileFailureState extends MoreState {
   UpdateUserProfileFailureState({required this.errorMessage});
 }
 final class UpdateUserProfileSuccessState extends MoreState {}
+

@@ -58,6 +58,8 @@ class MoreCubit extends Cubit<MoreState> {
     );
   }
 
+
+
   void userMakeChanges() {
     hasChanges = true;
     emit(UserMakeChangesInProfile());

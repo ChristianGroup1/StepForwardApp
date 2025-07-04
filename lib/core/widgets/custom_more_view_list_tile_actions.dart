@@ -69,7 +69,7 @@ class CustomMoreViewListTileActions extends StatelessWidget {
               color: AppColors.primaryColor,
             ),
             onTap: () {
-              context.pushNamed(Routes.mainView);
+              context.pushNamed(Routes.favoritesView);
             },
           ),
           

@@ -7,4 +7,6 @@ class Routes {
   static const homeView = '/homeView';
   static const gameDetails = '/gameDetails';
   static const updateUserProfile = '/updateUserProfile';
+
+   static const favoritesView = '/favoritesView';
 }

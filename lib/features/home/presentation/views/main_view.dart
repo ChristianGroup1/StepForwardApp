@@ -40,12 +40,7 @@ class _MainViewState extends State<MainView> {
           ),
           body: IndexedStack(
             index: selectedIndex,
-            children: const [
-              HomeView(),
-              GamesView(),
-              MinistersView(),
-              MoreView(),
-            ],
+            children: [HomeView(), GamesView(), MinistersView(), MoreView()],
           ),
         ),
       ),

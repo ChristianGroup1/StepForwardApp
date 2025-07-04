@@ -5,6 +5,7 @@ import 'package:stepforward/features/auth/presentation/views/forget_password_vie
 import 'package:stepforward/features/auth/presentation/views/login_view.dart';
 import 'package:stepforward/features/auth/presentation/views/sign_up_view.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
+import 'package:stepforward/features/home/presentation/views/favorites_view.dart';
 import 'package:stepforward/features/home/presentation/views/game_details.dart';
 import 'package:stepforward/features/home/presentation/views/main_view.dart';
 import 'package:stepforward/features/home/presentation/views/update_user_profile_view.dart';
@@ -50,6 +51,13 @@ Route onGenerateRoutes(RouteSettings settings) {
       return PageTransition(
         duration: Duration(milliseconds: 50),
         child: UpdateUserProfileView(),
+        type: PageTransitionType.fade,
+      );
+
+       case Routes.favoritesView:
+      return PageTransition(
+        duration: Duration(milliseconds: 50),
+        child: FavoritesView(),
         type: PageTransitionType.fade,
       );
     default:

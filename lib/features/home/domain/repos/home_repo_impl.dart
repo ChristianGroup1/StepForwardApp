@@ -24,56 +24,61 @@ class HomeRepoImpl extends HomeRepo {
     }
   }
 
-@override
-Future<Either<Failure, void>> changeGameFavoriteState({
-  required String gameId,
-}) async {
-  try {
-    final userId = getUserData().id;
+  @override
+  Future<Either<Failure, void>> changeGameFavoriteState({
+    required String gameId,
+  }) async {
+    try {
+      final userId = getUserData().id;
 
-    // Get user document
-    final userDoc = await FirebaseFirestore.instance
-        .collection(BackendEndpoints.getUserData)
-        .doc(userId)
-        .get();
+      // Get user document
+      final userDoc = await FirebaseFirestore.instance
+          .collection(BackendEndpoints.getUserData)
+          .doc(userId)
+          .get();
 
-    final List<dynamic> currentFavorites =
-        userDoc.data()?['favorites'] ?? [];
+      final List<dynamic> currentFavorites = userDoc.data()?['favorites'] ?? [];
 
-    final bool isAlreadyFavorite = currentFavorites.contains(gameId);
+      final bool isAlreadyFavorite = currentFavorites.contains(gameId);
 
-    await FirebaseFirestore.instance
-        .collection(BackendEndpoints.getUserData)
-        .doc(userId)
-        .update({
-      'favorites': isAlreadyFavorite
-          ? FieldValue.arrayRemove([gameId])
-          : FieldValue.arrayUnion([gameId]),
-    });
+      await databaseService.updateData(
+        path: BackendEndpoints.getUserData,
+        documentId: userId,
+        data: {
+          'favorites': isAlreadyFavorite
+              ? FieldValue.arrayRemove([gameId])
+              : FieldValue.arrayUnion([gameId]),
+        },
+      );
 
-    return right(null);
-  } catch (e) {
-    return left(CustomFailure(message: e.toString()));
+      return right(null);
+    } catch (e) {
+      return left(CustomFailure(message: e.toString()));
+    }
   }
-}
 
-@override
-Future<Either<Failure, List<String>>> getUserFavorites() async {
-  try {
-    final userId = getUserData().id;
-    final userData = await databaseService.getData(
-      path: BackendEndpoints.getUserData,
-      documentId: userId,
-    ) as Map<String, dynamic>;
+  @override
+  Future<Either<Failure, List<String>>> getUserFavoritesIDs() async {
+    try {
+      final userId = getUserData().id;
+      final userData =
+          await databaseService.getData(
+                path: BackendEndpoints.getUserData,
+                documentId: userId,
+              )
+              as Map<String, dynamic>;
 
-    final favorites = List<String>.from(userData['favorites'] ?? []);
-    return right(favorites);
-  } catch (e) {
-    return left(CustomFailure(message: e.toString()));
+      final favorites = List<String>.from(userData['favorites'] ?? []);
+      return right(favorites);
+    } catch (e) {
+      return left(CustomFailure(message: e.toString()));
+    }
   }
-}
- @override
- Future<Either<Failure, List<GameModel>>> searchGames(String searchText) async {
+
+  @override
+  Future<Either<Failure, List<GameModel>>> searchGames(
+    String searchText,
+  ) async {
     try {
       var data = await databaseService.searchGames(searchText);
       return right(data.map((e) => GameModel.fromJson(e)).toList());
@@ -81,4 +86,52 @@ Future<Either<Failure, List<String>>> getUserFavorites() async {
       return left(CustomFailure(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, List<GameModel>>> getUserFavorites({
+    required String userId,
+  }) async {
+    try {
+      final userDoc = await databaseService.getData(
+        path: BackendEndpoints.getUserFavorites,
+        documentId: userId,
+      );
+
+      final List<dynamic> favoriteIds = userDoc['favorites'] ?? [];
+
+      final gamesFutures = favoriteIds.map((gameId) async {
+        final gameDoc = await databaseService.getData(
+          path: BackendEndpoints.getGames,
+          documentId: gameId,
+        );
+        return GameModel.fromJson({...gameDoc, 'id': gameId});
+      });
+
+      final games = await Future.wait(gamesFutures);
+
+      return Right(games);
+    } catch (e) {
+      return Left(CustomFailure(message: e.toString()));
+    }
+  }
+
+  @override
+Future<Either<Failure, void>> removeGameFromFavorites({required String gameId}) async {
+  try {
+    final userId = getUserData().id;
+
+    await databaseService.updateData(
+      path: BackendEndpoints.getUserData,
+      documentId: userId,
+      data: {
+        'favorites': FieldValue.arrayRemove([gameId]),
+      },
+    );
+
+    return right(null);
+  } catch (e) {
+    return left(CustomFailure(message: e.toString()));
+  }
+}
+
 }

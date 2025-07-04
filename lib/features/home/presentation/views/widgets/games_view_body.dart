@@ -35,6 +35,7 @@ class GamesViewBody extends StatelessWidget {
           ),
           SliverToBoxAdapter(child: verticalSpace(24)),
           BlocConsumer<HomeCubit, HomeState>(
+            
             buildWhen: (previous, current) =>
                 current is GetGamesSuccessState ||
                 current is GetGameFailureState ||
@@ -57,7 +58,8 @@ class GamesViewBody extends StatelessWidget {
                   separatorBuilder: (context, index) => MyDivider(),
                   itemBuilder: (context, index) =>
                       CustomGameItem(gameModel: state.games[index],
-                      userFavorites:context.watch<HomeCubit>().userFavorites,
+                      
+                     
                       ),
                   itemCount: state.games.length,
                 ) : SliverToBoxAdapter(child: Center(child: Text('لم يتم الموافقة على الحساب',style: TextStyle(color: Colors.red),),));
