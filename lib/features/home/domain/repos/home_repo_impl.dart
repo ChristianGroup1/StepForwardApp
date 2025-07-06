@@ -152,7 +152,7 @@ class HomeRepoImpl extends HomeRepo {
   }
 
   @override
-  Future<Either<Failure, List<BrothersModel>>> getAllBrothers() async {
+  Future<Either<Failure, List<BrothersModel>>> getBrothers() async {
     try {
       var brothersData =
           await databaseService.getData(path: BackendEndpoints.getBrothers)

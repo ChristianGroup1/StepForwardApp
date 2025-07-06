@@ -16,18 +16,28 @@ class BrothersCubit extends Cubit<BrothersState> {
   List<BrothersModel> allBrothers = [];
   List<String> selectedTags = [];
   final TextEditingController searchController = TextEditingController();
+  String selectedGovernment = getUserData().government; // Default on startup
 
   BrothersCubit(this.homeRepo, this.authRepo) : super(BrothersInitialState());
 
   Future<void> getBrothers() async {
     emit(GetBrothersLoadingState());
-    final result = await homeRepo.getAllBrothers();
+    final result = await homeRepo.getBrothers();
     result.fold(
       (failure) => emit(GetBrothersFailureState(errorMessage: failure.message)),
       (brothers) {
         allBrothers = brothers;
         emit(GetBrothersSuccessState(brothers: _filteredBrothers()));
       },
+    );
+  }
+
+  void changeGovernment(String government) {
+    selectedGovernment = government;
+    emit(
+      GetBrothersSuccessState(
+        brothers: government == 'الكل' ? allBrothers : _filteredBrothers(),
+      ),
     );
   }
 
@@ -41,9 +51,12 @@ class BrothersCubit extends Cubit<BrothersState> {
   }
 
   List<BrothersModel> _filteredBrothers() {
-    if (selectedTags.isEmpty) return allBrothers;
-    return allBrothers.where((bro) {
-      return bro.tags.any((tag) => selectedTags.contains(tag));
+    return allBrothers.where((brother) {
+      final tagMatch =
+          selectedTags.isEmpty ||
+          brother.tags.any((tag) => selectedTags.contains(tag));
+      final govMatch = brother.government == selectedGovernment;
+      return tagMatch && govMatch;
     }).toList();
   }
 

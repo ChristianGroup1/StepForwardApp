@@ -7,6 +7,7 @@ import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/core/utils/custom_snak_bar.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_animated_loading_widget.dart';
+import 'package:stepforward/core/widgets/custom_page_app_bar.dart';
 import 'package:stepforward/core/widgets/my_divider.dart';
 import 'package:stepforward/core/widgets/search_text_field.dart';
 import 'package:stepforward/features/home/data/games_cubit/games_cubit.dart';
@@ -26,6 +27,10 @@ class GamesViewBody extends StatelessWidget {
       ),
       child: CustomScrollView(
         slivers: [
+          SliverToBoxAdapter(
+            child: CustomPageAppBar(title: 'الألعاب',),
+          ),
+          SliverToBoxAdapter(child: verticalSpace(24)),
           SliverToBoxAdapter(child: SearchTextField(
             controller: context.read<GamesCubit>().searchController,
             onChanged:  (value) => context.read<GamesCubit>().searchGames(),

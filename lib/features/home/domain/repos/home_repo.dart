@@ -10,7 +10,7 @@ abstract class HomeRepo{
    Future<Either<Failure, List<GameModel>>> searchGames(String searchText);
      Future<Either<Failure, List<GameModel>>>  getUserFavorites({required String userId});
 Future<Either<Failure, void>> removeGameFromFavorites({required String gameId});
- Future<Either<Failure, List<BrothersModel>>> getAllBrothers();
+ Future<Either<Failure, List<BrothersModel>>> getBrothers();
    Future<Either<Failure, List<BrothersModel>>> searchBrothers(String searchText);
 
 }

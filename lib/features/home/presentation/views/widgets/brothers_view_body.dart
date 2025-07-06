@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stepforward/core/helper_functions/custom_government_modal_sheet_filter.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_animated_loading_widget.dart';
+import 'package:stepforward/core/widgets/custom_government_item.dart';
+import 'package:stepforward/core/widgets/custom_page_app_bar.dart';
 import 'package:stepforward/core/widgets/search_text_field.dart';
 import 'package:stepforward/features/home/data/brothers_cubit/brothers_cubit.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/custom_brother_item.dart';
@@ -22,18 +25,43 @@ class BrothersViewBody extends StatelessWidget {
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          SliverToBoxAdapter(child: SearchTextField(
-            controller: cubit.searchController,
-            onChanged: (value) => cubit.searchBrothers(),
-          )),
-          SliverToBoxAdapter(child: verticalSpace(20)),
           SliverToBoxAdapter(
-            child: TagsList(
-              tags: ['فريق رياضي', 'مرنم', 'متكلم'],
-              onTagToggle: cubit.toggleTag,
-              selectedTags: cubit.selectedTags,
+            child: CustomPageAppBar(title: 'الخدام',),
+          ),
+          SliverToBoxAdapter(child: verticalSpace(24)),
+          SliverToBoxAdapter(
+            child: SearchTextField(
+              controller: cubit.searchController,
+              onChanged: (value) => cubit.searchBrothers(),
             ),
           ),
+          SliverToBoxAdapter(child: verticalSpace(24)),
+          SliverToBoxAdapter(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomGovernorateTagItem(
+                  governorate: cubit.selectedGovernment,
+                  onTap: () {
+                    customGovernmentFilterModalSheet(context, cubit);
+                  },
+                ),
+
+                horizontalSpace(12),
+                Expanded(
+                  child: TagsList(
+                    tags: ['فريق رياضي', 'مرنم', 'متكلم'],
+                    onTagToggle: cubit.toggleTag,
+                    selectedTags: cubit.selectedTags,
+                  ),
+                ),
+
+                // Government Dropdown (smaller)
+              ],
+            ),
+          ),
+          SliverToBoxAdapter(child: verticalSpace(24)),
+
           SliverToBoxAdapter(child: verticalSpace(24)),
           BlocBuilder<BrothersCubit, BrothersState>(
             buildWhen: (previous, current) =>
@@ -70,3 +98,4 @@ class BrothersViewBody extends StatelessWidget {
     );
   }
 }
+
