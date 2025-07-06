@@ -209,10 +209,10 @@ Future<void> removeItemFromCart({
 
 
 @override
-Future<List<Map<String, dynamic>>> searchGames(String searchText) async {
+Future<List<Map<String, dynamic>>> searchData(String searchText,String searchIn) async {
   try {
     final snapshot = await firestore
-        .collection('games')
+        .collection(searchIn)
         .orderBy('name')
         .startAt([searchText])
         .endAt(['$searchText\uf8ff'])

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_sliver_app_bar.dart';
@@ -22,14 +23,12 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
   @override
   void initState() {
     super.initState();
-
-    final videoId =
-        YoutubePlayerController.convertUrlToId(widget.game.videoLink) ?? '';
+    final videoId = YoutubePlayerController.convertUrlToId(widget.game.videoLink) ?? '';
     _controller = YoutubePlayerController.fromVideoId(
       videoId: videoId,
       autoPlay: false,
       params: const YoutubePlayerParams(
-        showFullscreenButton: true,
+        showFullscreenButton: false, // disabled
         enableJavaScript: true,
         playsInline: true,
         strictRelatedVideos: false,
@@ -46,82 +45,60 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: true,
-      onPopInvoked: (didPop) {
-        if (_controller.value.fullScreenOption.enabled) {
-          _controller.exitFullScreen();
-        }
-      },
-      child: YoutubePlayerScaffold(
-        controller: _controller,
-        builder: (context, player) {
-          return CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              CustomSliverAppBar(widget: widget),
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: [
+        CustomSliverAppBar(widget: widget),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                verticalSpace(24),
+                Text("شرح اللعبة", style: TextStyles.bold19),
+                verticalSpace(8),
+                Text(widget.game.explanation, style: TextStyles.regular16),
+                MyDivider(height: 50),
 
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      verticalSpace(24),
+                if (widget.game.laws.isNotEmpty) ...[
+                  Text("القوانين", style: TextStyles.bold19),
+                  verticalSpace(8),
+                  Text(widget.game.laws, style: TextStyles.regular16),
+                  MyDivider(height: 50),
+                ],
 
-                      Text("شرح اللعبة", style: TextStyles.bold19),
-                      verticalSpace(8),
-                      Text(widget.game.explanation, style: TextStyles.regular16),
-                      MyDivider(height: 50),
+                Text("الفئة المستهدفة", style: TextStyles.bold19),
+                verticalSpace(8),
+                Html(data:widget.game.target),
+                MyDivider(height: 50),
 
-                      if (widget.game.laws.isNotEmpty) ...[
-                        Text("القوانين", style: TextStyles.bold19),
-                        verticalSpace(8),
-                        Text(widget.game.laws, style: TextStyles.regular16),
-                        MyDivider(height: 50),
-                      ],
+                Text("الأدوات المطلوبة", style: TextStyles.bold19),
+                verticalSpace(8),
+                Text(widget.game.tools, style: TextStyles.regular16),
+                MyDivider(height: 50),
 
-                      Text("الفئة المستهدفة", style: TextStyles.bold19),
-                      verticalSpace(8),
-                      Text(widget.game.target, style: TextStyles.regular16),
-                      MyDivider(height: 50),
+                Text("الفئات", style: TextStyles.bold19),
+                verticalSpace(8),
+                GameHashTagsList(tags: widget.game.tags),
+                MyDivider(height: 50),
 
-                      Text("الأدوات المطلوبة", style: TextStyles.bold19),
-                      verticalSpace(8),
-                      Text(widget.game.tools, style: TextStyles.regular16),
-                      MyDivider(height: 50),
-
-                      Text("الفئات", style: TextStyles.bold19),
-                      verticalSpace(8),
-                      GameHashTagsList(tags: widget.game.tags),
-                      MyDivider(height: 50),
-
-                      Text("فيديو اللعبة", style: TextStyles.bold19),
-                      verticalSpace(8),
-
-                      GestureDetector(
-                        onDoubleTap: () {
-                          _controller.enterFullScreen();
-                        },
-                        child: AspectRatio(
-                          aspectRatio: 16 / 9,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: AbsorbPointer(
-                              child: player, // Interaction blocked unless double tapped
-                            ),
-                          ),
-                        ),
-                      ),
-                      verticalSpace(32),
-                    ],
+                Text("فيديو اللعبة", style: TextStyles.bold19),
+                verticalSpace(8),
+        ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: YoutubePlayer(
+                    controller: _controller,
+                    aspectRatio: 16 / 9,
                   ),
                 ),
-              ),
-            ],
-          );
-        },
-      ),
+
+                verticalSpace(32),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

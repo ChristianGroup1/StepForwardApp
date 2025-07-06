@@ -5,7 +5,7 @@ import 'package:stepforward/core/services/get_it_service.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/core/widgets/custom_app_bar.dart';
 import 'package:stepforward/features/auth/domain/repos/auth_repo.dart';
-import 'package:stepforward/features/home/data/home_cubit/home_cubit.dart';
+import 'package:stepforward/features/home/data/games_cubit/games_cubit.dart';
 import 'package:stepforward/features/home/domain/repos/home_repo.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/favorites_view_body.dart';
 
@@ -16,7 +16,7 @@ class FavoritesView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          HomeCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>())..fetchUserFavorites(),
+          GamesCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>())..fetchUserFavorites(),
       child: Scaffold(
         appBar: buildAppBar(
           context,

@@ -9,7 +9,7 @@ import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_animated_loading_widget.dart';
 import 'package:stepforward/core/widgets/my_divider.dart';
 import 'package:stepforward/core/widgets/search_text_field.dart';
-import 'package:stepforward/features/home/data/home_cubit/home_cubit.dart';
+import 'package:stepforward/features/home/data/games_cubit/games_cubit.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/custom_game_item.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/tags_list.dart';
 
@@ -18,6 +18,7 @@ class GamesViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+     final cubit = context.watch<GamesCubit>();
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: kHorizontalPadding,
@@ -26,15 +27,18 @@ class GamesViewBody extends StatelessWidget {
       child: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(child: SearchTextField(
-            controller: context.read<HomeCubit>().searchController,
-            onChanged:  (value) => context.read<HomeCubit>().searchGames(),
+            controller: context.read<GamesCubit>().searchController,
+            onChanged:  (value) => context.read<GamesCubit>().searchGames(),
           )),
           SliverToBoxAdapter(child: verticalSpace(20)),
           SliverToBoxAdapter(
-            child: TagsList(tags: ['اطفال', 'اعدادي', 'ثانوي', 'جامعة']),
+            child: TagsList(tags: ['اطفال', 'اعدادي', 'ثانوي', 'جامعة'],
+            onTagToggle:cubit.toggleTag,
+            selectedTags: cubit.selectedTags,
+            ),
           ),
           SliverToBoxAdapter(child: verticalSpace(24)),
-          BlocConsumer<HomeCubit, HomeState>(
+          BlocConsumer<GamesCubit, GamesState>(
             
             buildWhen: (previous, current) =>
                 current is GetGamesSuccessState ||

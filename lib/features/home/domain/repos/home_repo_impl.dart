@@ -4,6 +4,7 @@ import 'package:stepforward/core/errors/failures.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/services/database_service.dart';
 import 'package:stepforward/core/utils/backend_endpoints.dart';
+import 'package:stepforward/features/home/domain/models/brothers_model.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
 import 'package:stepforward/features/home/domain/repos/home_repo.dart';
 
@@ -80,12 +81,26 @@ class HomeRepoImpl extends HomeRepo {
     String searchText,
   ) async {
     try {
-      var data = await databaseService.searchGames(searchText);
+      var data = await databaseService.searchData(searchText,BackendEndpoints.getGames);
       return right(data.map((e) => GameModel.fromJson(e)).toList());
     } catch (e) {
       return left(CustomFailure(message: e.toString()));
     }
   }
+
+   @override
+  Future<Either<Failure, List<BrothersModel>>> searchBrothers(
+    String searchText,
+  ) async {
+    try {
+      var data = await databaseService.searchData(searchText,BackendEndpoints.getBrothers);
+      return right(data.map((e) => BrothersModel.fromJson(e)).toList());
+    } catch (e) {
+      return left(CustomFailure(message: e.toString()));
+    }    
+  }
+   
+  
 
   @override
   Future<Either<Failure, List<GameModel>>> getUserFavorites({
@@ -116,22 +131,38 @@ class HomeRepoImpl extends HomeRepo {
   }
 
   @override
-Future<Either<Failure, void>> removeGameFromFavorites({required String gameId}) async {
-  try {
-    final userId = getUserData().id;
+  Future<Either<Failure, void>> removeGameFromFavorites({
+    required String gameId,
+  }) async {
+    try {
+      final userId = getUserData().id;
 
-    await databaseService.updateData(
-      path: BackendEndpoints.getUserData,
-      documentId: userId,
-      data: {
-        'favorites': FieldValue.arrayRemove([gameId]),
-      },
-    );
+      await databaseService.updateData(
+        path: BackendEndpoints.getUserData,
+        documentId: userId,
+        data: {
+          'favorites': FieldValue.arrayRemove([gameId]),
+        },
+      );
 
-    return right(null);
-  } catch (e) {
-    return left(CustomFailure(message: e.toString()));
+      return right(null);
+    } catch (e) {
+      return left(CustomFailure(message: e.toString()));
+    }
   }
-}
 
+  @override
+  Future<Either<Failure, List<BrothersModel>>> getAllBrothers() async {
+    try {
+      var brothersData =
+          await databaseService.getData(path: BackendEndpoints.getBrothers)
+              as List<Map<String, dynamic>>;
+      var brothersList = brothersData
+          .map((e) => BrothersModel.fromJson(e))
+          .toList();
+      return right(brothersList);
+    } catch (e) {
+      return left(CustomFailure(message: e.toString()));
+    }
+  }
 }

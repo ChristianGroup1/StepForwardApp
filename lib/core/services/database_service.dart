@@ -40,7 +40,7 @@ abstract class DatabaseService {
     required dynamic value,
   });
 
-  Future<List<Map<String, dynamic>>> searchGames(String searchText);
+  Future<List<Map<String, dynamic>>> searchData(String searchText,String searchIn);
 
   Stream<dynamic> getProductPriceStream({
     required String productCode, // Unique product code to fetch price

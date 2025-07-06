@@ -5,21 +5,23 @@ import 'package:meta/meta.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/services/user_favorites_service.dart';
 import 'package:stepforward/features/auth/domain/repos/auth_repo.dart';
+import 'package:stepforward/features/home/domain/models/brothers_model.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
 import 'package:stepforward/features/home/domain/repos/home_repo.dart';
 
-part 'home_state.dart';
+part 'games_state.dart';
 
-class HomeCubit extends Cubit<HomeState> {
+class GamesCubit extends Cubit<GamesState> {
   final HomeRepo homeRepo;
   final AuthRepo authRepo;
 
   List<GameModel> allGames = [];
   List<String> selectedTags = [];
+  List<BrothersModel> allBrothers = [];
 
   final TextEditingController searchController = TextEditingController();
 
-  HomeCubit(this.homeRepo, this.authRepo) : super(HomeInitialState());
+  GamesCubit(this.homeRepo, this.authRepo) : super(GamesInitialState());
 
   // Fetch games and sync favorites
   Future<void> getGames() async {
@@ -28,12 +30,11 @@ class HomeCubit extends Cubit<HomeState> {
     // Step 1: Load favorites
     final favoritesResult = await homeRepo.getUserFavoritesIDs();
     if (favoritesResult.isLeft()) {
-      emit(GetGameFailureState(
-        errorMessage: favoritesResult.fold(
-          (l) => l.message,
-          (r) => '',
+      emit(
+        GetGameFailureState(
+          errorMessage: favoritesResult.fold((l) => l.message, (r) => ''),
         ),
-      ));
+      );
       return;
     }
 
@@ -50,6 +51,8 @@ class HomeCubit extends Cubit<HomeState> {
       },
     );
   }
+
+  // Fetch all brothers
 
   // Toggle favorite state
   Future<void> changeGameFavoriteState({required String gameId}) async {
@@ -78,9 +81,11 @@ class HomeCubit extends Cubit<HomeState> {
         emit(AddGameToFavoritesFailureState(errorMessage: failure.message));
       },
       (_) {
-        emit(isFavorite
-            ? RemoveGameFromFavoritesSuccessState()
-            : AddGameToFavoritesSuccessState());
+        emit(
+          isFavorite
+              ? RemoveGameFromFavoritesSuccessState()
+              : AddGameToFavoritesSuccessState(),
+        );
       },
     );
   }
@@ -122,6 +127,7 @@ class HomeCubit extends Cubit<HomeState> {
     } else {
       selectedTags.add(tag);
     }
+   
     emit(GetGamesSuccessState(games: _filteredGames()));
   }
 
@@ -137,7 +143,8 @@ class HomeCubit extends Cubit<HomeState> {
     emit(FetchUserFavoritesLoadingState());
     final result = await homeRepo.getUserFavorites(userId: getUserData().id);
     result.fold(
-      (failure) => emit(FetchUserFavoritesFailureState(errorMessage: failure.message)),
+      (failure) =>
+          emit(FetchUserFavoritesFailureState(errorMessage: failure.message)),
       (favorites) => emit(FetchUserFavoritesSuccessState(favorites: favorites)),
     );
   }
@@ -146,9 +153,13 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> removeGameFromFavorites(String gameId) async {
     final result = await homeRepo.removeGameFromFavorites(gameId: gameId);
     result.fold(
-      (failure) => emit(RemoveGameFromFavoritesFailureState(errorMessage: failure.message)),
+      (failure) => emit(
+        RemoveGameFromFavoritesFailureState(errorMessage: failure.message),
+      ),
       (_) {
-        final updated = List<String>.from(userFavoritesService.userFavoritesNotifier.value);
+        final updated = List<String>.from(
+          userFavoritesService.userFavoritesNotifier.value,
+        );
         updated.remove(gameId);
         userFavoritesService.userFavoritesNotifier.value = updated;
         emit(RemoveGameFromFavoritesSuccessState());

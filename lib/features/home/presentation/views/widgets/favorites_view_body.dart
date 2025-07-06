@@ -5,7 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/widgets/custom_animated_loading_widget.dart';
 import 'package:stepforward/core/widgets/my_divider.dart';
-import 'package:stepforward/features/home/data/home_cubit/home_cubit.dart';
+import 'package:stepforward/features/home/data/games_cubit/games_cubit.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/custom_game_item.dart';
 
 class FavoritesViewBody extends StatelessWidget {
@@ -13,7 +13,7 @@ class FavoritesViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<HomeCubit, HomeState>(
+    return BlocConsumer<GamesCubit, GamesState>(
       buildWhen: (previous, current) =>
           current is FetchUserFavoritesSuccessState ||
           current is FetchUserFavoritesFailureState ||
@@ -34,10 +34,10 @@ class FavoritesViewBody extends StatelessWidget {
                       children: [
                         SlidableAction(
                           onPressed: (context) {
-                            context.read<HomeCubit>().removeGameFromFavorites(
+                            context.read<GamesCubit>().removeGameFromFavorites(
                               state.favorites[index].id,
                             );
-                            context.read<HomeCubit>().fetchUserFavorites();
+                            context.read<GamesCubit>().fetchUserFavorites();
                           },
                           backgroundColor: Colors.red,
                           foregroundColor: Colors.white,

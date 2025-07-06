@@ -6,9 +6,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stepforward/core/helper_functions/cache_helper.dart';
 import 'package:stepforward/core/helper_functions/on_generate_routes.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
+import 'package:stepforward/core/services/firebase_auth_service.dart';
 import 'package:stepforward/core/services/get_it_service.dart';
 import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/bloc_observer.dart';
+import 'package:stepforward/core/utils/chache_helper_keys.dart';
 import 'package:stepforward/firebase_options.dart';
 import 'package:stepforward/generated/l10n.dart';
 
@@ -18,9 +20,7 @@ void main() async {
   await CacheHelper.init();
   Bloc.observer = MyBlocObserver();
   setupGetIt();
-   runApp(
-    MyApp(),
-  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -29,6 +29,14 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    String getRoute() {
+      final bool isLoggedIn =
+          FirebaseAuthService().isLoggedIn() &&
+          CacheHelper.getData(key: kSaveUserDataKey) != null;
+
+      return isLoggedIn ? Routes.mainView : Routes.loginView;
+    }
+
     return ScreenUtilInit(
       designSize: Size(360, 800),
       minTextAdapt: false,
@@ -58,7 +66,7 @@ class MyApp extends StatelessWidget {
         ),
         debugShowCheckedModeBanner: false,
         onGenerateRoute: onGenerateRoutes,
-        initialRoute: Routes.mainView,
+        initialRoute: getRoute(),
       ),
     );
   }
