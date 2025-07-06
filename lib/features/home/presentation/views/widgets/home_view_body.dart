@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:stepforward/core/utils/app_images.dart';
-import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_home_app_bar.dart';
+import 'package:stepforward/features/home/presentation/views/widgets/books_section_home_view.dart';
+import 'package:stepforward/features/home/presentation/views/widgets/brothers_section_home_view.dart';
+import 'package:stepforward/features/home/presentation/views/widgets/games_section_home_view.dart';
 
 class HomeViewBody extends StatelessWidget {
   const HomeViewBody({super.key});
@@ -20,83 +21,12 @@ class HomeViewBody extends StatelessWidget {
         slivers: [
           SliverToBoxAdapter(child: CustomHomeAppBar()),
           SliverToBoxAdapter(child: verticalSpace(24)),
-          SliverToBoxAdapter(
-            child: Row(
-              children: [
-                Text('خدام محافظة المنيا ', style: TextStyles.bold16),
-                Spacer(),
-                Text('المزيد', style: TextStyles.semiBold13.copyWith(color: Color(0xffA5A5A5))),
-              ],
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: MediaQuery.sizeOf(context).height * 0.2,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) =>
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0,vertical: 16),
-                      child: ClipRRect(
-                        borderRadius: BorderRadiusGeometry.circular(16),
-                        child: Image.asset(Assets.assetsImagesStepForwardLogo)),
-                    ),
-                itemCount: 10,
-              ),
-            ),
-          ),
+          BrothersSectionHomeView(),
+
           SliverToBoxAdapter(child: verticalSpace(24)),
-          SliverToBoxAdapter(
-            child: Row(
-              children: [
-                Text('العاب لاجتماع اعدادي', style: TextStyles.bold16),
-                Spacer(),
-                Text('المزيد', style: TextStyles.semiBold13.copyWith(color: Color(0xffA5A5A5))),
-              ],
-            ),
-          ),
-            SliverToBoxAdapter(
-            child: SizedBox(
-              height: MediaQuery.sizeOf(context).height * 0.2,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) =>
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0,vertical: 16),
-                      child: ClipRRect(
-                        borderRadius: BorderRadiusGeometry.circular(16),
-                        child: Image.asset(Assets.assetsImagesStepForwardLogo)),
-                    ),
-                itemCount: 10,
-              ),
-            ),
-          ),
-            SliverToBoxAdapter(child: verticalSpace(24)),
-          SliverToBoxAdapter(
-            child: Row(
-              children: [
-                Text('فرق رياضية في المنيا', style: TextStyles.bold16),
-                Spacer(),
-                Text('المزيد', style: TextStyles.semiBold13.copyWith(color: Color(0xffA5A5A5))),
-              ],
-            ),
-          ),
-            SliverToBoxAdapter(
-            child: SizedBox(
-              height: MediaQuery.sizeOf(context).height * 0.2,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) =>
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0,vertical: 16),
-                      child: ClipRRect(
-                        borderRadius: BorderRadiusGeometry.circular(16),
-                        child: Image.asset(Assets.assetsImagesStepForwardLogo)),
-                    ),
-                itemCount: 10,
-              ),
-            ),
-          ),
+          GamesSectionHomeView(),
+          SliverToBoxAdapter(child: verticalSpace(24)),
+          BooksSectionHomeView(),
         ],
       ),
     );

@@ -4,6 +4,7 @@ import 'package:stepforward/core/errors/failures.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/services/database_service.dart';
 import 'package:stepforward/core/utils/backend_endpoints.dart';
+import 'package:stepforward/features/home/domain/models/book_model.dart';
 import 'package:stepforward/features/home/domain/models/brothers_model.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
 import 'package:stepforward/features/home/domain/repos/home_repo.dart';
@@ -161,6 +162,21 @@ class HomeRepoImpl extends HomeRepo {
           .map((e) => BrothersModel.fromJson(e))
           .toList();
       return right(brothersList);
+    } catch (e) {
+      return left(CustomFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<BookModel>>> getBooks()async {
+    try {
+      var booksData =
+          await databaseService.getData(path: BackendEndpoints.getBooks)
+              as List<Map<String, dynamic>>;
+      var booksList = booksData
+          .map((e) => BookModel.fromJson(e))
+          .toList();
+      return right(booksList);
     } catch (e) {
       return left(CustomFailure(message: e.toString()));
     }

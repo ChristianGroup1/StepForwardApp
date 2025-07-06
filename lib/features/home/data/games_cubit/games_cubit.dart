@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/services/user_favorites_service.dart';
 import 'package:stepforward/features/auth/domain/repos/auth_repo.dart';
+import 'package:stepforward/features/home/domain/models/book_model.dart';
 import 'package:stepforward/features/home/domain/models/brothers_model.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
 import 'package:stepforward/features/home/domain/repos/home_repo.dart';
@@ -127,7 +128,7 @@ class GamesCubit extends Cubit<GamesState> {
     } else {
       selectedTags.add(tag);
     }
-   
+
     emit(GetGamesSuccessState(games: _filteredGames()));
   }
 
@@ -164,6 +165,16 @@ class GamesCubit extends Cubit<GamesState> {
         userFavoritesService.userFavoritesNotifier.value = updated;
         emit(RemoveGameFromFavoritesSuccessState());
       },
+    );
+  }
+
+  Future<void> getBooks() async {
+    emit(GetBooksLoadingState());
+
+    final result = await homeRepo.getBooks();
+    result.fold(
+      (failure) => emit(GetBooksFailureState(errorMessage: failure.message)),
+      (books) => emit(GetBooksSuccessState(books: books)),
     );
   }
 }

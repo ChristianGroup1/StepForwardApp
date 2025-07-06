@@ -41,6 +41,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.0
+  flutter_cached_pdfview: ^0.4.3
   flutter_html: ^3.0.0
   flutter_localizations:
     sdk: flutter

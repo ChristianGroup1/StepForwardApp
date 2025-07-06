@@ -5,4 +5,5 @@ class BackendEndpoints {
   static const images = 'ids';
   static const getGames = 'games';
   static const getBrothers = 'brothers';
+  static const getBooks = 'books';
 }

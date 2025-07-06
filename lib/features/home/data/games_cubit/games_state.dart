@@ -50,3 +50,16 @@ final class FetchUserFavoritesFailureState extends GamesState {
   final String errorMessage;
   FetchUserFavoritesFailureState({required this.errorMessage});
 }
+
+final class GetBooksFailureState extends GamesState {
+  final String errorMessage;
+  GetBooksFailureState({required this.errorMessage});
+}
+
+final class GetBooksSuccessState extends GamesState {
+  final List<BookModel> books;
+  GetBooksSuccessState({required this.books});
+}
+
+final class GetBooksLoadingState extends GamesState {}
+

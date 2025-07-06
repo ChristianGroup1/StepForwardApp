@@ -342,6 +342,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.4.1"
+  flutter_cached_pdfview:
+    dependency: "direct main"
+    description:
+      name: flutter_cached_pdfview
+      sha256: b1a3dc1cca0ac6b35bc95aeb8253208e211468eadd68829bae8f2696f3601b5a
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.4.3"
   flutter_html:
     dependency: "direct main"
     description:
@@ -427,6 +435,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_pdfview:
+    dependency: transitive
+    description:
+      name: flutter_pdfview
+      sha256: c402ad1f51ba8ea73b9fb04c003ca0a9286118ba5ac9787ee2aa58956b3fcf8a
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.4.1+1"
   flutter_phone_direct_caller:
     dependency: "direct main"
     description:
