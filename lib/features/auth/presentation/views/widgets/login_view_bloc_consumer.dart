@@ -9,7 +9,6 @@ import 'package:stepforward/features/auth/data/login_cubit/login_cubit.dart';
 import 'package:stepforward/features/auth/presentation/views/widgets/login_view_body.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
-
 class LoginViewBlocConsumer extends StatelessWidget {
   const LoginViewBlocConsumer({super.key});
 
@@ -18,7 +17,13 @@ class LoginViewBlocConsumer extends StatelessWidget {
     return BlocConsumer<LoginCubit, LoginState>(
       listener: (context, state) {
         if (state is LoginSuccessState) {
-          context.pushReplacementNamed(Routes.mainView);
+          if (state.userModel.churchName=='' ||
+              state.userModel.backId == null ||
+              state.userModel.frontId == null) {
+            context.pushReplacementNamed(Routes.completeUserProfileView, arguments: state.userModel);
+          } else {
+            context.pushReplacementNamed(Routes.mainView);
+          }
         }
         if (state is LoginFailureState) {
           customQuickAlertView(
@@ -45,4 +50,3 @@ class LoginViewBlocConsumer extends StatelessWidget {
     );
   }
 }
-

@@ -20,7 +20,12 @@ class _MainViewState extends State<MainView> {
       selectedIndex = index;
     });
   }
-
+void navigateToGamesView() {
+    _onItemTapped(1);
+  }
+  void navigateToBrothersView() {
+    _onItemTapped(2);
+  }
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -31,7 +36,10 @@ class _MainViewState extends State<MainView> {
         ),
         body: IndexedStack(
           index: selectedIndex,
-          children: [HomeView(), GamesView(), BrothersView(), MoreView()],
+          children: [HomeView(
+            onNavigateToGamesView: navigateToGamesView,
+            onNavigateToBrothersView: navigateToBrothersView,
+          ), GamesView(), BrothersView(), MoreView()],
         ),
       ),
     );

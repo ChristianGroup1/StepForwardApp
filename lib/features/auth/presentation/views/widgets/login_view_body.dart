@@ -100,7 +100,9 @@ class LoginViewBody extends StatelessWidget {
               LoginMethodItem(
                 image: Assets.assetsImagesGoogleIcon,
                 text: 'تسجيل الدخول بواسطة جوجل',
-                onTap: () {},
+                onTap: () {
+                  cubit.signInWIthGoogle();
+                },
               ),
             ],
           ),

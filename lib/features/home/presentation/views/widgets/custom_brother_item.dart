@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/custom_box_decoration.dart';
 import 'package:stepforward/core/utils/spacing.dart';
@@ -23,9 +24,9 @@ class CustomBrotherItem extends StatelessWidget {
       child: Row(
         children: [
           CustomCachedNetworkImageWidget(
-            height: MediaQuery.sizeOf(context).height * 0.2,
+            height: MediaQuery.sizeOf(context).height * 0.16,
             width: MediaQuery.sizeOf(context).width * 0.25,
-            fit: BoxFit.fill,
+            fit: BoxFit.cover,
             imageUrl: brotherModel.coverUrl,
             borderRadius: 16,
           ),
@@ -47,14 +48,14 @@ class CustomBrotherItem extends StatelessWidget {
                           launchUrl(url);
                         }
                       },
-                      child: Icon(Icons.message_outlined, color: AppColors.primaryColor)),
-                    horizontalSpace(8),
+                      child: FaIcon(FontAwesomeIcons.whatsapp, color: AppColors.primaryColor)),
+                    horizontalSpace(12),
                     GestureDetector(
                       onTap: () async {
                        
                         await FlutterPhoneDirectCaller.callNumber(brotherModel.phoneNumber);
                       },
-                      child: Icon(Icons.phone_outlined, color: AppColors.primaryColor)),
+                      child: FaIcon(Icons.phone_outlined, color: AppColors.primaryColor)),
                   ],
                 ),
                 MyDivider(),

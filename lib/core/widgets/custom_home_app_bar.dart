@@ -8,20 +8,9 @@ class CustomHomeAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text(
-          'اهلًا بك ${getUserData().firstName} 👋',
-          style: TextStyles.bold16.copyWith(color: AppColors.primaryColor),
-        ),
-        const Spacer(),
-
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.notifications_rounded),
-          color: AppColors.primaryColor,
-        ),
-      ],
+    return Text(
+      'اهلًا بك ${getUserData().firstName} 👋',
+      style: TextStyles.bold16.copyWith(color: AppColors.primaryColor),
     );
   }
 }

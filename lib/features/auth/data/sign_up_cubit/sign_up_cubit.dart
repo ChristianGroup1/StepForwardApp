@@ -1,7 +1,6 @@
 import 'dart:io';
-
-import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stepforward/core/repos/image_repo.dart';
 import 'package:stepforward/features/auth/data/models/user_model.dart';
 import 'package:stepforward/features/auth/domain/repos/auth_repo.dart';
@@ -24,7 +23,7 @@ class SignUpCubit extends Cubit<SignUpState> {
   final formKey = GlobalKey<FormState>();
   File? frontId;
   File? backId;
-Icon suffixIcon = const Icon(Icons.visibility);
+  Icon suffixIcon = const Icon(Icons.visibility);
   bool isObscured = true;
   void changePasswordVisibility() {
     isObscured = !isObscured;
@@ -33,6 +32,7 @@ Icon suffixIcon = const Icon(Icons.visibility);
         : const Icon(Icons.visibility_off);
     emit(SingUpChangePasswordVisibility());
   }
+
   Future<void> signUp() async {
     emit(SignUpLoadingState());
     final result = await imagesRepo.uploadImage(image: frontId!);
@@ -73,4 +73,47 @@ Icon suffixIcon = const Icon(Icons.visibility);
       },
     );
   }
+
+ Future<void> completeGoogleSignUp({required String userId}) async {
+  emit(SignUpLoadingState());
+
+  try {
+    // Upload front ID
+    final frontResult = await imagesRepo.uploadImage(image: frontId!);
+    final frontUrl = frontResult.fold((failure) {
+      throw Exception(failure.message);
+    }, (url) => url);
+
+    // Upload back ID
+    final backResult = await imagesRepo.uploadImage(image: backId!);
+    final backUrl = backResult.fold((failure) {
+      throw Exception(failure.message);
+    }, (url) => url);
+
+    // Create completed user model
+    final userModel = UserModel(
+      id: userId,
+      firstName: firstNameController.text,
+      lastName: secondNameController.text,
+      email: emailController.text,
+      phoneNumber: phoneNumberController.text,
+      churchName: churchNameController.text,
+      government: governmentController.text,
+      frontId: frontUrl,
+      backId: backUrl,
+      isApproved: false,
+      favorites: [],
+    );
+
+    // Save user to Firestore and local storage
+    final result = await authRepo.completeGoogleSignUp(userModel: userModel);
+    result.fold(
+      (failure) => emit(SignUpFailureState(errorMessage: failure.message)),
+      (user) => emit(SignUpSuccessState(userModel: user)),
+    );
+  } catch (e) {
+    emit(SignUpFailureState(errorMessage: e.toString()));
+  }
+}
+
 }

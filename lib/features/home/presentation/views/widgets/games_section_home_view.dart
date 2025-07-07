@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stepforward/core/helper_functions/extentions.dart';
+import 'package:stepforward/core/helper_functions/rouutes.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_animated_loading_widget.dart';
 import 'package:stepforward/core/widgets/custom_cached_network_image.dart';
 import 'package:stepforward/features/home/data/games_cubit/games_cubit.dart';
 class GamesSectionHomeView extends StatelessWidget {
+     final VoidCallback onNavigateToGamesView;
+
   const GamesSectionHomeView({
-    super.key,
+    super.key, required this.onNavigateToGamesView,
   });
 
   @override
@@ -19,10 +23,13 @@ class GamesSectionHomeView extends StatelessWidget {
             children: [
               Text('العاب', style: TextStyles.bold16),
               Spacer(),
-              Text(
-                'المزيد',
-                style: TextStyles.semiBold13.copyWith(
-                  color: Color(0xffA5A5A5),
+              GestureDetector(
+                onTap: () => onNavigateToGamesView(),
+                child: Text(
+                  'المزيد',
+                  style: TextStyles.semiBold13.copyWith(
+                    color: Color(0xffA5A5A5),
+                  ),
                 ),
               ),
             ],
@@ -35,7 +42,7 @@ class GamesSectionHomeView extends StatelessWidget {
             builder: (context, state) {
               if (state is GetGamesSuccessState) {
                 return SizedBox(
-                  height: MediaQuery.sizeOf(context).height * 0.2,
+                  height: MediaQuery.sizeOf(context).height * 0.21,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) => Padding(
@@ -43,22 +50,25 @@ class GamesSectionHomeView extends StatelessWidget {
                         horizontal: 12.0,
                         vertical: 16,
                       ),
-                      child: Column(
-                        children: [
-                          CustomCachedNetworkImageWidget(
-                            imageUrl: state.games[index].coverUrl,
-                            borderRadius: 16,
-                            height: MediaQuery.sizeOf(context).height * 0.14,
-                            width:
-                                  MediaQuery.sizeOf(context).width * 0.22,
-                            fit: BoxFit.fill,
-                          ),
-                          verticalSpace(8),
-                          Text(
-                            state.games[index].name,
-                            style: TextStyles.bold13,
-                          ),
-                        ],
+                      child: GestureDetector(
+                        onTap: () => context.pushNamed(Routes.gameDetails,arguments: state.games[index]),
+                        child: Column(
+                          children: [
+                            CustomCachedNetworkImageWidget(
+                              imageUrl: state.games[index].coverUrl,
+                              borderRadius: 16,
+                              height: MediaQuery.sizeOf(context).height * 0.14,
+                              width:
+                                    MediaQuery.sizeOf(context).width * 0.22,
+                              fit: BoxFit.cover,
+                            ),
+                            verticalSpace(8),
+                            Text(
+                              state.games[index].name,
+                              style: TextStyles.bold13,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     itemCount: state.games.length,

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stepforward/core/helper_functions/extentions.dart';
+import 'package:stepforward/core/helper_functions/rouutes.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_animated_loading_widget.dart';
 import 'package:stepforward/core/widgets/custom_cached_network_image.dart';
 import 'package:stepforward/features/home/data/games_cubit/games_cubit.dart';
-import 'package:stepforward/features/home/presentation/views/book_view.dart';
 
 class BooksSectionHomeView extends StatelessWidget {
   const BooksSectionHomeView({
@@ -28,22 +29,17 @@ class BooksSectionHomeView extends StatelessWidget {
             builder: (context, state) {
               if (state is GetBooksSuccessState) {
                 return SizedBox(
-                  height: MediaQuery.sizeOf(context).height * 0.2,
+                  height: MediaQuery.sizeOf(context).height * 0.21,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) {
                       final book = state.books[index];
                       return GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PdfViewerScreen(
-                                url: book.url,
-                                title: book.name,
-                              ),
-                            ),
-                          );
+                          context.pushNamed(Routes.pdfViewerScreen,arguments: {
+                            'url': book.url,
+                            'title': book.name
+                          } );
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
@@ -53,6 +49,7 @@ class BooksSectionHomeView extends StatelessWidget {
                           child: Column(
                             children: [
                               CustomCachedNetworkImageWidget(
+                                fit: BoxFit.cover,
                                 imageUrl: book.coverUrl!,
                                 borderRadius: 16,
                                 height:

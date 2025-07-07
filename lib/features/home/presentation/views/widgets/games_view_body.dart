@@ -1,8 +1,6 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/core/utils/custom_snak_bar.dart';
 import 'package:stepforward/core/utils/spacing.dart';
@@ -63,7 +61,7 @@ class GamesViewBody extends StatelessWidget {
             },
             builder: (context, state) {
               if (state is GetGamesSuccessState) {
-                return getUserData().isApproved? SliverList.separated(
+                return  SliverList.separated(
                   separatorBuilder: (context, index) => MyDivider(),
                   itemBuilder: (context, index) =>
                       CustomGameItem(gameModel: state.games[index],
@@ -71,7 +69,7 @@ class GamesViewBody extends StatelessWidget {
                      
                       ),
                   itemCount: state.games.length,
-                ) : SliverToBoxAdapter(child: Center(child: Text('لم يتم الموافقة على الحساب',style: TextStyle(color: Colors.red),),));
+                );
               } else if (state is GetGameFailureState) {
                 return SliverToBoxAdapter(
                   child: Center(child: Text(state.errorMessage)),

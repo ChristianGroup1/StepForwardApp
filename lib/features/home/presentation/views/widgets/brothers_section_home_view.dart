@@ -6,9 +6,13 @@ import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_animated_loading_widget.dart';
 import 'package:stepforward/core/widgets/custom_cached_network_image.dart';
 import 'package:stepforward/features/home/data/brothers_cubit/brothers_cubit.dart';
+
 class BrothersSectionHomeView extends StatelessWidget {
+  final VoidCallback onNavigateToBrothersView;
+
   const BrothersSectionHomeView({
     super.key,
+    required this.onNavigateToBrothersView,
   });
 
   @override
@@ -20,18 +24,21 @@ class BrothersSectionHomeView extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text('خدام محافظة المنيا ', style: TextStyles.bold16),
+                Text('خدام من المنيا ', style: TextStyles.bold16),
                 Spacer(),
-                Text(
-                  'المزيد',
-                  style: TextStyles.semiBold13.copyWith(
-                    color: Color(0xffA5A5A5),
+                GestureDetector(
+                  onTap: () => onNavigateToBrothersView(),
+                  child: Text(
+                    'المزيد',
+                    style: TextStyles.semiBold13.copyWith(
+                      color: Color(0xffA5A5A5),
+                    ),
                   ),
                 ),
               ],
             ),
             SizedBox(
-              height: MediaQuery.sizeOf(context).height * 0.2,
+              height: MediaQuery.sizeOf(context).height * 0.21,
               child: BlocBuilder<BrothersCubit, BrothersState>(
                 buildWhen: (previous, current) =>
                     current is GetBrothersSuccessState ||
@@ -51,12 +58,9 @@ class BrothersSectionHomeView extends StatelessWidget {
                             CustomCachedNetworkImageWidget(
                               imageUrl: state.brothers[index].coverUrl,
                               borderRadius: 16,
-                              height:
-                                  MediaQuery.sizeOf(context).height *
-                                  0.14,
-                              fit: BoxFit.fill,
-                              width:
-                                  MediaQuery.sizeOf(context).width * 0.2,
+                              height: MediaQuery.sizeOf(context).height * 0.13,
+                              fit: BoxFit.cover,
+                              width: MediaQuery.sizeOf(context).width * 0.2,
                             ),
                             verticalSpace(8),
                             Text(
@@ -69,22 +73,16 @@ class BrothersSectionHomeView extends StatelessWidget {
                       itemCount: state.brothers.length,
                     );
                   } else if (state is GetBrothersLoadingState) {
-                    return const Center(
-                      child: CustomAnimatedLoadingWidget(),
-                    );
+                    return const Center(child: CustomAnimatedLoadingWidget());
                   } else if (state is GetBrothersFailureState) {
                     return Center(
                       child: Text(
                         'حدث خطأ أثناء تحميل الخدام',
-                        style: TextStyles.regular16.copyWith(
-                          color: Colors.red,
-                        ),
+                        style: TextStyles.regular16.copyWith(color: Colors.red),
                       ),
                     );
                   } else {
-                    return const SliverToBoxAdapter(
-                      child: SizedBox.shrink(),
-                    );
+                    return const SliverToBoxAdapter(child: SizedBox.shrink());
                   }
                 },
               ),
@@ -95,4 +93,3 @@ class BrothersSectionHomeView extends StatelessWidget {
     );
   }
 }
-

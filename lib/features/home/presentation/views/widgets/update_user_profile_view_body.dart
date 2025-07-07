@@ -25,6 +25,7 @@ class _UpdateUserProfileViewBodyState extends State<UpdateUserProfileViewBody> {
     cubit.updatedLastNameController.text = getUserData().lastName;
     cubit.updatedPhoneController.text = getUserData().phoneNumber;
     cubit.updatedChurchNameController.text = getUserData().churchName;
+    cubit.updatedGovernmentController.text = getUserData().government;
     super.initState();
   }
 

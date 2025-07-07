@@ -21,6 +21,7 @@ class CustomTextFormField extends StatelessWidget {
   final InputBorder? border;
   final bool? isDense;
   final Color? fillColor;
+  final bool? isEnabled;
   final TextStyle? style;
   final void Function(String?)? onSaved;
   final TextStyle? hintStyle;
@@ -32,6 +33,7 @@ class CustomTextFormField extends StatelessWidget {
       this.style,
       this.hintStyle,
       this.initialValue,
+      this.isEnabled=true,
       this.isDense,
       this.borderRadius,
       this.fillColor,
@@ -51,7 +53,8 @@ class CustomTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
+    return TextFormField( 
+      enabled: isEnabled,
       onFieldSubmitted: onFieldSubmitted,
       controller: controller,
       initialValue: initialValue,

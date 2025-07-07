@@ -13,3 +13,8 @@ final class UpdateUserProfileFailureState extends MoreState {
 }
 final class UpdateUserProfileSuccessState extends MoreState {}
 
+final class DeleteAccountFailureState extends MoreState {
+  final String errorMessage;
+  DeleteAccountFailureState({required this.errorMessage});
+}
+final class DeleteAccountSuccessState extends MoreState {}

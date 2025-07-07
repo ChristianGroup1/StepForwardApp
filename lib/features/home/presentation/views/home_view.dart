@@ -8,7 +8,13 @@ import 'package:stepforward/features/home/domain/repos/home_repo.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/home_view_body.dart';
 
 class HomeView extends StatelessWidget {
-  const HomeView({super.key});
+  final VoidCallback onNavigateToGamesView;
+  final VoidCallback onNavigateToBrothersView;
+  const HomeView({
+    super.key,
+    required this.onNavigateToGamesView,
+    required this.onNavigateToBrothersView,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,13 +22,21 @@ class HomeView extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (context) =>
-              BrothersCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>())..getUserApprovedDataIfNotApproved()..getBrothers(),
-          ),
-          BlocProvider(
-            create: (context) => GamesCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>())..getGames()..getBooks(),
-          ),
+              BrothersCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>())
+                ..getUserApprovedDataIfNotApproved()
+                ..getBrothers(),
+        ),
+        BlocProvider(
+          create: (context) =>
+              GamesCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>())
+                ..getGames()
+                ..getBooks(),
+        ),
       ],
-      child: HomeViewBody(),
+      child: HomeViewBody(
+        onNavigateToGamesView: onNavigateToGamesView,
+        onNavigateToBrothersView: onNavigateToBrothersView,
+      ),
     );
   }
 }
