@@ -3,16 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
-import 'package:stepforward/core/utils/spacing.dart';
-import 'package:stepforward/core/widgets/custom_animated_loading_widget.dart';
-import 'package:stepforward/core/widgets/custom_cached_network_image.dart';
 import 'package:stepforward/features/home/data/games_cubit/games_cubit.dart';
-class GamesSectionHomeView extends StatelessWidget {
-     final VoidCallback onNavigateToGamesView;
+import 'package:stepforward/features/home/presentation/views/widgets/custom_home_view_item.dart';
+import 'package:stepforward/features/home/presentation/views/widgets/custom_loading_home_view_item.dart';
 
-  const GamesSectionHomeView({
-    super.key, required this.onNavigateToGamesView,
-  });
+class GamesSectionHomeView extends StatelessWidget {
+  final VoidCallback onNavigateToGamesView;
+
+  const GamesSectionHomeView({super.key, required this.onNavigateToGamesView});
 
   @override
   Widget build(BuildContext context) {
@@ -51,23 +49,13 @@ class GamesSectionHomeView extends StatelessWidget {
                         vertical: 16,
                       ),
                       child: GestureDetector(
-                        onTap: () => context.pushNamed(Routes.gameDetails,arguments: state.games[index]),
-                        child: Column(
-                          children: [
-                            CustomCachedNetworkImageWidget(
-                              imageUrl: state.games[index].coverUrl,
-                              borderRadius: 16,
-                              height: MediaQuery.sizeOf(context).height * 0.14,
-                              width:
-                                    MediaQuery.sizeOf(context).width * 0.22,
-                              fit: BoxFit.cover,
-                            ),
-                            verticalSpace(8),
-                            Text(
-                              state.games[index].name,
-                              style: TextStyles.bold13,
-                            ),
-                          ],
+                        onTap: () => context.pushNamed(
+                          Routes.gameDetails,
+                          arguments: state.games[index],
+                        ),
+                        child: CustomHomeViewItem(
+                          imageUrl: state.games[index].coverUrl,
+                          name: state.games[index].name,
                         ),
                       ),
                     ),
@@ -77,7 +65,7 @@ class GamesSectionHomeView extends StatelessWidget {
               } else if (state is GetGameFailureState) {
                 return Text(state.errorMessage);
               } else if (state is GetGamesLoadingState) {
-                return const CustomAnimatedLoadingWidget();
+                return CustomLoadingHomeViewItem();
               } else {
                 return const SizedBox.shrink();
               }
@@ -88,3 +76,4 @@ class GamesSectionHomeView extends StatelessWidget {
     );
   }
 }
+

@@ -1,10 +1,12 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:stepforward/core/helper_functions/get_dummy_games.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/core/utils/custom_snak_bar.dart';
 import 'package:stepforward/core/utils/spacing.dart';
-import 'package:stepforward/core/widgets/custom_animated_loading_widget.dart';
+import 'package:stepforward/core/widgets/custom_empty_widget.dart';
 import 'package:stepforward/core/widgets/custom_page_app_bar.dart';
 import 'package:stepforward/core/widgets/my_divider.dart';
 import 'package:stepforward/core/widgets/search_text_field.dart';
@@ -17,7 +19,7 @@ class GamesViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-     final cubit = context.watch<GamesCubit>();
+    final cubit = context.watch<GamesCubit>();
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: kHorizontalPadding,
@@ -25,24 +27,24 @@ class GamesViewBody extends StatelessWidget {
       ),
       child: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(
-            child: CustomPageAppBar(title: 'الألعاب',),
-          ),
+          SliverToBoxAdapter(child: CustomPageAppBar(title: 'الألعاب')),
           SliverToBoxAdapter(child: verticalSpace(24)),
-          SliverToBoxAdapter(child: SearchTextField(
-            controller: context.read<GamesCubit>().searchController,
-            onChanged:  (value) => context.read<GamesCubit>().searchGames(),
-          )),
+          SliverToBoxAdapter(
+            child: SearchTextField(
+              controller: context.read<GamesCubit>().searchController,
+              onChanged: (value) => context.read<GamesCubit>().searchGames(),
+            ),
+          ),
           SliverToBoxAdapter(child: verticalSpace(20)),
           SliverToBoxAdapter(
-            child: TagsList(tags: ['اطفال', 'اعدادي', 'ثانوي', 'جامعة'],
-            onTagToggle:cubit.toggleTag,
-            selectedTags: cubit.selectedTags,
+            child: TagsList(
+              tags: ['اطفال', 'اعدادي', 'ثانوي', 'جامعة'],
+              onTagToggle: cubit.toggleTag,
+              selectedTags: cubit.selectedTags,
             ),
           ),
           SliverToBoxAdapter(child: verticalSpace(24)),
           BlocConsumer<GamesCubit, GamesState>(
-            
             buildWhen: (previous, current) =>
                 current is GetGamesSuccessState ||
                 current is GetGameFailureState ||
@@ -52,22 +54,34 @@ class GamesViewBody extends StatelessWidget {
                 log(state.errorMessage);
               }
               if (state is AddGameToFavoritesSuccessState) {
-                showSnackBar(context, text:'تم اضافة اللعبة للمفضلة',color: Colors.green);
+                showSnackBar(
+                  context,
+                  text: 'تم اضافة اللعبة للمفضلة',
+                  color: Colors.green,
+                );
               }
               if (state is RemoveGameFromFavoritesSuccessState) {
-                showSnackBar(context, text:'تم حذف اللعبة من المفضلة',color: Colors.red);
+                showSnackBar(
+                  context,
+                  text: 'تم حذف اللعبة من المفضلة',
+                  color: Colors.red,
+                );
               }
-              
             },
             builder: (context, state) {
               if (state is GetGamesSuccessState) {
-                return  SliverList.separated(
+                if (state.games.isEmpty) {
+                  return SliverToBoxAdapter(
+                    child: CustomEmptyWidget(
+                      title: 'لا يوجد العاب لهذا السن',
+                      subtitle: 'سيتم اضافة العاب اكثر قريبًا  ',
+                    ),
+                  );
+                }
+                return SliverList.separated(
                   separatorBuilder: (context, index) => MyDivider(),
                   itemBuilder: (context, index) =>
-                      CustomGameItem(gameModel: state.games[index],
-                      
-                     
-                      ),
+                      CustomGameItem(gameModel: state.games[index]),
                   itemCount: state.games.length,
                 );
               } else if (state is GetGameFailureState) {
@@ -75,8 +89,15 @@ class GamesViewBody extends StatelessWidget {
                   child: Center(child: Text(state.errorMessage)),
                 );
               } else {
-                return const SliverToBoxAdapter(
-                  child: CustomAnimatedLoadingWidget(),
+                return SliverToBoxAdapter(
+                  child: Skeletonizer(
+                    child: ListView.builder(
+                       shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(), 
+                      itemBuilder: (context, index) => CustomGameItem(gameModel: getDummyGames()),
+                      itemCount: 5,
+                    ),
+                  ),
                 );
               }
             },

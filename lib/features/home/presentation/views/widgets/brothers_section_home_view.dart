@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
-import 'package:stepforward/core/utils/spacing.dart';
-import 'package:stepforward/core/widgets/custom_animated_loading_widget.dart';
-import 'package:stepforward/core/widgets/custom_cached_network_image.dart';
 import 'package:stepforward/features/home/data/brothers_cubit/brothers_cubit.dart';
+import 'package:stepforward/features/home/presentation/views/widgets/custom_home_view_item.dart';
+import 'package:stepforward/features/home/presentation/views/widgets/custom_loading_home_view_item.dart';
 
 class BrothersSectionHomeView extends StatelessWidget {
   final VoidCallback onNavigateToBrothersView;
@@ -53,27 +52,15 @@ class BrothersSectionHomeView extends StatelessWidget {
                           horizontal: 12.0,
                           vertical: 16,
                         ),
-                        child: Column(
-                          children: [
-                            CustomCachedNetworkImageWidget(
-                              imageUrl: state.brothers[index].coverUrl,
-                              borderRadius: 16,
-                              height: MediaQuery.sizeOf(context).height * 0.13,
-                              fit: BoxFit.cover,
-                              width: MediaQuery.sizeOf(context).width * 0.2,
-                            ),
-                            verticalSpace(8),
-                            Text(
-                              state.brothers[index].name,
-                              style: TextStyles.bold13,
-                            ),
-                          ],
+                        child: CustomHomeViewItem(
+                          imageUrl: state.brothers[index].coverUrl,
+                          name: state.brothers[index].name,
                         ),
                       ),
                       itemCount: state.brothers.length,
                     );
                   } else if (state is GetBrothersLoadingState) {
-                    return const Center(child: CustomAnimatedLoadingWidget());
+                    return const CustomLoadingHomeViewItem();
                   } else if (state is GetBrothersFailureState) {
                     return Center(
                       child: Text(

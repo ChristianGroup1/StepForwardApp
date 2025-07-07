@@ -10,6 +10,10 @@ class Assets {
   /// assets/images/active_home.svg
   static const String assetsImagesActiveHome = "assets/images/active_home.svg";
 
+  /// Assets for assetsImagesEmptyWidget
+  /// assets/images/empty_widget.png
+  static const String assetsImagesEmptyWidget = "assets/images/empty_widget.png";
+
   /// Assets for assetsImagesFemaleProfileImage
   /// assets/images/female_profile_image.png
   static const String assetsImagesFemaleProfileImage = "assets/images/female_profile_image.png";
@@ -61,5 +65,9 @@ class Assets {
   /// Assets for assetsImagesStepForwardLogo
   /// assets/images/step_forward_logo.JPG
   static const String assetsImagesStepForwardLogo = "assets/images/step_forward_logo.JPG";
+
+  /// Assets for assetsImagesStepforwardSplash
+  /// assets/images/stepforward_splash.png
+  static const String assetsImagesStepforwardSplash = "assets/images/stepforward_splash.png";
 }
 

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:stepforward/core/helper_functions/custom_government_modal_sheet_filter.dart';
+import 'package:stepforward/core/helper_functions/get_dummy_brother.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/core/utils/spacing.dart';
-import 'package:stepforward/core/widgets/custom_animated_loading_widget.dart';
+import 'package:stepforward/core/widgets/custom_empty_widget.dart';
 import 'package:stepforward/core/widgets/custom_government_item.dart';
 import 'package:stepforward/core/widgets/custom_page_app_bar.dart';
 import 'package:stepforward/core/widgets/search_text_field.dart';
@@ -25,9 +27,7 @@ class BrothersViewBody extends StatelessWidget {
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          SliverToBoxAdapter(
-            child: CustomPageAppBar(title: 'الخدام',),
-          ),
+          SliverToBoxAdapter(child: CustomPageAppBar(title: 'الخدام')),
           SliverToBoxAdapter(child: verticalSpace(24)),
           SliverToBoxAdapter(
             child: SearchTextField(
@@ -70,14 +70,30 @@ class BrothersViewBody extends StatelessWidget {
                 current is GetBrothersLoadingState,
             builder: (context, state) {
               if (state is GetBrothersSuccessState) {
+                if (state.brothers.isEmpty) {
+                  return SliverToBoxAdapter(
+                    child: CustomEmptyWidget(
+                      title: 'لم يتم ايجاد خدام',
+                      subtitle: 'سيتم اضافة خدام في أقرب وقت',
+                    ),
+                  );
+                }
                 return SliverList.builder(
                   itemBuilder: (context, index) =>
                       CustomBrotherItem(brotherModel: state.brothers[index]),
                   itemCount: state.brothers.length,
                 );
               } else if (state is GetBrothersLoadingState) {
-                return const SliverToBoxAdapter(
-                  child: Center(child: CustomAnimatedLoadingWidget()),
+                return SliverToBoxAdapter(
+                  child: Skeletonizer(
+                    child: ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: 10,
+                      itemBuilder: (context, index) =>
+                          CustomBrotherItem(brotherModel: getDummyBrother()),
+                    ),
+                  ),
                 );
               } else if (state is GetBrothersFailureState) {
                 return SliverToBoxAdapter(
@@ -98,4 +114,3 @@ class BrothersViewBody extends StatelessWidget {
     );
   }
 }
-
