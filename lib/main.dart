@@ -1,6 +1,6 @@
-import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,8 +20,20 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await CacheHelper.init();
   Bloc.observer = MyBlocObserver();
+    await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.white, // 🔳 makes area near the camera white
+      statusBarIconBrightness: Brightness.dark, // 🌓 dark icons for visibility
+      systemNavigationBarColor: Colors.white, // optional: bottom nav bar
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
   setupGetIt();
-  runApp(DevicePreview(enabled: true, builder: (context) => MyApp()));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -40,14 +52,14 @@ class MyApp extends StatelessWidget {
       designSize: Size(360, 800),
       minTextAdapt: false,
       child: MaterialApp(
-        // builder: (context, child) {
-        //   return MediaQuery(
-        //     data: MediaQuery.of(
-        //       context,
-        //     ).copyWith(textScaler: const TextScaler.linear(1)),
-        //     child: child!,
-        //   );
-        // },
+        builder: (context, child) {
+          return MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: const TextScaler.linear(1)),
+            child: child!,
+          );
+        },
         title: 'Step Forward',
         localizationsDelegates: [
           S.delegate,

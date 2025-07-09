@@ -6,6 +6,7 @@ import 'package:stepforward/core/helper_functions/custom_quick_alret_view.dart';
 import 'package:stepforward/core/helper_functions/delete_account_quick_alret_dialogs.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
+import 'package:stepforward/core/helper_functions/show_about_us_dialog.dart';
 import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/spacing.dart';
@@ -46,7 +47,19 @@ class CustomMoreViewListTileActions extends StatelessWidget {
           ),
 
           const Divider(),
+          CustomMoreViewListTileItem(
+            title: Text('من نحن', style: TextStyles.bold16),
+            leading: const Icon(Icons.info_outline, color: AppColors.primaryColor),
+            trailing: const Icon(
+              Icons.arrow_forward_ios,
+              color: AppColors.primaryColor,
+            ),
+            onTap: () {
+              showAboutUsDialog(context);
+            },
+          ),
 
+          const Divider(),
           CustomMoreViewListTileItem(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: Text(

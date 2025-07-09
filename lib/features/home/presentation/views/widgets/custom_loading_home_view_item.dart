@@ -16,9 +16,9 @@ class CustomLoadingHomeViewItem extends StatelessWidget {
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) => Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12.0,
-              vertical: 16,
+            padding: const EdgeInsets.only(
+              left: 12,right: 12,
+              top: 16,
             ),
             child: CustomHomeViewItem(
               imageUrl: getDummyGames().coverUrl,

@@ -6,12 +6,8 @@ import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/features/auth/data/models/user_model.dart';
 
-
 class CustomMoreViewHeader extends StatelessWidget {
-  const CustomMoreViewHeader({
-    super.key,
-    required this.user,
-  });
+  const CustomMoreViewHeader({super.key, required this.user});
 
   final UserModel user;
 
@@ -20,7 +16,7 @@ class CustomMoreViewHeader extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          height: 200.h,
+          height: 220.h,
           width: double.infinity,
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -41,17 +37,16 @@ class CustomMoreViewHeader extends StatelessWidget {
           child: Column(
             children: [
               CircleAvatar(
-                      backgroundColor: Colors.white,
-                      radius: 50.r,
-                      child: CircleAvatar(
-                        radius: 48.r,
-                        backgroundImage: const AssetImage(
-                          Assets.assetsImagesMaleProfileImage,
-                        ),
-                      ),
-                    ),
-                  
-                 
+                backgroundColor: Colors.white,
+                radius: 50.r,
+                child: CircleAvatar(
+                  radius: 48.r,
+                  backgroundImage: const AssetImage(
+                    Assets.assetsImagesMaleProfileImage,
+                  ),
+                ),
+              ),
+
               verticalSpace(12),
               Text(
                 '${user.firstName} ${user.lastName}',
@@ -64,9 +59,6 @@ class CustomMoreViewHeader extends StatelessWidget {
             ],
           ),
         ),
-    
-
-
       ],
     );
   }

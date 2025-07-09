@@ -44,15 +44,18 @@ class _UpdateUserProfileViewBodyState extends State<UpdateUserProfileViewBody> {
           }
         },
         builder: (context, state) {
-          return Column(
-            children: [
-              verticalSpace(24.h),
-              UpdateUserProfileTextFields(cubit: cubit),
-              verticalSpace(48.h),
-              state is UpdateUserProfileLoadingState
-                  ? const Center(child: CustomAnimatedLoadingWidget())
-                  : UpdateUserProfileButton(cubit: cubit),
-            ],
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                verticalSpace(24.h),
+                UpdateUserProfileTextFields(cubit: cubit),
+                verticalSpace(48.h),
+                state is UpdateUserProfileLoadingState
+                    ? const Center(child: CustomAnimatedLoadingWidget())
+                    : UpdateUserProfileButton(cubit: cubit),
+              ],
+            ),
           );
         },
       ),

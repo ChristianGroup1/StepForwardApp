@@ -12,7 +12,20 @@
           "package_name": "com.JohnDev.stepforward"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "888953774658-7k32g3vg5hhs9grhl8hb1nnorfgs53jr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.JohnDev.stepforward",
+            "certificate_hash": "40457f04dbcd4c33ef60582b0f21fcddb95f4747"
+          }
+        },
+        {
+          "client_id": "888953774658-5forq174nhaheac6nflc43uovkngvqr0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyByxxcc9HwM7GzsQnByo1AP0S6lkyOf2rU"
@@ -20,7 +33,55 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "888953774658-5forq174nhaheac6nflc43uovkngvqr0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "888953774658-c3sn159bm9dtjltmbvamem3365o92vq5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.stepforward"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:888953774658:android:f227f606753bed051a03db",
+        "android_client_info": {
+          "package_name": "com.stepforward"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "888953774658-5forq174nhaheac6nflc43uovkngvqr0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByxxcc9HwM7GzsQnByo1AP0S6lkyOf2rU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "888953774658-5forq174nhaheac6nflc43uovkngvqr0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "888953774658-c3sn159bm9dtjltmbvamem3365o92vq5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.stepforward"
+              }
+            }
+          ]
         }
       }
     }

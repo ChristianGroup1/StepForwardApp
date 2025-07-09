@@ -23,12 +23,13 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
   @override
   void initState() {
     super.initState();
-    final videoId = YoutubePlayerController.convertUrlToId(widget.game.videoLink) ?? '';
+    final videoId =
+        YoutubePlayerController.convertUrlToId(widget.game.videoLink) ?? '';
     _controller = YoutubePlayerController.fromVideoId(
       videoId: videoId,
       autoPlay: false,
       params: const YoutubePlayerParams(
-        showFullscreenButton: false, // disabled
+        showFullscreenButton: true,
         enableJavaScript: true,
         playsInline: true,
         strictRelatedVideos: false,
@@ -70,7 +71,7 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
 
                 Text("الفئة المستهدفة", style: TextStyles.bold19),
                 verticalSpace(8),
-                Html(data:widget.game.target),
+                Html(data: widget.game.target),
                 MyDivider(height: 50),
 
                 Text("الأدوات المطلوبة", style: TextStyles.bold19),
@@ -85,9 +86,9 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
 
                 Text("فيديو اللعبة", style: TextStyles.bold19),
                 verticalSpace(8),
-        ClipRRect(
+                ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: YoutubePlayer(
+                  child: YoutubePlayer(enableFullScreenOnVerticalDrag: true,
                     controller: _controller,
                     aspectRatio: 16 / 9,
                   ),

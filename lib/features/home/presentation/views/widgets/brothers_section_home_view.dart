@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
+import 'package:stepforward/core/helper_functions/is_device_in_portrait.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
+import 'package:stepforward/core/widgets/custom_show_more_blurred_item.dart';
 import 'package:stepforward/features/home/data/brothers_cubit/brothers_cubit.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/custom_home_view_item.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/custom_loading_home_view_item.dart';
@@ -23,7 +25,7 @@ class BrothersSectionHomeView extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text('خدام من المنيا ', style: TextStyles.bold16),
+                Text('خدام وفرق', style: TextStyles.bold16),
                 Spacer(),
                 GestureDetector(
                   onTap: () => onNavigateToBrothersView(),
@@ -37,7 +39,9 @@ class BrothersSectionHomeView extends StatelessWidget {
               ],
             ),
             SizedBox(
-              height: MediaQuery.sizeOf(context).height * 0.21,
+              height: isDeviceInPortrait(context)
+                  ? MediaQuery.sizeOf(context).height * 0.22
+                  : MediaQuery.sizeOf(context).height * 0.55,
               child: BlocBuilder<BrothersCubit, BrothersState>(
                 buildWhen: (previous, current) =>
                     current is GetBrothersSuccessState ||
@@ -45,19 +49,43 @@ class BrothersSectionHomeView extends StatelessWidget {
                     current is GetBrothersFailureState,
                 builder: (context, state) {
                   if (state is GetBrothersSuccessState) {
+                    final brothers = state.brothers.isEmpty
+                        ? context.read<BrothersCubit>().allBrothers
+                        : state.brothers;
+
+                    final showMore = brothers.length > 5;
+                    final itemCount = showMore ? 6 : brothers.length;
+
                     return ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemBuilder: (context, index) => Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0,
-                          vertical: 16,
-                        ),
-                        child: CustomHomeViewItem(
-                          imageUrl: state.brothers[index].coverUrl,
-                          name: state.brothers[index].name,
-                        ),
-                      ),
-                      itemCount: state.brothers.length,
+                      itemCount: itemCount,
+                      itemBuilder: (context, index) {
+                        if (showMore && index == 5) {
+                          // Show "More" button as the 6th item
+                          return GestureDetector(
+                            onTap: onNavigateToBrothersView,
+                            child: CustomShowMoreBlurredItem(
+                              blurImageUrl: state.brothers[5].coverUrl,
+                            ),
+                          );
+                        }
+
+                        final brother = brothers[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                            left: 12,
+                            right: 12,
+                            top: 16,
+                          ),
+                          child: GestureDetector(
+                            onTap: () => onNavigateToBrothersView(),
+                            child: CustomHomeViewItem(
+                              imageUrl: brother.coverUrl,
+                              name: brother.name,
+                            ),
+                          ),
+                        );
+                      },
                     );
                   } else if (state is GetBrothersLoadingState) {
                     return const CustomLoadingHomeViewItem();

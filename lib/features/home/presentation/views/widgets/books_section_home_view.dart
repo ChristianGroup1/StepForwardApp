@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
+import 'package:stepforward/core/helper_functions/is_device_in_portrait.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/spacing.dart';
@@ -27,7 +28,9 @@ class BooksSectionHomeView extends StatelessWidget {
             builder: (context, state) {
               if (state is GetBooksSuccessState) {
                 return SizedBox(
-                  height: MediaQuery.sizeOf(context).height * 0.21,
+                  height: isDeviceInPortrait(context)
+                      ? MediaQuery.sizeOf(context).height * 0.22
+                      : MediaQuery.sizeOf(context).height * 0.55,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) {
@@ -40,9 +43,10 @@ class BooksSectionHomeView extends StatelessWidget {
                           );
                         },
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0,
-                            vertical: 16,
+                          padding: const EdgeInsets.only(
+                            left: 12.0,
+                            right: 12,
+                            top: 16,
                           ),
                           child: CustomHomeViewItem(
                             imageUrl: book.coverUrl!,

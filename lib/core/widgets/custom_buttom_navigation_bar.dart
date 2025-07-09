@@ -23,7 +23,7 @@ class _CustomButtonNavigationBarState extends State<CustomButtonNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: isDeviceInPortrait(context) ? 70.h : 120.h,
+      height: isDeviceInPortrait(context) ? 60.h : 50.h,
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
         gradient: const LinearGradient(

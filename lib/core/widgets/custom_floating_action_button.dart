@@ -48,7 +48,7 @@ class _ChatBotFloatingButtonState extends State<ChatBotFloatingButton> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16, right: 8),
+      padding: const EdgeInsets.only(bottom: 2, right: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

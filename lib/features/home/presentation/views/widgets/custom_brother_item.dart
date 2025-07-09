@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:stepforward/core/helper_functions/is_device_in_portrait.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/custom_box_decoration.dart';
 import 'package:stepforward/core/utils/spacing.dart';
@@ -24,7 +25,7 @@ class CustomBrotherItem extends StatelessWidget {
       child: Row(
         children: [
           CustomCachedNetworkImageWidget(
-            height: MediaQuery.sizeOf(context).height * 0.16,
+            height:isDeviceInPortrait(context)? MediaQuery.sizeOf(context).height * 0.16:  MediaQuery.sizeOf(context).height * 0.5,
             width: MediaQuery.sizeOf(context).width * 0.25,
             fit: BoxFit.cover,
             imageUrl: brotherModel.coverUrl,

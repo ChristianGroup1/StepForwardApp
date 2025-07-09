@@ -32,15 +32,28 @@ class SignUpViewBody extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'إنشاء حساب جديد',
-                style: TextStyles.bold28.copyWith(
-                  color: AppColors.primaryColor,
-                ),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_ios,
+                      color: AppColors.primaryColor,
+                    ),
+                    onPressed: () {
+                      context.pop();
+                    },
+                  ),
+                  Text(
+                    'إنشاء حساب جديد',
+                    style: TextStyles.bold28.copyWith(
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                ],
               ),
               verticalSpace(16),
               Text(
-                'قم بإنشاء حساب لتتمتع بكل مميزات التطبيق',
+                'قم بإنشاء حساب لتتمتع لتكون جزء من فريقنا  ',
                 style: TextStyles.bold13.copyWith(
                   color: const Color(0xff949D9E),
                 ),

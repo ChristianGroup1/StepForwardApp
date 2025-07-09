@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:stepforward/core/helper_functions/is_device_in_portrait.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/widgets/custom_cached_network_image.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_details_view_body.dart';
@@ -17,7 +18,7 @@ class CustomSliverAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverAppBar(
       collapsedHeight: 70,
-      expandedHeight: MediaQuery.of(context).size.height * 0.35,
+      expandedHeight:isDeviceInPortrait(context)? MediaQuery.of(context).size.height * 0.35:  MediaQuery.of(context).size.height * 0.6,
       pinned: true,
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.white,
@@ -34,9 +35,9 @@ class CustomSliverAppBar extends StatelessWidget {
     
           return FlexibleSpaceBar(
             centerTitle: true,
-            titlePadding: const EdgeInsets.symmetric(
-              horizontal: 40,
-              vertical: 24,
+            titlePadding:  EdgeInsets.symmetric(
+              horizontal: isDeviceInPortrait(context) ?  40: 90,
+              vertical:isDeviceInPortrait(context) ? 24: 18,
             ),
             title: Row(
               mainAxisAlignment: isCollapsed

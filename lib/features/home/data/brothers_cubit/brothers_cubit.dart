@@ -56,6 +56,7 @@ class BrothersCubit extends Cubit<BrothersState> {
           selectedTags.isEmpty ||
           brother.tags.any((tag) => selectedTags.contains(tag));
       final govMatch = brother.government == selectedGovernment;
+      if (selectedGovernment == 'الكل') return tagMatch;
       return tagMatch && govMatch;
     }).toList();
   }

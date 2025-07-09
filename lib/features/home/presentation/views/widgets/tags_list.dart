@@ -5,10 +5,12 @@ class TagsList extends StatelessWidget {
   final List<String> tags;
   final List<String> selectedTags;
   final void Function(String tag) onTagToggle;
+  final ScrollPhysics? physics;
 
   const TagsList({
     super.key,
     required this.tags,
+    this.physics,
     required this.selectedTags,
     required this.onTagToggle,
   });
@@ -19,6 +21,7 @@ class TagsList extends StatelessWidget {
       height: 50,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
+        physics:physics?? const BouncingScrollPhysics(),
         itemCount: tags.length,
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
