@@ -12,7 +12,7 @@ class MoreView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => MoreCubit(getIt.get<AuthRepo>()),
-      child: MoreViewBody(),
+      child: const MoreViewBody(),
     );
   }
 }

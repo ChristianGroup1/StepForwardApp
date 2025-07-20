@@ -23,8 +23,8 @@ class FavoritesView extends StatelessWidget {
           title: 'المفضلة',
           onTap: () => context.pop(),
         ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(
+        body: const Padding(
+          padding: EdgeInsets.symmetric(
             horizontal: kHorizontalPadding,
             vertical: kVerticalPadding,
           ),

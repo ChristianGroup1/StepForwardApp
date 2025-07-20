@@ -1,3 +1,5 @@
+  // ignore_for_file: prefer_const_constructors
+
   import 'package:flutter/material.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';

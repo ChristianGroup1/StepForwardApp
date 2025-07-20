@@ -57,42 +57,43 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 verticalSpace(24),
-                Text("شرح اللعبة", style: TextStyles.bold19),
-                verticalSpace(8),
-                Text(widget.game.explanation, style: TextStyles.regular16),
-                MyDivider(height: 50),
-
-                if (widget.game.laws.isNotEmpty) ...[
-                  Text("القوانين", style: TextStyles.bold19),
-                  verticalSpace(8),
-                  Text(widget.game.laws, style: TextStyles.regular16),
-                  MyDivider(height: 50),
-                ],
-
-                Text("الفئة المستهدفة", style: TextStyles.bold19),
-                verticalSpace(8),
-                Html(data: widget.game.target),
-                MyDivider(height: 50),
-
-                Text("الأدوات المطلوبة", style: TextStyles.bold19),
-                verticalSpace(8),
-                Text(widget.game.tools, style: TextStyles.regular16),
-                MyDivider(height: 50),
-
-                Text("الفئات", style: TextStyles.bold19),
-                verticalSpace(8),
-                GameHashTagsList(tags: widget.game.tags),
-                MyDivider(height: 50),
-
-                Text("فيديو اللعبة", style: TextStyles.bold19),
+                const Text("فيديو اللعبة", style: TextStyles.bold19),
                 verticalSpace(8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: YoutubePlayer(enableFullScreenOnVerticalDrag: true,
+                  child: YoutubePlayer(
                     controller: _controller,
                     aspectRatio: 16 / 9,
                   ),
                 ),
+                verticalSpace(24),
+                 const MyDivider(height: 50),
+                const Text("شرح اللعبة", style: TextStyles.bold19),
+                verticalSpace(8),
+                Text(widget.game.explanation, style: TextStyles.regular16),
+                const MyDivider(height: 50),
+
+                if (widget.game.laws.isNotEmpty) ...[
+                  const Text("القوانين", style: TextStyles.bold19),
+                  verticalSpace(8),
+                  Text(widget.game.laws, style: TextStyles.regular16),
+                  const MyDivider(height: 50),
+                ],
+
+                const Text("الفئة المستهدفة", style: TextStyles.bold19),
+                verticalSpace(8),
+                Html(data: widget.game.target),
+                const MyDivider(height: 50),
+
+                const Text("الأدوات المطلوبة", style: TextStyles.bold19),
+                verticalSpace(8),
+                Text(widget.game.tools, style: TextStyles.regular16),
+                const MyDivider(height: 50),
+
+                const Text("الفئات", style: TextStyles.bold19),
+                verticalSpace(8),
+                GameHashTagsList(tags: widget.game.tags),
+               
 
                 verticalSpace(32),
               ],

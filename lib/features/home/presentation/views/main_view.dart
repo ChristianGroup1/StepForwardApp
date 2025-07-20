@@ -38,7 +38,7 @@ class _MainViewState extends State<MainView> {
         floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
 
         floatingActionButton: selectedIndex == 0
-            ? ChatBotFloatingButton()
+            ? const ChatBotFloatingButton()
             : null,
 
         bottomNavigationBar: CustomButtonNavigationBar(
@@ -52,9 +52,9 @@ class _MainViewState extends State<MainView> {
               onNavigateToGamesView: navigateToGamesView,
               onNavigateToBrothersView: navigateToBrothersView,
             ),
-            GamesView(),
-            BrothersView(),
-            MoreView(),
+            const GamesView(),
+            const BrothersView(),
+            const MoreView(),
           ],
         ),
       ),

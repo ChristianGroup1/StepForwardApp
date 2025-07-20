@@ -4,8 +4,6 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:stepforward/core/helper_functions/custom_government_modal_sheet_filter.dart';
 import 'package:stepforward/core/helper_functions/get_dummy_brother.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
-import 'package:stepforward/core/utils/app_images.dart';
-import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_empty_widget.dart';
@@ -15,6 +13,7 @@ import 'package:stepforward/core/widgets/search_text_field.dart';
 import 'package:stepforward/features/home/data/brothers_cubit/brothers_cubit.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/custom_brother_item.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/custom_tag_item.dart';
+import 'package:stepforward/features/home/presentation/views/widgets/waiting_for_approval_widget.dart';
 
 class BrothersViewBody extends StatelessWidget {
   const BrothersViewBody({super.key});
@@ -31,7 +30,9 @@ class BrothersViewBody extends StatelessWidget {
           ? CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
-                SliverToBoxAdapter(child: CustomPageAppBar(title: 'الخدام')),
+                const SliverToBoxAdapter(
+                  child: CustomPageAppBar(title: 'الخدام'),
+                ),
                 SliverToBoxAdapter(child: verticalSpace(24)),
                 SliverToBoxAdapter(
                   child: SearchTextField(
@@ -48,7 +49,6 @@ class BrothersViewBody extends StatelessWidget {
                       physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       children: [
-                       
                         CustomGovernorateTagItem(
                           governorate: cubit.selectedGovernment,
                           onTap: () {
@@ -56,7 +56,7 @@ class BrothersViewBody extends StatelessWidget {
                           },
                         ),
                         horizontalSpace(12),
-                        ...['فريق رياضي', 'مرنم', 'متكلم'].map((tag) {
+                        ...['مرنم', 'متكلم', 'فريق رياضي','فريق تمثيل','فريق ترانيم'].map((tag) {
                           final isSelected = cubit.selectedTags.contains(tag);
                           return Row(
                             children: [
@@ -85,7 +85,7 @@ class BrothersViewBody extends StatelessWidget {
                   builder: (context, state) {
                     if (state is GetBrothersSuccessState) {
                       if (state.brothers.isEmpty) {
-                        return SliverToBoxAdapter(
+                        return const SliverToBoxAdapter(
                           child: CustomEmptyWidget(
                             title: 'لم يتم ايجاد خدام',
                             subtitle: 'سيتم اضافة خدام في أقرب وقت',
@@ -102,7 +102,7 @@ class BrothersViewBody extends StatelessWidget {
                       return SliverToBoxAdapter(
                         child: Skeletonizer(
                           child: ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
+                            physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             itemCount: 10,
                             itemBuilder: (context, index) => CustomBrotherItem(
@@ -116,7 +116,7 @@ class BrothersViewBody extends StatelessWidget {
                         child: Center(
                           child: Text(
                             state.errorMessage,
-                            style: TextStyle(color: Colors.red),
+                            style: const TextStyle(color: Colors.red),
                           ),
                         ),
                       );
@@ -127,27 +127,8 @@ class BrothersViewBody extends StatelessWidget {
                 ),
               ],
             )
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  Assets.assetsImagesWatingApproval,
-                  height: MediaQuery.sizeOf(context).height * 0.35,
-                  fit: BoxFit.cover,
-                ),
-                verticalSpace(32),
-                Text(
-                  ' جار مراجعة بيانات الحساب والموافقة',
-                  style: TextStyles.bold16,
-                ),
-                verticalSpace(12),
-                Text(
-                  'اذا شعرت ان الموافقة تأخرت يمكنك التواصل معنا بشكل مباشر',
-                  style: TextStyles.semiBold16,
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
+          : const WaitingForApprovalWidget(),
     );
   }
 }
+

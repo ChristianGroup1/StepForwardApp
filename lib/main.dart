@@ -20,10 +20,6 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await CacheHelper.init();
   Bloc.observer = MyBlocObserver();
-    await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.white, // 🔳 makes area near the camera white
@@ -33,7 +29,7 @@ void main() async {
     ),
   );
   setupGetIt();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -49,7 +45,7 @@ class MyApp extends StatelessWidget {
     }
 
     return ScreenUtilInit(
-      designSize: Size(360, 800),
+      designSize: const Size(360, 800),
       minTextAdapt: false,
       child: MaterialApp(
         builder: (context, child) {

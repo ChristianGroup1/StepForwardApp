@@ -40,7 +40,7 @@ class CustomBrotherItem extends StatelessWidget {
                 Row(
                   children: [
                     Text(brotherModel.name, style: TextStyles.bold16),
-                    Spacer(),
+                    const Spacer(),
                     GestureDetector(
                       onTap: () async {
                         final message='مرحبا ${brotherModel.name}، كيف حالك؟';
@@ -48,18 +48,18 @@ class CustomBrotherItem extends StatelessWidget {
                         if (await canLaunchUrl(url)) {
                           launchUrl(url);
                         }
-                      },
-                      child: FaIcon(FontAwesomeIcons.whatsapp, color: AppColors.primaryColor)),
+                      },  
+                      child: const FaIcon(FontAwesomeIcons.whatsapp, color: AppColors.primaryColor)),
                     horizontalSpace(12),
                     GestureDetector(
                       onTap: () async {
                        
                         await FlutterPhoneDirectCaller.callNumber(brotherModel.phoneNumber);
                       },
-                      child: FaIcon(Icons.phone_outlined, color: AppColors.primaryColor)),
+                      child: const FaIcon(Icons.phone_outlined, color: AppColors.primaryColor)),
                   ],
                 ),
-                MyDivider(),
+                const MyDivider(),
                 Text(
                   brotherModel.tags.join(' - '),
                   style: TextStyles.bold13.copyWith(color: Colors.grey),
@@ -67,7 +67,7 @@ class CustomBrotherItem extends StatelessWidget {
                 verticalSpace(8),
                 Text(
                   '${brotherModel.churchName} - ${brotherModel.government}',
-                  style: TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: Colors.grey),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

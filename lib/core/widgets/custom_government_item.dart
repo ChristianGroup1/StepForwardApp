@@ -29,7 +29,7 @@ class CustomGovernorateTagItem extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(
+            const Icon(
               Icons.location_on,
               color: AppColors.primaryColor,
             ),

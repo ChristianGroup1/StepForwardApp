@@ -67,10 +67,10 @@ class _ChatBotFloatingButtonState extends State<ChatBotFloatingButton> {
                 backgroundColor: Colors.white,
                 child: ClipOval(
                   child: Image.asset(
-                    Assets.assetsImagesStepforwardSplash,
+                    Assets.assetsImagesStepForwardLogo,
                     fit: BoxFit.cover,
-                    width: 48,
-                    height: 48,
+                    width: 50,
+                    height: 50,
                   ),
                 ),
               ),
@@ -90,7 +90,7 @@ class _ChatBotFloatingButtonState extends State<ChatBotFloatingButton> {
                     vertical: 4,
                   ),
                   margin: const EdgeInsets.only(right: 2),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.primaryColor,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(10),

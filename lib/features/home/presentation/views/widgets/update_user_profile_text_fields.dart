@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:stepforward/core/helper_functions/app_regex.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/utils/spacing.dart';
@@ -19,7 +18,7 @@ class UpdateUserProfileTextFields extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CustomMoreAppBarWidget(title: 'تعديل البيانات الشخصية'),
+        const CustomMoreAppBarWidget(title: 'تعديل البيانات الشخصية'),
         verticalSpace(16),
         CustomTextFormField(
           textInputType: TextInputType.name,

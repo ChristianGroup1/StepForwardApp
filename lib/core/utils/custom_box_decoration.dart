@@ -14,11 +14,11 @@ BoxDecoration customBoxDecoration({double? opacity, Color? mainColor,double? rad
       color: Colors.white,
       borderRadius: BorderRadius.circular(20),
       boxShadow: [
-        BoxShadow(
+        const BoxShadow(
           color: Color(0xff949D9E),
           blurRadius: 7,
           spreadRadius: 1,
-          offset: const Offset(0, 5),
+          offset: Offset(0, 5),
         ),
       ],
     );

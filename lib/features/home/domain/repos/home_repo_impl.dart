@@ -82,26 +82,72 @@ class HomeRepoImpl extends HomeRepo {
     String searchText,
   ) async {
     try {
-      var data = await databaseService.searchData(searchText,BackendEndpoints.getGames);
-      return right(data.map((e) => GameModel.fromJson(e)).toList());
+      final List<String> prefixes = ["لعبة", "لعبه"];
+
+      List<Map<String, dynamic>> allResults = [];
+
+      for (final prefix in prefixes) {
+        final String query = prefix.isEmpty
+            ? searchText
+            : "$prefix $searchText";
+
+        final results = await databaseService.searchData(
+          query,
+          BackendEndpoints.getGames,
+        );
+
+        allResults.addAll(results);
+      }
+
+      final uniqueResults = {
+        for (var item in allResults) item['id']: item,
+      }.values.toList();
+
+      return right(uniqueResults.map((e) => GameModel.fromJson(e)).toList());
     } catch (e) {
       return left(CustomFailure(message: e.toString()));
     }
   }
 
-   @override
+  @override
   Future<Either<Failure, List<BrothersModel>>> searchBrothers(
     String searchText,
   ) async {
     try {
-      var data = await databaseService.searchData(searchText,BackendEndpoints.getBrothers);
-      return right(data.map((e) => BrothersModel.fromJson(e)).toList());
+      final List<String> prefixes = [
+        "الراعي",
+        "الاخ",
+        "القسيس",
+        "الأخ",
+        "القس",
+      ];
+
+      List<Map<String, dynamic>> allResults = [];
+
+      for (final prefix in prefixes) {
+        final String query = prefix.isEmpty
+            ? searchText
+            : "$prefix $searchText";
+
+        final results = await databaseService.searchData(
+          query,
+          BackendEndpoints.getBrothers,
+        );
+
+        allResults.addAll(results);
+      }
+
+      final uniqueResults = {
+        for (var item in allResults) item['id']: item,
+      }.values.toList();
+
+      return right(
+        uniqueResults.map((e) => BrothersModel.fromJson(e)).toList(),
+      );
     } catch (e) {
       return left(CustomFailure(message: e.toString()));
-    }    
+    }
   }
-   
-  
 
   @override
   Future<Either<Failure, List<GameModel>>> getUserFavorites({
@@ -168,14 +214,12 @@ class HomeRepoImpl extends HomeRepo {
   }
 
   @override
-  Future<Either<Failure, List<BookModel>>> getBooks()async {
+  Future<Either<Failure, List<BookModel>>> getBooks() async {
     try {
       var booksData =
           await databaseService.getData(path: BackendEndpoints.getBooks)
               as List<Map<String, dynamic>>;
-      var booksList = booksData
-          .map((e) => BookModel.fromJson(e))
-          .toList();
+      var booksList = booksData.map((e) => BookModel.fromJson(e)).toList();
       return right(booksList);
     } catch (e) {
       return left(CustomFailure(message: e.toString()));

@@ -36,7 +36,7 @@ class ForgetPasswordView extends StatelessWidget {
               showSnackBar(context, text: state.errMessage, color: Colors.red);
             }
           },
-          child: EmailResetPasswordViewBody(),
+          child: const EmailResetPasswordViewBody(),
         ),
       ),
     );

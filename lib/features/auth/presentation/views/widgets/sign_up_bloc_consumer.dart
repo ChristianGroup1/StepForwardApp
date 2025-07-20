@@ -36,7 +36,7 @@ class SignUpBlocConsumer extends StatelessWidget {
       builder: (context, state) {
         return ModalProgressHUD(
           inAsyncCall: state is SignUpLoadingState,
-          progressIndicator: CustomAnimatedLoadingWidget(),
+          progressIndicator: const CustomAnimatedLoadingWidget(),
           blur: 1.5,
           child: SignUpViewBody(cubit: cubit),
         );

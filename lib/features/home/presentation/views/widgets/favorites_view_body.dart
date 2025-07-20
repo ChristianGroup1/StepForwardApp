@@ -26,7 +26,7 @@ class FavoritesViewBody extends StatelessWidget {
       builder: (context, state) {
         if (state is FetchUserFavoritesSuccessState) {
           return ListView.separated(
-            separatorBuilder: (context, index) => MyDivider(),
+            separatorBuilder: (context, index) => const MyDivider(),
             itemBuilder: (context, index) => Slidable(
               startActionPane: ActionPane(
                 motion: const ScrollMotion(),

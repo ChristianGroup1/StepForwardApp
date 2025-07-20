@@ -27,7 +27,7 @@ class GamesViewBody extends StatelessWidget {
       ),
       child: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(child: CustomPageAppBar(title: 'الألعاب')),
+          const SliverToBoxAdapter(child: CustomPageAppBar(title: 'الألعاب')),
           SliverToBoxAdapter(child: verticalSpace(24)),
           SliverToBoxAdapter(
             child: SearchTextField(
@@ -71,7 +71,7 @@ class GamesViewBody extends StatelessWidget {
             builder: (context, state) {
               if (state is GetGamesSuccessState) {
                 if (state.games.isEmpty) {
-                  return SliverToBoxAdapter(
+                  return const SliverToBoxAdapter(
                     child: CustomEmptyWidget(
                       title: 'لا يوجد العاب لهذا السن',
                       subtitle: 'سيتم اضافة العاب اكثر قريبًا  ',
@@ -79,7 +79,7 @@ class GamesViewBody extends StatelessWidget {
                   );
                 }
                 return SliverList.separated(
-                  separatorBuilder: (context, index) => MyDivider(),
+                  separatorBuilder: (context, index) => const MyDivider(),
                   itemBuilder: (context, index) =>
                       CustomGameItem(gameModel: state.games[index]),
                   itemCount: state.games.length,

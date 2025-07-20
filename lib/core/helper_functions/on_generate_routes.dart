@@ -20,28 +20,28 @@ Route onGenerateRoutes(RouteSettings settings) {
   switch (settings.name) {
     case Routes.loginView:
       return PageTransition(
-        duration: Duration(milliseconds: 50),
+        duration: const Duration(milliseconds: 50),
         child: const LoginView(),
         type: PageTransitionType.fade,
       );
 
     case Routes.signUpView:
       return PageTransition(
-        duration: Duration(milliseconds: 50),
+        duration: const Duration(milliseconds: 50),
         child: const SignUpView(),
         type: PageTransitionType.fade,
       );
 
     case Routes.forgetPasswordView:
       return PageTransition(
-        duration: Duration(milliseconds: 50),
+        duration: const Duration(milliseconds: 50),
         child: const ForgetPasswordView(),
         type: PageTransitionType.fade,
       );
     case Routes.completeUserProfileView:
       var userModel = settings.arguments as UserModel;
       return PageTransition(
-        duration: Duration(milliseconds: 50),
+        duration: const Duration(milliseconds: 50),
         child:  CompleteUserProfileView(
           user: userModel,
         ),
@@ -49,7 +49,7 @@ Route onGenerateRoutes(RouteSettings settings) {
       );
     case Routes.mainView:
       return PageTransition(
-        duration: Duration(milliseconds: 50),
+        duration: const Duration(milliseconds: 50),
         child: const MainView(),
         type: PageTransitionType.fade,
       );
@@ -57,21 +57,21 @@ Route onGenerateRoutes(RouteSettings settings) {
     case Routes.gameDetails:
       final game = settings.arguments as GameModel;
       return PageTransition(
-        duration: Duration(milliseconds: 50),
+        duration: const Duration(milliseconds: 50),
         child: GameDetails(game: game),
         type: PageTransitionType.fade,
       );
     case Routes.updateUserProfile:
       return PageTransition(
-        duration: Duration(milliseconds: 50),
-        child: UpdateUserProfileView(),
+        duration: const Duration(milliseconds: 50),
+        child: const UpdateUserProfileView(),
         type: PageTransitionType.fade,
       );
 
     case Routes.favoritesView:
       return PageTransition(
-        duration: Duration(milliseconds: 50),
-        child: FavoritesView(),
+        duration: const Duration(milliseconds: 50),
+        child: const FavoritesView(),
         type: PageTransitionType.fade,
       );
       case Routes.pdfViewerScreen:
@@ -79,7 +79,7 @@ Route onGenerateRoutes(RouteSettings settings) {
       final title = args['title'];
       final url = args['url'];
       return PageTransition(
-        duration: Duration(milliseconds: 50),
+        duration: const Duration(milliseconds: 50),
         child: PdfViewerScreen(
           title: title,
           url: url,

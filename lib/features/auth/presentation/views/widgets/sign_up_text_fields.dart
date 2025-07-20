@@ -24,8 +24,6 @@ class _SignUpTextFieldsState extends State<SignUpTextFields> {
       widget.cubit.firstNameController.text = widget.user!.firstName;
       widget.cubit.secondNameController.text = widget.user!.lastName;
       widget.cubit.emailController.text = widget.user!.email;
-     
-      
     }
     super.initState();
   }
@@ -101,7 +99,7 @@ class _SignUpTextFieldsState extends State<SignUpTextFields> {
         CustomTextFormField(
           textInputType: TextInputType.phone,
           initialValue: widget.user?.phoneNumber,
-          labelText: 'رقم الهاتف' ,
+          labelText: 'رقم الهاتف',
 
           // hintText: widget.user?.phoneNumber=='' ? null : widget.user?.phoneNumber,
           onChanged: (value) {
@@ -124,6 +122,14 @@ class _SignUpTextFieldsState extends State<SignUpTextFields> {
           labelText: 'كلمة المرور',
           onChanged: (value) {
             widget.cubit.passwordController.text = value;
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'هذا الحقل مطلوب';
+            } else if (!AppRegex.isPasswordValid(value)) {
+              return 'كلمة المرور ضعيفة، جرب كلمة مرور أقوية';
+            }
+            return null;
           },
         ),
         verticalSpace(48),

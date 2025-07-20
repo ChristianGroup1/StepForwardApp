@@ -56,7 +56,7 @@ class CustomGameItem extends StatelessWidget {
                           color: AppColors.primaryColor,
                         ),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       ValueListenableBuilder<List<String>>(
                         valueListenable:
                             userFavoritesService.userFavoritesNotifier,

@@ -66,9 +66,13 @@ class Assets {
   /// assets/images/people_icon.svg
   static const String assetsImagesPeopleIcon = "assets/images/people_icon.svg";
 
+  /// Assets for assetsImagesSplashAndroid12
+  /// assets/images/splash_android12.png
+  static const String assetsImagesSplashAndroid12 = "assets/images/splash_android12.png";
+
   /// Assets for assetsImagesStepForwardLogo
-  /// assets/images/step_forward_logo.JPG
-  static const String assetsImagesStepForwardLogo = "assets/images/step_forward_logo.JPG";
+  /// assets/images/step_forward_logo.png
+  static const String assetsImagesStepForwardLogo = "assets/images/step_forward_logo.png";
 
   /// Assets for assetsImagesStepforwardSplash
   /// assets/images/stepforward_splash.png

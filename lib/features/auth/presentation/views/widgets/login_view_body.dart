@@ -44,7 +44,7 @@ class LoginViewBody extends StatelessWidget {
                 ),
               ),
               verticalSpace(30),
-              Text(
+              const Text(
                 'اهلًا بعودتك إلى Step Forward',
                 style: TextStyles.bold23,
               ),
@@ -93,9 +93,9 @@ class LoginViewBody extends StatelessWidget {
                 },
               ),
               verticalSpace(24),
-              DontHaveAnAccount(),
+              const DontHaveAnAccount(),
               verticalSpace(24),
-              OrDivider(),
+              const OrDivider(),
               verticalSpace(24),
               LoginMethodItem(
                 image: Assets.assetsImagesGoogleIcon,

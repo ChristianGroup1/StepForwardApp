@@ -14,7 +14,7 @@ class CustomMoreAppBarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        IconButton(onPressed: () => context.pop(), icon: Icon(Icons.arrow_back_ios_new, color: AppColors.primaryColor)),
+        IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.primaryColor)),
        
         Text(
           title,

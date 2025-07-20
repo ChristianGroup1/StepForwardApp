@@ -16,7 +16,7 @@ class BrothersView extends StatelessWidget {
           BrothersCubit(getIt.get<HomeRepo>(),  // Injecting HomeRepo
               getIt.get<AuthRepo>()) // Injecting AuthRepo
             ..getBrothers()..getUserApprovedDataIfNotApproved(),
-      child: BrothersViewBody(),
+      child: const BrothersViewBody(),
     );
   }
 }

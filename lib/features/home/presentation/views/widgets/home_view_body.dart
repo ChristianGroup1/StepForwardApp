@@ -24,7 +24,7 @@ class HomeViewBody extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(child: verticalSpace(16)),
-          SliverToBoxAdapter(child: CustomHomeAppBar()),
+          const SliverToBoxAdapter(child: CustomHomeAppBar()),
           SliverToBoxAdapter(child: verticalSpace(16)),
           SliverToBoxAdapter(
             child: CustomSliderWidget(
@@ -38,7 +38,7 @@ class HomeViewBody extends StatelessWidget {
           SliverToBoxAdapter(child: verticalSpace(8)),
           BrothersSectionHomeView(onNavigateToBrothersView: onNavigateToBrothersView,),
           SliverToBoxAdapter(child: verticalSpace(8)),
-          BooksSectionHomeView(),
+          const BooksSectionHomeView(),
         ],
       ),
     );

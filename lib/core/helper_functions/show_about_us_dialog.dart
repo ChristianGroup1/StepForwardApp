@@ -13,7 +13,7 @@ void showAboutUsDialog(BuildContext context) {
     builder: (BuildContext context) {
       return AlertDialog(
         backgroundColor: Colors.white,
-        title: Text('من نحن', style: TextStyles.bold23),
+        title: const Text('من نحن', style: TextStyles.bold23),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,8 +63,27 @@ void showAboutUsDialog(BuildContext context) {
                         );
                       }
                     },
-                    child: FaIcon(
+                    child: const FaIcon(
                       FontAwesomeIcons.facebook,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                    horizontalSpace(12),
+                  GestureDetector(
+                    onTap: () async {
+                      final Uri teamWhatsappUrl = Uri.parse(
+                        'https://wa.me/+201224999086',
+                      );
+
+                      if (await canLaunchUrl(teamWhatsappUrl)) {
+                        await launchUrl(
+                          teamWhatsappUrl,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      }
+                    },
+                    child: const FaIcon(
+                      FontAwesomeIcons.whatsapp,
                       color: AppColors.primaryColor,
                     ),
                   ),
@@ -72,7 +91,7 @@ void showAboutUsDialog(BuildContext context) {
                ),
               
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Row(
                 children: [
                    buildSectionTitle('مطور التطبيق : '),
@@ -90,7 +109,7 @@ void showAboutUsDialog(BuildContext context) {
                         );
                       }
                     },
-                    child: FaIcon(
+                    child: const FaIcon(
                       FontAwesomeIcons.github,
                       color: AppColors.primaryColor,
                     ),
@@ -109,7 +128,7 @@ void showAboutUsDialog(BuildContext context) {
                         );
                       }
                     },
-                    child: FaIcon(
+                    child: const FaIcon(
                       FontAwesomeIcons.linkedin,
                       color: AppColors.primaryColor,
                     ),
@@ -117,18 +136,18 @@ void showAboutUsDialog(BuildContext context) {
                   const SizedBox(width: 12),
                   GestureDetector(
                     onTap: () async {
-                      final Uri whatsappUri = Uri.parse(
-                        'https://wa.me/201288140684',
+                      final Uri facebookUrl = Uri.parse(
+                        'https://www.facebook.com/john.amir.1804',
                       );
-                      if (await canLaunchUrl(whatsappUri)) {
+                      if (await canLaunchUrl(facebookUrl)) {
                         await launchUrl(
-                          whatsappUri,
+                          facebookUrl,
                           mode: LaunchMode.externalApplication,
                         );
                       }
                     },
-                    child: FaIcon(
-                      FontAwesomeIcons.whatsapp,
+                    child: const FaIcon(
+                      FontAwesomeIcons.facebook,
                       color: AppColors.primaryColor,
                     ),
                   ),

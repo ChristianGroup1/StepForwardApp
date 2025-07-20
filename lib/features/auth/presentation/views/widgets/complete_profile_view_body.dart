@@ -45,13 +45,13 @@ class CompleteUserProfileViewBody extends StatelessWidget {
       builder: (context, state) {
         return ModalProgressHUD(
           inAsyncCall: state is SignUpLoadingState,
-          progressIndicator: CustomAnimatedLoadingWidget(),
+          progressIndicator: const CustomAnimatedLoadingWidget(),
           blur: 1.5,
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: SafeArea(
               child: Padding(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: kHorizontalPadding,
                   vertical: kVerticalPadding,
                 ),
@@ -59,7 +59,7 @@ class CompleteUserProfileViewBody extends StatelessWidget {
                   key: cubit.formKey,
                   child: Column(
                     children: [
-                      Text('بيانات الحساب', style: TextStyles.bold23),
+                      const Text('بيانات الحساب', style: TextStyles.bold23),
                       verticalSpace(16),
                       SignUpTextFields(cubit: cubit, user: user),
                       CustomButton(

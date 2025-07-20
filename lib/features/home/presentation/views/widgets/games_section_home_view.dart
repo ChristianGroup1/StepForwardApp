@@ -22,13 +22,13 @@ class GamesSectionHomeView extends StatelessWidget {
           Row(
             children: [
               Text('العاب', style: TextStyles.bold16),
-              Spacer(),
+              const Spacer(),
               GestureDetector(
                 onTap: () => onNavigateToGamesView(),
                 child: Text(
                   'المزيد',
                   style: TextStyles.semiBold13.copyWith(
-                    color: Color(0xffA5A5A5),
+                    color: const Color(0xffA5A5A5),
                   ),
                 ),
               ),
@@ -83,7 +83,7 @@ class GamesSectionHomeView extends StatelessWidget {
               } else if (state is GetGameFailureState) {
                 return Text(state.errorMessage);
               } else if (state is GetGamesLoadingState) {
-                return CustomLoadingHomeViewItem();
+                return const CustomLoadingHomeViewItem();
               } else {
                 return const SizedBox.shrink();
               }

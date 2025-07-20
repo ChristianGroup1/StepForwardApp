@@ -26,13 +26,13 @@ class BrothersSectionHomeView extends StatelessWidget {
             Row(
               children: [
                 Text('خدام وفرق', style: TextStyles.bold16),
-                Spacer(),
+                const Spacer(),
                 GestureDetector(
                   onTap: () => onNavigateToBrothersView(),
                   child: Text(
                     'المزيد',
                     style: TextStyles.semiBold13.copyWith(
-                      color: Color(0xffA5A5A5),
+                      color: const Color(0xffA5A5A5),
                     ),
                   ),
                 ),

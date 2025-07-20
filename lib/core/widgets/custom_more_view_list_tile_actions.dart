@@ -11,6 +11,7 @@ import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_more_list_tile_item.dart';
+import 'package:stepforward/core/widgets/my_divider.dart';
 import 'package:stepforward/features/home/data/more_cubit/more_cubit.dart';
 
 class CustomMoreViewListTileActions extends StatelessWidget {
@@ -24,17 +25,6 @@ class CustomMoreViewListTileActions extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           CustomMoreViewListTileItem(
-            title: Text('تعديل الملف الشخصي', style: TextStyles.bold16),
-            leading: const Icon(Icons.person, color: AppColors.primaryColor),
-            trailing: const Icon(
-              Icons.arrow_forward_ios,
-              color: AppColors.primaryColor,
-            ),
-            onTap: () => context.pushNamed(Routes.updateUserProfile),
-          ),
-          const Divider(),
-
-          CustomMoreViewListTileItem(
             title: Text('المفضلة', style: TextStyles.bold16),
             leading: const Icon(Icons.favorite, color: AppColors.primaryColor),
             trailing: const Icon(
@@ -45,11 +35,37 @@ class CustomMoreViewListTileActions extends StatelessWidget {
               context.pushNamed(Routes.favoritesView);
             },
           ),
+          const MyDivider(),
+          CustomMoreViewListTileItem(
+            title: Text('تعديل الملف الشخصي', style: TextStyles.bold16),
+            leading: const Icon(Icons.person, color: AppColors.primaryColor),
+            trailing: const Icon(
+              Icons.arrow_forward_ios,
+              color: AppColors.primaryColor,
+            ),
+            onTap: () => context.pushNamed(Routes.updateUserProfile),
+          ),
+          const MyDivider(),
 
-          const Divider(),
+          CustomMoreViewListTileItem(
+            title: Text('اعادة تعيين كلمة المرور', style: TextStyles.bold16),
+            leading: const Icon(
+              Icons.password_rounded,
+              color: AppColors.primaryColor,
+            ),
+            trailing: const Icon(
+              Icons.arrow_forward_ios,
+              color: AppColors.primaryColor,
+            ),
+            onTap: () => context.pushNamed(Routes.forgetPasswordView),
+          ),
+          const MyDivider(),
           CustomMoreViewListTileItem(
             title: Text('من نحن', style: TextStyles.bold16),
-            leading: const Icon(Icons.info_outline, color: AppColors.primaryColor),
+            leading: const Icon(
+              Icons.info_outline,
+              color: AppColors.primaryColor,
+            ),
             trailing: const Icon(
               Icons.arrow_forward_ios,
               color: AppColors.primaryColor,

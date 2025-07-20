@@ -42,7 +42,7 @@ class LoginViewBlocConsumer extends StatelessWidget {
         final cubit = context.read<LoginCubit>();
         return ModalProgressHUD(
           inAsyncCall: state is LoginLoadingState,
-          progressIndicator: CustomAnimatedLoadingWidget(),
+          progressIndicator: const CustomAnimatedLoadingWidget(),
           blur: 1.5,
           child: LoginViewBody(cubit: cubit),
         );
