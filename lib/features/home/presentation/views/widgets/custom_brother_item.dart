@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/helper_functions/is_device_in_portrait.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/custom_box_decoration.dart';
@@ -19,13 +20,15 @@ class CustomBrotherItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0,),
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(8.0),
       decoration: customCardDecoration(),
       child: Row(
         children: [
           CustomCachedNetworkImageWidget(
-            height:isDeviceInPortrait(context)? MediaQuery.sizeOf(context).height * 0.16:  MediaQuery.sizeOf(context).height * 0.5,
+            height: isDeviceInPortrait(context)
+                ? MediaQuery.sizeOf(context).height * 0.16
+                : MediaQuery.sizeOf(context).height * 0.5,
             width: MediaQuery.sizeOf(context).width * 0.25,
             fit: BoxFit.cover,
             imageUrl: brotherModel.coverUrl,
@@ -43,20 +46,32 @@ class CustomBrotherItem extends StatelessWidget {
                     const Spacer(),
                     GestureDetector(
                       onTap: () async {
-                        final message='مرحبا ${brotherModel.name}، كيف حالك؟';
-                        final Uri url = Uri.parse('https://wa.me/+2${brotherModel.phoneNumber}?text=$message');
+                        final message =
+                            '${brotherModel.name}، مساء البركة /n انا ${getUserData().firstName} من كنيسة ${getUserData().churchName} كنت عايز ارتب مع حضرتك معاد';
+                        final Uri url = Uri.parse(
+                          'https://wa.me/+2${brotherModel.phoneNumber}?text=$message',
+                        );
                         if (await canLaunchUrl(url)) {
                           launchUrl(url);
                         }
-                      },  
-                      child: const FaIcon(FontAwesomeIcons.whatsapp, color: AppColors.primaryColor)),
+                      },
+                      child: const FaIcon(
+                        FontAwesomeIcons.whatsapp,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
                     horizontalSpace(12),
                     GestureDetector(
                       onTap: () async {
-                       
-                        await FlutterPhoneDirectCaller.callNumber(brotherModel.phoneNumber);
+                        await FlutterPhoneDirectCaller.callNumber(
+                          brotherModel.phoneNumber,
+                        );
                       },
-                      child: const FaIcon(Icons.phone_outlined, color: AppColors.primaryColor)),
+                      child: const FaIcon(
+                        Icons.phone_outlined,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
                   ],
                 ),
                 const MyDivider(),
@@ -66,10 +81,21 @@ class CustomBrotherItem extends StatelessWidget {
                 ),
                 verticalSpace(8),
                 Text(
-                  '${brotherModel.churchName} - ${brotherModel.government}',
+                  '${brotherModel.churchName} - ${brotherModel.city} -  ${brotherModel.government}',
                   style: const TextStyle(color: Colors.grey),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
+                ),
+                verticalSpace(8),
+                Visibility(
+                  visible:
+                      brotherModel.preferredMinistries?.isNotEmpty ?? false,
+                  child: Text(
+                    '# ${brotherModel.preferredMinistries?.join(' - ')}',
+                    style: const TextStyle(color: Colors.grey),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 verticalSpace(8),
               ],

@@ -15,6 +15,7 @@ abstract class AuthRepo {
     required String frontId,
     required String backId,
   });
+Future<void> deleteUserData(String uId);
 
   Future<Either<Failure, UserModel>> login({
     required String email,

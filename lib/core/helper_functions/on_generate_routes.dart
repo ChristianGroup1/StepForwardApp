@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:stepforward/core/helper_functions/cache_helper.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
+import 'package:stepforward/core/services/analytics_service.dart';
 import 'package:stepforward/core/services/firebase_auth_service.dart';
 import 'package:stepforward/core/utils/chache_helper_keys.dart';
 import 'package:stepforward/features/auth/data/models/user_model.dart';
@@ -33,6 +34,7 @@ Route onGenerateRoutes(RouteSettings settings) {
       );
 
     case Routes.forgetPasswordView:
+      AnalyticsService.logScreenView(screenName: 'ForgetPasswordView');
       return PageTransition(
         duration: const Duration(milliseconds: 50),
         child: const ForgetPasswordView(),
@@ -42,9 +44,7 @@ Route onGenerateRoutes(RouteSettings settings) {
       var userModel = settings.arguments as UserModel;
       return PageTransition(
         duration: const Duration(milliseconds: 50),
-        child:  CompleteUserProfileView(
-          user: userModel,
-        ),
+        child: CompleteUserProfileView(user: userModel),
         type: PageTransitionType.fade,
       );
     case Routes.mainView:
@@ -62,6 +62,8 @@ Route onGenerateRoutes(RouteSettings settings) {
         type: PageTransitionType.fade,
       );
     case Routes.updateUserProfile:
+      AnalyticsService.logScreenView(screenName: 'UpdateUserProfileView');
+
       return PageTransition(
         duration: const Duration(milliseconds: 50),
         child: const UpdateUserProfileView(),
@@ -74,21 +76,19 @@ Route onGenerateRoutes(RouteSettings settings) {
         child: const FavoritesView(),
         type: PageTransitionType.fade,
       );
-      case Routes.pdfViewerScreen:
+    case Routes.pdfViewerScreen:
+      AnalyticsService.logScreenView(screenName: 'PdfViewerScreen');
       final args = settings.arguments as Map<String, dynamic>;
       final title = args['title'];
       final url = args['url'];
       return PageTransition(
         duration: const Duration(milliseconds: 50),
-        child: PdfViewerScreen(
-          title: title,
-          url: url,
-        ),
+        child: PdfViewerScreen(title: title, url: url),
         type: PageTransitionType.fade,
       );
     default:
       var isLoggedIn =
-          FirebaseAuthService().isLoggedIn() &&
+          FirebaseAuthService().isLoggedIn() ||
           CacheHelper.getData(key: kSaveUserDataKey) != null;
       return PageTransition(
         duration: const Duration(milliseconds: 50),

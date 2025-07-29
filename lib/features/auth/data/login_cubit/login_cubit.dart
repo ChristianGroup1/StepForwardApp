@@ -43,15 +43,17 @@ class LoginCubit extends Cubit<LoginState> {
       (user) => emit(LoginSuccessState(userModel: user)),
     );
   }
-Future<void> signInWIthGoogle()async{
+
+  Future<void> signInWIthGoogle() async {
     emit(LoginLoadingState());
     var result = await authRepo.signInWithGoogle();
     result.fold(
       (failure) => emit(LoginFailureState(errorMessage: failure.message)),
       (user) => emit(LoginSuccessState(userModel: user)),
     );
-}
-     Future<void> sendEmailToResetPassword() async {
+  }
+  
+  Future<void> sendEmailToResetPassword() async {
     if (_isEmailButtonDisabled) return; // Prevent multiple presses
 
     //emit(SendEmailToResetPasswordLoadingState()); // Add loading state
@@ -98,8 +100,6 @@ Future<void> signInWIthGoogle()async{
       SendEmailToResetPasswordTimerState(_resendEmailTimerSeconds),
     ); // Emit 0 to update the UI
   }
-
- 
 
   @override
   Future<void> close() {

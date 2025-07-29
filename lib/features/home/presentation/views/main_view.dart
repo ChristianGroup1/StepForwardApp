@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stepforward/core/services/analytics_service.dart';
 import 'package:stepforward/core/widgets/custom_buttom_navigation_bar.dart';
 import 'package:stepforward/core/widgets/custom_floating_action_button.dart';
 import 'package:stepforward/features/home/presentation/views/home_view.dart';
@@ -19,6 +20,25 @@ class _MainViewState extends State<MainView> {
     setState(() {
       selectedIndex = index;
     });
+    String screenName;
+    switch (index) {
+      case 0:
+        screenName = 'HomeView';
+        break;
+      case 1:
+        screenName = 'GamesView';
+        break;
+      case 2:
+        screenName = 'BrothersView';
+        break;
+      case 3:
+        screenName = 'MoreView';
+        break;
+      default:
+        screenName = 'UnknownView';
+    }
+
+    AnalyticsService.logScreenView(screenName: screenName);
   }
 
   void navigateToGamesView() {
@@ -28,8 +48,6 @@ class _MainViewState extends State<MainView> {
   void navigateToBrothersView() {
     _onItemTapped(2);
   }
-
- 
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:stepforward/core/services/analytics_service.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_sliver_app_bar.dart';
@@ -23,6 +24,9 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
   @override
   void initState() {
     super.initState();
+     AnalyticsService.logScreenView(
+      screenName: 'GameDetailsView - ${widget.game.name}',
+    );
     final videoId =
         YoutubePlayerController.convertUrlToId(widget.game.videoLink) ?? '';
     _controller = YoutubePlayerController.fromVideoId(
@@ -67,7 +71,7 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
                   ),
                 ),
                 verticalSpace(24),
-                 const MyDivider(height: 50),
+                const MyDivider(height: 50),
                 const Text("شرح اللعبة", style: TextStyles.bold19),
                 verticalSpace(8),
                 Text(widget.game.explanation, style: TextStyles.regular16),
@@ -93,7 +97,6 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
                 const Text("الفئات", style: TextStyles.bold19),
                 verticalSpace(8),
                 GameHashTagsList(tags: widget.game.tags),
-               
 
                 verticalSpace(32),
               ],

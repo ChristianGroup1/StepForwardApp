@@ -53,7 +53,7 @@ void showAboutUsDialog(BuildContext context) {
                                  GestureDetector(
                     onTap: () async {
                       final Uri stepForwardUrl = Uri.parse(
-                        'https://www.facebook.com/stepforwardteam',
+                        'https://www.facebook.com/ElShaddaiSportTeam',
                       );
 
                       if (await canLaunchUrl(stepForwardUrl)) {

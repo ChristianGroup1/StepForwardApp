@@ -74,46 +74,50 @@ class SignUpCubit extends Cubit<SignUpState> {
     );
   }
 
- Future<void> completeGoogleSignUp({required String userId}) async {
-  emit(SignUpLoadingState());
-
-  try {
-    // Upload front ID
-    final frontResult = await imagesRepo.uploadImage(image: frontId!);
-    final frontUrl = frontResult.fold((failure) {
-      throw Exception(failure.message);
-    }, (url) => url);
-
-    // Upload back ID
-    final backResult = await imagesRepo.uploadImage(image: backId!);
-    final backUrl = backResult.fold((failure) {
-      throw Exception(failure.message);
-    }, (url) => url);
-
-    // Create completed user model
-    final userModel = UserModel(
-      id: userId,
-      firstName: firstNameController.text,
-      lastName: secondNameController.text,
-      email: emailController.text,
-      phoneNumber: phoneNumberController.text,
-      churchName: churchNameController.text,
-      government: governmentController.text,
-      frontId: frontUrl,
-      backId: backUrl,
-      isApproved: false,
-      favorites: [],
-    );
-
-    // Save user to Firestore and local storage
-    final result = await authRepo.completeGoogleSignUp(userModel: userModel);
-    result.fold(
-      (failure) => emit(SignUpFailureState(errorMessage: failure.message)),
-      (user) => emit(SignUpSuccessState(userModel: user)),
-    );
-  } catch (e) {
-    emit(SignUpFailureState(errorMessage: e.toString()));
+  Future<void> deleteUserData(String uId) async {
+    await authRepo.deleteUserData(uId);
+    
   }
-}
 
+  Future<void> completeGoogleSignUp({required String userId}) async {
+    emit(SignUpLoadingState());
+
+    try {
+      // Upload front ID
+      final frontResult = await imagesRepo.uploadImage(image: frontId!);
+      final frontUrl = frontResult.fold((failure) {
+        throw Exception(failure.message);
+      }, (url) => url);
+
+      // Upload back ID
+      final backResult = await imagesRepo.uploadImage(image: backId!);
+      final backUrl = backResult.fold((failure) {
+        throw Exception(failure.message);
+      }, (url) => url);
+
+      // Create completed user model
+      final userModel = UserModel(
+        id: userId,
+        firstName: firstNameController.text,
+        lastName: secondNameController.text,
+        email: emailController.text,
+        phoneNumber: phoneNumberController.text,
+        churchName: churchNameController.text,
+        government: governmentController.text,
+        frontId: frontUrl,
+        backId: backUrl,
+        isApproved: false,
+        favorites: [],
+      );
+
+      // Save user to Firestore and local storage
+      final result = await authRepo.completeGoogleSignUp(userModel: userModel);
+      result.fold(
+        (failure) => emit(SignUpFailureState(errorMessage: failure.message)),
+        (user) => emit(SignUpSuccessState(userModel: user)),
+      );
+    } catch (e) {
+      emit(SignUpFailureState(errorMessage: e.toString()));
+    }
+  }
 }

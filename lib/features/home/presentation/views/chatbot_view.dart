@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stepforward/core/services/analytics_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class ChatBotScreen extends StatefulWidget {
@@ -14,6 +15,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   @override
   void initState() {
     super.initState();
+    AnalyticsService.logScreenView(screenName: 'ChatBotScreen');
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..loadRequest(

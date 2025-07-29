@@ -36,6 +36,7 @@ dependencies:
   device_preview: ^1.0.0
   dio: ^5.8.0+1
   dots_indicator: ^3.0.0
+  firebase_analytics: ^11.5.0
   firebase_auth: ^5.6.0
   firebase_core: ^3.14.0
   firebase_storage: ^12.4.7

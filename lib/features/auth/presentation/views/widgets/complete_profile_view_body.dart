@@ -59,7 +59,23 @@ class CompleteUserProfileViewBody extends StatelessWidget {
                   key: cubit.formKey,
                   child: Column(
                     children: [
-                      const Text('بيانات الحساب', style: TextStyles.bold23),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.black),
+                            onPressed: () async {
+                              await cubit.deleteUserData(user!.id);
+                              if (context.mounted) {
+                                context.pushNamedAndRemoveUntil(
+                                  Routes.loginView,
+                                  predicate: (route) => false,
+                                );
+                              }
+                            },
+                          ),
+                          const Text('بيانات الحساب', style: TextStyles.bold23),
+                        ],
+                      ),
                       verticalSpace(16),
                       SignUpTextFields(cubit: cubit, user: user),
                       CustomButton(

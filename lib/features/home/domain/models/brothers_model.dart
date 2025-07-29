@@ -6,6 +6,8 @@ class BrothersModel {
   final List<String> tags;
   final String churchName;
   final String government;
+  final String? city;
+  final List<String>? preferredMinistries;
 
   BrothersModel({
     required this.id,
@@ -15,6 +17,8 @@ class BrothersModel {
     required this.tags,
     required this.churchName,
     required this.government,
+    this.city,
+    this.preferredMinistries,
   });
 
   factory BrothersModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +30,8 @@ class BrothersModel {
       tags: List<String>.from(json['tags'] ?? []),
       churchName: json['churchName'] ?? '',
       government: json['government'] ?? '',
+      city: json['city'] ?? '',
+      preferredMinistries: List<String>.from(json['preferredMinistries'] ?? []),
     );
   }
 
@@ -38,6 +44,8 @@ class BrothersModel {
       'tags': tags,
       'churchName': churchName,
       'government': government,
+      'city': city,
+      'preferredMinistries': preferredMinistries
     };
   }
 }

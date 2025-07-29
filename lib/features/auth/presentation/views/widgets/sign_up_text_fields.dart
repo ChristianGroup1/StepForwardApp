@@ -127,7 +127,7 @@ class _SignUpTextFieldsState extends State<SignUpTextFields> {
             if (value == null || value.isEmpty) {
               return 'هذا الحقل مطلوب';
             } else if (!AppRegex.isPasswordValid(value)) {
-              return 'كلمة المرور ضعيفة، جرب كلمة مرور أقوية';
+              return 'كلمة المرور يجب أن لا تقل عن 8 حروف وارقام،\n وتشمل حرف كبير، حرف صغير\n ورمز مثل @ أو !';
             }
             return null;
           },

@@ -10,6 +10,10 @@ class Assets {
   /// assets/images/active_home.svg
   static const String assetsImagesActiveHome = "assets/images/active_home.svg";
 
+  /// Assets for assetsImagesAndroid12Splash
+  /// assets/images/android_12_splash.png
+  static const String assetsImagesAndroid12Splash = "assets/images/android_12_splash.png";
+
   /// Assets for assetsImagesBrothersSlider
   /// assets/images/brothers_slider.png
   static const String assetsImagesBrothersSlider = "assets/images/brothers_slider.png";
@@ -66,17 +70,9 @@ class Assets {
   /// assets/images/people_icon.svg
   static const String assetsImagesPeopleIcon = "assets/images/people_icon.svg";
 
-  /// Assets for assetsImagesSplashAndroid12
-  /// assets/images/splash_android12.png
-  static const String assetsImagesSplashAndroid12 = "assets/images/splash_android12.png";
-
   /// Assets for assetsImagesStepForwardLogo
   /// assets/images/step_forward_logo.png
   static const String assetsImagesStepForwardLogo = "assets/images/step_forward_logo.png";
-
-  /// Assets for assetsImagesStepforwardSplash
-  /// assets/images/stepforward_splash.png
-  static const String assetsImagesStepforwardSplash = "assets/images/stepforward_splash.png";
 
   /// Assets for assetsImagesWatingApproval
   /// assets/images/wating_approval.png

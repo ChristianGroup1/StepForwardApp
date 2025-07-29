@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:stepforward/core/helper_functions/get_dummy_games.dart';
+import 'package:stepforward/core/services/analytics_service.dart';
+import 'package:stepforward/core/widgets/custom_empty_widget.dart';
 import 'package:stepforward/core/widgets/my_divider.dart';
 import 'package:stepforward/features/home/data/games_cubit/games_cubit.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/custom_game_item.dart';
@@ -21,10 +23,20 @@ class FavoritesViewBody extends StatelessWidget {
       listener: (context, state) {
         if (state is FetchUserFavoritesFailureState) {
           log(state.errorMessage);
+          AnalyticsService.logScreenView(screenName: 'FavoritesView');
         }
       },
       builder: (context, state) {
         if (state is FetchUserFavoritesSuccessState) {
+          if (state.favorites.isEmpty) {
+            return const Center(
+              child: CustomEmptyWidget(
+                title: 'لا توجد ألعاب مفضلة بعد',
+                subtitle:
+                    'يمكنك إضافة الألعاب إلى المفضلة من خلال الضغط على زر الإضافة في صفحة اللعبة.',
+              ),
+            );
+          }
           return ListView.separated(
             separatorBuilder: (context, index) => const MyDivider(),
             itemBuilder: (context, index) => Slidable(

@@ -17,12 +17,15 @@ class LoginViewBlocConsumer extends StatelessWidget {
     return BlocConsumer<LoginCubit, LoginState>(
       listener: (context, state) {
         if (state is LoginSuccessState) {
-          if (state.userModel.churchName=='' ||
+          if (state.userModel.churchName == '' ||
               state.userModel.backId == null ||
               state.userModel.frontId == null) {
-            context.pushReplacementNamed(Routes.completeUserProfileView, arguments: state.userModel);
+            context.pushReplacementNamed(
+              Routes.completeUserProfileView,
+              arguments: state.userModel,
+            );
           } else {
-            context.pushReplacementNamed(Routes.mainView);
+            context.pushNamedAndRemoveUntil(Routes.mainView, predicate: (route) => false);
           }
         }
         if (state is LoginFailureState) {

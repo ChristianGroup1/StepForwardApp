@@ -87,6 +87,7 @@ class CustomTextFormField extends StatelessWidget {
             TextStyles.bold13.copyWith(
               color: const Color(0xff949D9E),
             ),
+            
         filled: true,
         fillColor: fillColor ?? const Color(0xffF9FAFA),
         border: border ?? buildBorder(),
