@@ -32,8 +32,9 @@ class AuthRepoImpl extends AuthRepo {
     required String frontId,
     required String backId,
   }) async {
+    User? user;
     try {
-      final user = await firebaseAuthService.createUserWithEmailAndPassword(
+      user = await firebaseAuthService.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -48,11 +49,20 @@ class AuthRepoImpl extends AuthRepo {
         frontId: frontId,
         backId: backId,
       );
+
       await addUserData(userModel: userModel);
       await getUserData(id: user.uid);
       await saveUserData(userModel: userModel);
       return Right(userModel);
+    } on FirebaseAuthException catch (e) {
+      if (user != null) {
+        await firebaseAuthService.deleteUser();
+      }
+      return left(CustomFailure(message: mapException(e)));
     } catch (e) {
+      if (user != null) {
+        await firebaseAuthService.deleteUser();
+      }
       return left(CustomFailure(message: e.toString()));
     }
   }
@@ -85,7 +95,7 @@ class AuthRepoImpl extends AuthRepo {
           firstName: user.displayName?.split(' ').first ?? '',
           lastName: user.displayName?.split(' ').skip(1).join(' ') ?? '',
           email: user.email ?? '',
-          phoneNumber:  '',
+          phoneNumber: '',
           government: '',
           churchName: '',
           isApproved: false,

@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:stepforward/core/services/analytics_service.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
+import 'package:stepforward/core/utils/custom_snak_bar.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_sliver_app_bar.dart';
 import 'package:stepforward/core/widgets/my_divider.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_hashtag_list.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
 
@@ -24,7 +26,7 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
   @override
   void initState() {
     super.initState();
-     AnalyticsService.logScreenView(
+    AnalyticsService.logScreenView(
       screenName: 'GameDetailsView - ${widget.game.name}',
     );
     final videoId =
@@ -84,14 +86,29 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
                   const MyDivider(height: 50),
                 ],
 
-                const Text("الفئة المستهدفة", style: TextStyles.bold19),
-                verticalSpace(8),
-                Html(data: widget.game.target),
-                const MyDivider(height: 50),
-
                 const Text("الأدوات المطلوبة", style: TextStyles.bold19),
                 verticalSpace(8),
                 Text(widget.game.tools, style: TextStyles.regular16),
+                const MyDivider(height: 50),
+                const Text("الفئة المستهدفة", style: TextStyles.bold19),
+                verticalSpace(8),
+                Html(
+                  data: widget.game.target,
+                  onLinkTap: (url, attributes, element) async {
+                    if (url != null ) {
+                      await launchUrl(
+                        Uri.parse(url),
+                        mode: LaunchMode.externalApplication,
+                      );
+                    } else {
+                      showSnackBar(
+                        context,
+                        text: 'لا يمكن فتح الرابط',
+                        color: Colors.red,
+                      );
+                    }
+                  },
+                ),
                 const MyDivider(height: 50),
 
                 const Text("الفئات", style: TextStyles.bold19),

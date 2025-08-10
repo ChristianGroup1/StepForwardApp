@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
@@ -113,9 +112,9 @@ class GamesCubit extends Cubit<GamesState> {
         if (freshUser.isApproved) {
           await authRepo.saveUserData(userModel: freshUser);
         }
-        log('Account approval status: ${freshUser.isApproved}');
+       
       } catch (e) {
-        debugPrint('Failed to fetch user data: $e');
+        
       }
     }
   }

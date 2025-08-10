@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
@@ -15,8 +16,9 @@ class BrothersCubit extends Cubit<BrothersState> {
   List<BrothersModel> allBrothers = [];
   List<String> selectedTags = [];
   final TextEditingController searchController = TextEditingController();
-  String selectedGovernment = getUserData().government; // Default on startup
-
+  String selectedGovernment = getUserData().government;
+  String selectedDenomination = 'الكل'; 
+  bool isEmailVerified =false;
   BrothersCubit(this.homeRepo, this.authRepo) : super(BrothersInitialState());
 
   Future<void> getBrothers() async {
@@ -40,6 +42,15 @@ class BrothersCubit extends Cubit<BrothersState> {
     );
   }
 
+  void changeDenomination(String denomination) {
+    selectedDenomination = denomination;
+    emit(
+      GetBrothersSuccessState(
+        brothers: denomination == 'الكل' ? allBrothers : _filteredBrothers(),
+      ),
+    );
+  }
+
   void toggleTag(String tag) {
     if (selectedTags.contains(tag)) {
       selectedTags.remove(tag);
@@ -49,16 +60,32 @@ class BrothersCubit extends Cubit<BrothersState> {
     emit(GetBrothersSuccessState(brothers: _filteredBrothers()));
   }
 
+  void checkAndToastIfNotVerified() async {
+  if (!isEmailVerified) {
+  final user = FirebaseAuth.instance.currentUser;
+  await user?.reload();
+  final updatedUser = FirebaseAuth.instance.currentUser;
+  
+   isEmailVerified = updatedUser?.emailVerified ?? false;
+  
+  emit(CheckUserEmailVerification(isVerified: isEmailVerified));
+}
+}
+
   List<BrothersModel> _filteredBrothers() {
-    return allBrothers.where((brother) {
-      final tagMatch =
-          selectedTags.isEmpty ||
-          brother.tags.any((tag) => selectedTags.contains(tag));
-      final govMatch = brother.government == selectedGovernment;
-      if (selectedGovernment == 'الكل') return tagMatch;
-      return tagMatch && govMatch;
-    }).toList();
-  }
+  return allBrothers.where((brother) {
+    final tagMatch = selectedTags.isEmpty ||
+        brother.tags.any((tag) => selectedTags.contains(tag));
+    final govMatch = selectedGovernment == 'الكل' ||
+        brother.government == selectedGovernment;
+    final denominationMatch = selectedDenomination == 'الكل' ||
+        brother.denomination == selectedDenomination;
+    final visibilityMatch = brother.isVisible == true;
+
+    return tagMatch && govMatch && denominationMatch && visibilityMatch;
+  }).toList();
+}
+
 
   Future<void> getUserApprovedDataIfNotApproved() async {
     final cachedUser = getUserData();

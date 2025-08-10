@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/core/utils/spacing.dart';
+import 'package:stepforward/core/widgets/custom_email_verification_toast.dart';
 import 'package:stepforward/core/widgets/custom_home_app_bar.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/books_section_home_view.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/brothers_section_home_view.dart';
@@ -8,10 +9,13 @@ import 'package:stepforward/features/home/presentation/views/widgets/custom_slid
 import 'package:stepforward/features/home/presentation/views/widgets/games_section_home_view.dart';
 
 class HomeViewBody extends StatelessWidget {
-     final VoidCallback onNavigateToGamesView;
-   final VoidCallback onNavigateToBrothersView;
-
-  const HomeViewBody({super.key, required this.onNavigateToGamesView, required this.onNavigateToBrothersView});
+  final VoidCallback onNavigateToGamesView;
+  final VoidCallback onNavigateToBrothersView;
+  const HomeViewBody({
+    super.key,
+    required this.onNavigateToGamesView,
+    required this.onNavigateToBrothersView,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +27,7 @@ class HomeViewBody extends StatelessWidget {
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
+          const SliverToBoxAdapter(child: CustomEmailVerificationToast()),
           SliverToBoxAdapter(child: verticalSpace(16)),
           const SliverToBoxAdapter(child: CustomHomeAppBar()),
           SliverToBoxAdapter(child: verticalSpace(16)),
@@ -32,11 +37,12 @@ class HomeViewBody extends StatelessWidget {
               onNavigateToGamesView: onNavigateToGamesView,
             ),
           ),
-
           SliverToBoxAdapter(child: verticalSpace(12)),
-          GamesSectionHomeView( onNavigateToGamesView: onNavigateToGamesView,),
+          GamesSectionHomeView(onNavigateToGamesView: onNavigateToGamesView),
           SliverToBoxAdapter(child: verticalSpace(8)),
-          BrothersSectionHomeView(onNavigateToBrothersView: onNavigateToBrothersView,),
+          BrothersSectionHomeView(
+            onNavigateToBrothersView: onNavigateToBrothersView,
+          ),
           SliverToBoxAdapter(child: verticalSpace(8)),
           const BooksSectionHomeView(),
         ],
@@ -44,4 +50,3 @@ class HomeViewBody extends StatelessWidget {
     );
   }
 }
-

@@ -29,15 +29,18 @@ class WaitingForApprovalWidget extends StatelessWidget {
               style: TextStyles.bold16,
             ),
             verticalSpace(12),
+             const Text(
+               'اذا شعرت ان الموافقة تأخرت يمكنك التواصل معنا بشكل مباشر',
+               style: TextStyles.semiBold16,
+               textAlign: TextAlign.center,
+               
+             ),
+            verticalSpace(12),
              Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  'اذا شعرت ان الموافقة تأخرت يمكنك التواصل معنا بشكل مباشر',
-                  style: TextStyles.semiBold16,
-                  textAlign: TextAlign.center,
-                ),
-                horizontalSpace(20),
+               
+               
                  GestureDetector(
                     onTap: () async {
                       final Uri stepForwardUrl = Uri.parse(
@@ -53,6 +56,25 @@ class WaitingForApprovalWidget extends StatelessWidget {
                     },
                     child: const FaIcon(
                       FontAwesomeIcons.facebook,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                  horizontalSpace(12),
+                  GestureDetector(
+                    onTap: () async {
+                      final Uri teamWhatsappUrl = Uri.parse(
+                        'https://wa.me/+201224999086',
+                      );
+
+                      if (await canLaunchUrl(teamWhatsappUrl)) {
+                        await launchUrl(
+                          teamWhatsappUrl,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      }
+                    },
+                    child: const FaIcon(
+                      FontAwesomeIcons.whatsapp,
                       color: AppColors.primaryColor,
                     ),
                   ),

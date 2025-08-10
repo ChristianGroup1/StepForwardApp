@@ -22,7 +22,9 @@ class CustomShowMoreBlurredItem extends StatelessWidget {
               height: isDeviceInPortrait(context)
                   ? MediaQuery.sizeOf(context).height * 0.15
                   : MediaQuery.sizeOf(context).height * 0.42,
-              width: MediaQuery.sizeOf(context).width * 0.22,
+              width: isDeviceInPortrait(context)
+                  ? MediaQuery.sizeOf(context).width * 0.28
+                  : MediaQuery.sizeOf(context).width * 0.2,
               child: Stack(
                 fit: StackFit.expand,
                 children: [

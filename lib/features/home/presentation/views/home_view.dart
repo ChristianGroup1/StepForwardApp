@@ -10,6 +10,7 @@ import 'package:stepforward/features/home/presentation/views/widgets/home_view_b
 class HomeView extends StatelessWidget {
   final VoidCallback onNavigateToGamesView;
   final VoidCallback onNavigateToBrothersView;
+
   const HomeView({
     super.key,
     required this.onNavigateToGamesView,
@@ -23,6 +24,7 @@ class HomeView extends StatelessWidget {
         BlocProvider(
           create: (context) =>
               BrothersCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>())
+                ..checkAndToastIfNotVerified()
                 ..getUserApprovedDataIfNotApproved()
                 ..getBrothers(),
         ),
@@ -33,9 +35,23 @@ class HomeView extends StatelessWidget {
                 ..getBooks(),
         ),
       ],
-      child: HomeViewBody(
-        onNavigateToGamesView: onNavigateToGamesView,
-        onNavigateToBrothersView: onNavigateToBrothersView,
+      child: Builder(
+        builder: (context) {
+          var cubit = context.read<BrothersCubit>();
+          return RefreshIndicator(
+            backgroundColor: Colors.white,
+            onRefresh: () async {
+              await context.read<BrothersCubit>().getBrothers();
+              await context.read<GamesCubit>().getGames();
+              await context.read<GamesCubit>().getBooks();
+              cubit.checkAndToastIfNotVerified();
+            },
+            child: HomeViewBody(
+              onNavigateToGamesView: onNavigateToGamesView,
+              onNavigateToBrothersView: onNavigateToBrothersView,
+            ),
+          );
+        },
       ),
     );
   }

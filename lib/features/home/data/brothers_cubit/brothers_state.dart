@@ -5,7 +5,6 @@ sealed class BrothersState {}
 
 final class BrothersInitialState extends BrothersState {}
 
-
 class GetBrothersLoadingState extends BrothersState {}
 
 class GetBrothersSuccessState extends BrothersState {
@@ -17,3 +16,9 @@ class GetBrothersFailureState extends BrothersState {
   final String errorMessage;
   GetBrothersFailureState({required this.errorMessage});
 }
+
+class CheckUserEmailVerification extends BrothersState {
+  final bool isVerified;
+  CheckUserEmailVerification({this.isVerified = false});
+}
+

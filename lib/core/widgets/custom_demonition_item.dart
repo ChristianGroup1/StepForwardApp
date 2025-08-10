@@ -4,15 +4,13 @@ import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/custom_box_decoration.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 
-class CustomGovernorateTagItem extends StatelessWidget {
-  final String governorate;
- 
+class CustomDenominationItem extends StatelessWidget {
+  final String denomination;
   final VoidCallback onTap;
 
-  const CustomGovernorateTagItem({
+  const CustomDenominationItem({
     super.key,
-    required this.governorate,
-    
+    required this.denomination,
     required this.onTap,
   });
 
@@ -30,14 +28,14 @@ class CustomGovernorateTagItem extends StatelessWidget {
         child: Row(
           children: [
             const Icon(
-              Icons.location_on,
+              Icons.church,
               color: AppColors.primaryColor,
             ),
             horizontalSpace(4),
             Text(
-              'المحافظة : $governorate',
+              'الطائفة: $denomination',
               style: TextStyles.bold13.copyWith(
-                color:  Colors.black,
+                color: Colors.black,
               ),
             ),
           ],
@@ -46,4 +44,3 @@ class CustomGovernorateTagItem extends StatelessWidget {
     );
   }
 }
-

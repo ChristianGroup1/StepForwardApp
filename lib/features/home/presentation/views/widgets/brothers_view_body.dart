@@ -6,6 +6,7 @@ import 'package:stepforward/core/helper_functions/get_dummy_brother.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/core/utils/spacing.dart';
+import 'package:stepforward/core/widgets/custom_demonition_item.dart';
 import 'package:stepforward/core/widgets/custom_empty_widget.dart';
 import 'package:stepforward/core/widgets/custom_government_item.dart';
 import 'package:stepforward/core/widgets/custom_page_app_bar.dart';
@@ -23,7 +24,7 @@ class BrothersViewBody extends StatelessWidget {
     final cubit = context.watch<BrothersCubit>();
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: kHorizontalPadding,
+        horizontal: kHorizontalPadding-6,
         vertical: kVerticalPadding,
       ),
       child: getUserData().isApproved
@@ -37,7 +38,14 @@ class BrothersViewBody extends StatelessWidget {
                 SliverToBoxAdapter(
                   child: SearchTextField(
                     controller: cubit.searchController,
-                    onChanged: (value) => cubit.searchBrothers(),
+                    onChanged: (value) {
+                      if (value.isEmpty) {
+                        cubit.getBrothers();
+                      } else {
+                        cubit.searchBrothers();
+                      }
+                    },
+                    
                   ),
                 ),
                 SliverToBoxAdapter(child: verticalSpace(24)),
@@ -53,6 +61,13 @@ class BrothersViewBody extends StatelessWidget {
                           governorate: cubit.selectedGovernment,
                           onTap: () {
                             customGovernmentFilterModalSheet(context, cubit);
+                          },
+                        ),
+                        horizontalSpace(12),
+                        CustomDenominationItem(
+                          denomination: cubit.selectedDenomination,
+                          onTap: () {
+                            customBrotherFilterModalSheet(context, cubit);
                           },
                         ),
                         horizontalSpace(12),
