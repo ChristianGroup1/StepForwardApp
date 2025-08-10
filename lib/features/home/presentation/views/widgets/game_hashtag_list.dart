@@ -4,25 +4,22 @@ import 'package:stepforward/features/home/presentation/views/widgets/custom_game
 
 class GameHashTagsList extends StatelessWidget {
   final List<String> tags;
-  const GameHashTagsList({
-    super.key, required this.tags,
-  });
+  const GameHashTagsList({super.key, required this.tags});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 50,
-      width: double.infinity ,
+      height: 40,
+      width: double.infinity,
       child: ListView.separated(
         physics: const BouncingScrollPhysics(),
         shrinkWrap: true,
         separatorBuilder: (context, index) => horizontalSpace(12),
         scrollDirection: Axis.horizontal,
-        itemBuilder: (context, index) => CustomGameHashTagItem(
-          tagName: tags[index],
-        ),
+        itemBuilder: (context, index) =>
+            CustomGameHashTagItem(tagName: tags[index]),
         itemCount: tags.length,
       ),
     );
   }
-} 
+}
