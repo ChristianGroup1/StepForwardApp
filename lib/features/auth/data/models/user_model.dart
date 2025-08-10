@@ -7,8 +7,9 @@ class UserModel {
   final String phoneNumber;
   final String government;
   final String churchName;
-  final String frontId;
-  final String backId;
+  final String? frontId;
+  final String? backId;
+  final List<String>? favorites;
 
   UserModel({
     required this.id,
@@ -16,11 +17,12 @@ class UserModel {
     required this.lastName,
     this.isApproved = false,
     required this.email,
+    this.favorites,
     required this.phoneNumber,
     required this.government,
     required this.churchName,
-    required this.frontId,
-    required this.backId,
+     this.frontId,
+     this.backId,
   });
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
@@ -34,6 +36,7 @@ class UserModel {
       churchName: json['churchName'],
       frontId: json['frontId'],
       backId: json['backId'],
+      favorites: List<String>.from(json['favorites'] ?? []),
     );
   }
   toJson() {
@@ -48,6 +51,7 @@ class UserModel {
       'churchName': churchName,
       'frontId': frontId,
       'backId': backId,
+      'favorites': favorites
     };
   }
 }

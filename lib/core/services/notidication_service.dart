@@ -34,7 +34,7 @@ class NotificationService {
   }else{
     
   }
-} on Exception catch (e) {
+} on Exception {
  
 }
   

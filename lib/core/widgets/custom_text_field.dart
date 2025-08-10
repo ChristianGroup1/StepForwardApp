@@ -21,6 +21,7 @@ class CustomTextFormField extends StatelessWidget {
   final InputBorder? border;
   final bool? isDense;
   final Color? fillColor;
+  final bool? isEnabled;
   final TextStyle? style;
   final void Function(String?)? onSaved;
   final TextStyle? hintStyle;
@@ -32,6 +33,7 @@ class CustomTextFormField extends StatelessWidget {
       this.style,
       this.hintStyle,
       this.initialValue,
+      this.isEnabled=true,
       this.isDense,
       this.borderRadius,
       this.fillColor,
@@ -51,7 +53,8 @@ class CustomTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
+    return TextFormField( 
+      enabled: isEnabled,
       onFieldSubmitted: onFieldSubmitted,
       controller: controller,
       initialValue: initialValue,
@@ -84,6 +87,7 @@ class CustomTextFormField extends StatelessWidget {
             TextStyles.bold13.copyWith(
               color: const Color(0xff949D9E),
             ),
+            
         filled: true,
         fillColor: fillColor ?? const Color(0xffF9FAFA),
         border: border ?? buildBorder(),

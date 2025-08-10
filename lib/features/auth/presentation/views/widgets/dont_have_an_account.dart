@@ -1,9 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:stepforward/core/helper_functions/cache_helper.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
 import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
+import 'package:stepforward/core/utils/chache_helper_keys.dart';
 
 
 
@@ -24,6 +26,7 @@ class DontHaveAnAccount extends StatelessWidget {
         ),
       ),
       TextSpan(recognizer: TapGestureRecognizer()..onTap = () {
+        CacheHelper.removeData(key: kSaveUserDataKey);
         context.pushNamed(Routes.signUpView);
       },
         text: 'قم بإنشاء حساب',

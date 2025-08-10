@@ -1,4 +1,4 @@
-package com.JohnDev.stepforward
+package com.stepforward
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 3.0.0+3
 
 environment:
   sdk: ^3.8.0
@@ -34,19 +34,26 @@ dependencies:
   cupertino_icons: ^1.0.6
   dartz: ^0.10.1
   device_preview: ^1.0.0
+  dio: ^5.8.0+1
   dots_indicator: ^3.0.0
+  firebase_analytics: ^11.5.0
   firebase_auth: ^5.6.0
   firebase_core: ^3.14.0
   firebase_storage: ^12.4.7
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.0
+  flutter_cached_pdfview: ^0.4.3
+  flutter_html: ^3.0.0
   flutter_localizations:
     sdk: flutter
+  flutter_native_splash: ^2.4.6
+  flutter_phone_direct_caller: ^2.2.1
   flutter_screenutil: ^5.9.3
   flutter_slidable: ^3.1.2
-  flutter_svg: ^2.0.10+1
+  flutter_svg: ^2.2.0
   flutter_svg_provider: ^1.0.7
+  font_awesome_flutter: ^10.8.0
   get_it: ^8.0.0
   google_sign_in: ^6.2.1
   http: ^1.2.2
@@ -55,12 +62,18 @@ dependencies:
   modal_progress_hud_nsn: ^0.5.1
   onesignal_flutter: ^5.2.9
   page_transition: ^2.1.0
+  path_provider: ^2.1.5
   provider: ^6.1.2
   quickalert: ^1.1.0
   shared_preferences: ^2.2.3
-  skeletonizer: ^1.4.2
+  skeletonizer: ^2.1.0+1
+  url_launcher: ^6.3.1
+  webview_flutter: ^4.13.0
+  youtube_player_flutter: ^9.1.1
+  youtube_player_iframe: ^5.2.1
 
 dev_dependencies:
+  change_app_package_name: ^1.1.0
   flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter

@@ -209,18 +209,18 @@ Future<void> removeItemFromCart({
 
 
 @override
-Future<List<Map<String, dynamic>>> searchProducts(String searchText) async {
+Future<List<Map<String, dynamic>>> searchData(String searchText,String searchIn) async {
   try {
     final snapshot = await firestore
-        .collection('products')
+        .collection(searchIn)
         .orderBy('name')
         .startAt([searchText])
-        .endAt([searchText + '\uf8ff'])
+        .endAt(['$searchText\uf8ff'])
         .get();
 
     return snapshot.docs.map((doc) => doc.data()).toList();
   } catch (e) {
-    throw Exception('Failed to search products: ${e.toString()}');
+    throw Exception('Failed to search Games: ${e.toString()}');
   }
 }
 

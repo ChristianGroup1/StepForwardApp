@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
+import 'package:stepforward/core/services/analytics_service.dart';
 import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_images.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
@@ -15,10 +16,7 @@ import 'package:stepforward/features/auth/presentation/views/widgets/login_metho
 import 'package:stepforward/features/auth/presentation/views/widgets/or_divider.dart';
 
 class LoginViewBody extends StatelessWidget {
-  const LoginViewBody({
-    super.key,
-    required this.cubit,
-  });
+  const LoginViewBody({super.key, required this.cubit});
 
   final LoginCubit cubit;
 
@@ -44,11 +42,11 @@ class LoginViewBody extends StatelessWidget {
                 ),
               ),
               verticalSpace(30),
-              Text(
+              const Text(
                 'اهلًا بعودتك إلى Step Forward',
                 style: TextStyles.bold23,
               ),
-    
+
               verticalSpace(30),
               CustomTextFormField(
                 textInputType: TextInputType.emailAddress,
@@ -61,9 +59,10 @@ class LoginViewBody extends StatelessWidget {
               CustomTextFormField(
                 suffixIcon: GestureDetector(
                   onTap: () => cubit.changePasswordVisibility(),
-                  child: cubit.suffixIcon),
+                  child: cubit.suffixIcon,
+                ),
                 isObscured: cubit.isObscured,
-               
+
                 labelText: 'كلمة المرور',
                 onChanged: (value) {
                   cubit.passwordController.text = value;
@@ -73,7 +72,7 @@ class LoginViewBody extends StatelessWidget {
               Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: GestureDetector(
-                   onTap: () => context.pushNamed(Routes.forgetPasswordView),
+                  onTap: () => context.pushNamed(Routes.forgetPasswordView),
                   child: Text(
                     'نسيت كلمة المرور ؟ ',
                     style: TextStyles.bold16.copyWith(
@@ -88,19 +87,23 @@ class LoginViewBody extends StatelessWidget {
                 textColor: Colors.white,
                 onPressed: () {
                   if (cubit.formKey.currentState!.validate()) {
+                    //AnalyticsService.logLogin(method: 'email and password');
                     cubit.login();
                   }
                 },
               ),
               verticalSpace(24),
-              DontHaveAnAccount(),
+              const DontHaveAnAccount(),
               verticalSpace(24),
-              OrDivider(),
+              const OrDivider(),
               verticalSpace(24),
               LoginMethodItem(
                 image: Assets.assetsImagesGoogleIcon,
                 text: 'تسجيل الدخول بواسطة جوجل',
-                onTap: () {},
+                onTap: () {
+                   AnalyticsService.logLogin(method: 'google');
+                  cubit.signInWIthGoogle();
+                },
               ),
             ],
           ),
