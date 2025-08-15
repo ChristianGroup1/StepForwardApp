@@ -29,8 +29,6 @@ class AuthRepoImpl extends AuthRepo {
     required String phone,
     required String churchName,
     required String government,
-    required String frontId,
-    required String backId,
   }) async {
     User? user;
     try {
@@ -46,8 +44,6 @@ class AuthRepoImpl extends AuthRepo {
         phoneNumber: phone,
         churchName: churchName,
         government: government,
-        frontId: frontId,
-        backId: backId,
       );
 
       await addUserData(userModel: userModel);
@@ -317,6 +313,34 @@ class AuthRepoImpl extends AuthRepo {
       }
     } catch (e) {
       return Left(CustomFailure(message: "Unexpected error: ${e.toString()}"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> addUserIds({
+    required String uId,
+    required String frontId,
+    required String backId,
+  }) async {
+    try {
+      // Update user data in the database
+      await databaseService.updateData(
+        path: BackendEndpoints.addUserData,
+        documentId: uId,
+        data: {'frontId': frontId, 'backId': backId},
+      );
+      var data = await getUserData(id: uId);
+       await saveUserData(userModel: data);
+
+      return const Right(null);
+    } on CustomException catch (e) {
+      return Left(CustomFailure(message: e.message));
+    } catch (e) {
+      return Left(
+        CustomFailure(
+          message: 'An unexpected error occurred while updating user data.',
+        ),
+      );
     }
   }
 }

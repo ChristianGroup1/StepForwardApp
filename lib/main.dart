@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stepforward/core/helper_functions/cache_helper.dart';
@@ -10,7 +9,6 @@ import 'package:stepforward/core/helper_functions/rouutes.dart';
 import 'package:stepforward/core/services/firebase_auth_service.dart';
 import 'package:stepforward/core/services/get_it_service.dart';
 import 'package:stepforward/core/utils/app_colors.dart';
-import 'package:stepforward/core/utils/bloc_observer.dart';
 import 'package:stepforward/core/utils/chache_helper_keys.dart';
 import 'package:stepforward/firebase_options.dart';
 import 'package:stepforward/generated/l10n.dart';
@@ -19,7 +17,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await CacheHelper.init();
-  Bloc.observer = MyBlocObserver();
+  //Bloc.observer = MyBlocObserver();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.white, // 🔳 makes area near the camera white

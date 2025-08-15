@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stepforward/core/repos/image_repo.dart';
 import 'package:stepforward/core/services/get_it_service.dart';
 import 'package:stepforward/features/auth/domain/repos/auth_repo.dart';
 import 'package:stepforward/features/home/data/brothers_cubit/brothers_cubit.dart';
@@ -13,16 +14,29 @@ class BrothersView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          BrothersCubit(getIt.get<HomeRepo>(),  // Injecting HomeRepo
-              getIt.get<AuthRepo>()) // Injecting AuthRepo
-            ..getBrothers()..getUserApprovedDataIfNotApproved(),
+          BrothersCubit(
+              getIt.get<HomeRepo>(), // Injecting HomeRepo
+              getIt.get<AuthRepo>(),
+              getIt.get<ImagesRepo>(),
+            ) // Injecting AuthRepo
+            ..getBrothers()
+            ..getUserApprovedDataIfNotApproved(),
       child: Builder(
         builder: (context) {
           return RefreshIndicator(
             backgroundColor: Colors.white,
-            onRefresh: () => context.read<BrothersCubit>().getBrothers(),
-            child: const BrothersViewBody());
-        }
+            onRefresh: () {
+              return Future.wait([
+                context.read<BrothersCubit>().getBrothers(),
+                context
+                    .read<BrothersCubit>()
+                    .getUserApprovedDataIfNotApproved(),
+              ]);
+            },
+
+            child: const BrothersViewBody(),
+          );
+        },
       ),
     );
   }

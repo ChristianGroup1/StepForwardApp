@@ -12,8 +12,7 @@ abstract class AuthRepo {
     required String phone,
     required String churchName,
     required String government,
-    required String frontId,
-    required String backId,
+    
   });
 Future<void> deleteUserData(String uId);
 
@@ -45,5 +44,10 @@ Future<void> deleteUserData(String uId);
   Future<Either<Failure, void>> deleteAccount({
     required String uId,
     String? password,
+  });
+   Future<Either<Failure, void>> addUserIds({
+    required String uId,
+    required String frontId,
+    required String backId
   });
 }

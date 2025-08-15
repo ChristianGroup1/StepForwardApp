@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stepforward/core/repos/image_repo.dart';
 import 'package:stepforward/core/services/get_it_service.dart';
 import 'package:stepforward/features/auth/domain/repos/auth_repo.dart';
 import 'package:stepforward/features/home/data/brothers_cubit/brothers_cubit.dart';
@@ -23,7 +24,7 @@ class HomeView extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (context) =>
-              BrothersCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>())
+              BrothersCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>(),getIt.get<ImagesRepo>())
                 ..checkAndToastIfNotVerified()
                 ..getUserApprovedDataIfNotApproved()
                 ..getBrothers(),

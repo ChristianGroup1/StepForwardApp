@@ -44,14 +44,12 @@ void showAboutUsDialog(BuildContext context) {
                 'لأي استفسارات أو تعديلات متعلقة بالتطبيق، يمكنك التواصل على صفحة الفريق او مباشرة مع المطور :',
               ),
 
-               Row(
-                 children: [
-                   buildSectionTitle(
-                   'صفحة الفريق : ',
-                               
-                                 ),
-                                 GestureDetector(
-                    onTap: () async {
+              Row(
+                children: [
+                  buildSectionTitle('صفحة الفريق : '),
+                  IconButton(
+                    constraints: const BoxConstraints(),
+                    onPressed: () async {
                       final Uri stepForwardUrl = Uri.parse(
                         'https://www.facebook.com/ElShaddaiSportTeam',
                       );
@@ -63,14 +61,15 @@ void showAboutUsDialog(BuildContext context) {
                         );
                       }
                     },
-                    child: const FaIcon(
+                    icon: const FaIcon(
                       FontAwesomeIcons.facebook,
                       color: AppColors.primaryColor,
                     ),
                   ),
-                    horizontalSpace(12),
-                  GestureDetector(
-                    onTap: () async {
+
+                  IconButton(
+                    constraints: const BoxConstraints(),
+                    onPressed: () async {
                       final Uri teamWhatsappUrl = Uri.parse(
                         'https://wa.me/+201224999086',
                       );
@@ -82,22 +81,22 @@ void showAboutUsDialog(BuildContext context) {
                         );
                       }
                     },
-                    child: const FaIcon(
+                    icon: const FaIcon(
                       FontAwesomeIcons.whatsapp,
                       color: AppColors.primaryColor,
                     ),
                   ),
-                 ],
-               ),
-              
+                ],
+              ),
 
               const SizedBox(height: 8),
               Row(
                 children: [
-                   buildSectionTitle('مطور التطبيق : '),
-                   horizontalSpace(4),
-                  GestureDetector(
-                    onTap: () async {
+                  buildSectionTitle('مطور التطبيق : '),
+                  horizontalSpace(4),
+                  IconButton(
+                    constraints: const BoxConstraints(),
+                    onPressed: () async {
                       final Uri gitHubUrl = Uri.parse(
                         'https://github.com/JohnAmir450',
                       );
@@ -109,14 +108,15 @@ void showAboutUsDialog(BuildContext context) {
                         );
                       }
                     },
-                    child: const FaIcon(
+                    icon: const FaIcon(
                       FontAwesomeIcons.github,
                       color: AppColors.primaryColor,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: () async {
+
+                  IconButton(
+                    constraints: const BoxConstraints(),
+                    onPressed: () async {
                       final Uri linkedInUri = Uri.parse(
                         'https://www.linkedin.com/in/john-amir-135587240/',
                       );
@@ -128,14 +128,15 @@ void showAboutUsDialog(BuildContext context) {
                         );
                       }
                     },
-                    child: const FaIcon(
+                    icon: const FaIcon(
                       FontAwesomeIcons.linkedin,
                       color: AppColors.primaryColor,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: () async {
+
+                  IconButton(
+                    constraints: const BoxConstraints(),
+                    onPressed: () async {
                       final Uri facebookUrl = Uri.parse(
                         'https://www.facebook.com/john.amir.1804',
                       );
@@ -146,7 +147,7 @@ void showAboutUsDialog(BuildContext context) {
                         );
                       }
                     },
-                    child: const FaIcon(
+                    icon: const FaIcon(
                       FontAwesomeIcons.facebook,
                       color: AppColors.primaryColor,
                     ),

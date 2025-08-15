@@ -16,6 +16,7 @@ import 'package:stepforward/features/home/presentation/views/favorites_view.dart
 import 'package:stepforward/features/home/presentation/views/game_details.dart';
 import 'package:stepforward/features/home/presentation/views/main_view.dart';
 import 'package:stepforward/features/home/presentation/views/update_user_profile_view.dart';
+import 'package:stepforward/features/home/presentation/views/upload_user_id_view.dart';
 
 Route onGenerateRoutes(RouteSettings settings) {
   switch (settings.name) {
@@ -71,9 +72,18 @@ Route onGenerateRoutes(RouteSettings settings) {
       );
 
     case Routes.favoritesView:
+      AnalyticsService.logScreenView(screenName: 'FavoritesView');
+
       return PageTransition(
         duration: const Duration(milliseconds: 50),
         child: const FavoritesView(),
+        type: PageTransitionType.fade,
+      );
+    case Routes.uploadIdView:
+      AnalyticsService.logScreenView(screenName: 'UploadIdView');
+      return PageTransition(
+        duration: const Duration(milliseconds: 50),
+        child: const UploadUserIdView(),
         type: PageTransitionType.fade,
       );
     case Routes.pdfViewerScreen:
@@ -86,6 +96,7 @@ Route onGenerateRoutes(RouteSettings settings) {
         child: PdfViewerScreen(title: title, url: url),
         type: PageTransitionType.fade,
       );
+
     default:
       var isLoggedIn =
           FirebaseAuthService().isLoggedIn() ||

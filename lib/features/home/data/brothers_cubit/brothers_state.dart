@@ -22,3 +22,13 @@ class CheckUserEmailVerification extends BrothersState {
   CheckUserEmailVerification({this.isVerified = false});
 }
 
+  
+  
+class AddUserIdsFailureState extends BrothersState {
+  final String errorMessage;
+  AddUserIdsFailureState({required this.errorMessage});
+}
+
+class AddUserIdsSuccessState extends BrothersState {}
+class AddUserIdsLoadingState extends BrothersState {}
+

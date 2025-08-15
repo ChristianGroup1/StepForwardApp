@@ -72,8 +72,9 @@ class CustomBrotherItem extends StatelessWidget {
                       ),
                     ),
                     horizontalSpace(24),
-                    GestureDetector(
-                      onTap: () async {
+                    IconButton(
+                      constraints: const BoxConstraints(),
+                      onPressed: () async {
                         final message =
                             '${brotherModel.name}، مساء البركة  انا ${getUserData().firstName} من كنيسة ${getUserData().churchName} كنت عايز ارتب مع حضرتك معاد';
                         final Uri url = Uri.parse(
@@ -83,19 +84,19 @@ class CustomBrotherItem extends StatelessWidget {
                           launchUrl(url);
                         }
                       },
-                      child: const FaIcon(
+                      icon: const FaIcon(
                         FontAwesomeIcons.whatsapp,
                         color: AppColors.primaryColor,
                       ),
                     ),
-                    horizontalSpace(12),
-                    GestureDetector(
-                      onTap: () async {
+                    IconButton(
+                      constraints: const BoxConstraints(),
+                      onPressed: () async {
                         await FlutterPhoneDirectCaller.callNumber(
                           brotherModel.phoneNumber,
                         );
                       },
-                      child: const FaIcon(
+                      icon: const FaIcon(
                         Icons.phone_outlined,
                         color: AppColors.primaryColor,
                       ),
