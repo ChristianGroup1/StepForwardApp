@@ -29,6 +29,10 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
     AnalyticsService.logScreenView(
       screenName: 'GameDetailsView - ${widget.game.name}',
     );
+    AnalyticsService.logEvent(
+      name: 'open_game_details',
+      parameters: {'game_id': widget.game.id, 'game_name': widget.game.name},
+    );
     final videoId =
         YoutubePlayerController.convertUrlToId(widget.game.videoLink) ?? '';
     _controller = YoutubePlayerController.fromVideoId(
@@ -63,20 +67,32 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 verticalSpace(24),
-                const Text("فيديو اللعبة", style: TextStyles.bold19),
+                const Text("السن المناسب ", style: TextStyles.bold19),
                 verticalSpace(8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: YoutubePlayer(
-                    controller: _controller,
-                    aspectRatio: 16 / 9,
-                  ),
-                ),
-                verticalSpace(24),
+                GameHashTagsList(tags: widget.game.tags),
                 const MyDivider(height: 50),
+                if (widget.game.videoLink.isNotEmpty) ...[
+                  const Text("فيديو اللعبة", style: TextStyles.bold19),
+                  verticalSpace(8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: YoutubePlayer(
+                      controller: _controller,
+                      aspectRatio: 16 / 9,
+                    ),
+                  ),
+                  verticalSpace(24),
+                  const MyDivider(height: 50),
+                ],
+
                 const Text("شرح اللعبة", style: TextStyles.bold19),
                 verticalSpace(8),
                 Text(widget.game.explanation, style: TextStyles.regular16),
+                const MyDivider(height: 50),
+
+                const Text("الأدوات المطلوبة", style: TextStyles.bold19),
+                verticalSpace(8),
+                Text(widget.game.tools, style: TextStyles.regular16),
                 const MyDivider(height: 50),
 
                 if (widget.game.laws.isNotEmpty) ...[
@@ -86,29 +102,14 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
                   const MyDivider(height: 50),
                 ],
 
+                const Text("الفئة المستهدفة", style: TextStyles.bold19),
+                verticalSpace(8),
+                Html(data: widget.game.target),
+                const MyDivider(height: 50),
+
                 const Text("الأدوات المطلوبة", style: TextStyles.bold19),
                 verticalSpace(8),
                 Text(widget.game.tools, style: TextStyles.regular16),
-                const MyDivider(height: 50),
-                const Text("الفئة المستهدفة", style: TextStyles.bold19),
-                verticalSpace(8),
-                Html(
-                  data: widget.game.target,
-                  onLinkTap: (url, attributes, element) async {
-                    if (url != null ) {
-                      await launchUrl(
-                        Uri.parse(url),
-                        mode: LaunchMode.externalApplication,
-                      );
-                    } else {
-                      showSnackBar(
-                        context,
-                        text: 'لا يمكن فتح الرابط',
-                        color: Colors.red,
-                      );
-                    }
-                  },
-                ),
                 const MyDivider(height: 50),
 
                 const Text("الفئات", style: TextStyles.bold19),
