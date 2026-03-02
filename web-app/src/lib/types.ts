@@ -17,7 +17,7 @@ export interface GameModel {
   name: string;
   coverUrl: string;
   explanation: string;
-  isVisible: boolean;
+  isVisible?: boolean;
   laws: string;
   tags: string[];
   target: string;

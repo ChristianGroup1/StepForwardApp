@@ -85,7 +85,7 @@ export default function HomeTab({ onNavigateGames, onNavigateBrothers }: HomeTab
     async function fetchData() {
       try {
         const [g, b, bk] = await Promise.all([getGames(), getBrothers(), getBooks()]);
-        setGames(g.filter((game) => game.isVisible !== false));
+        setGames(g);
         setBrothers(b);
         setBooks(bk);
       } catch (err) {

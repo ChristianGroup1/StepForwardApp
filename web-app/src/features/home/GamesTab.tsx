@@ -22,7 +22,7 @@ export default function GamesTab() {
     async function fetchData() {
       try {
         const data = await getGames();
-        setGames(data.filter((g) => g.isVisible !== false));
+        setGames(data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -37,7 +37,7 @@ export default function GamesTab() {
     setSearching(true);
     try {
       const results = await searchGames(searchText);
-      setGames(results.filter((g) => g.isVisible !== false));
+      setGames(results);
     } catch (err) {
       console.error(err);
     } finally {

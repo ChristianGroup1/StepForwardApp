@@ -4,14 +4,16 @@ import { useState, FormEvent, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
+import { uploadIdImage } from "@/lib/storage-service";
 import Button from "@/components/Button";
 import TextField from "@/components/TextField";
 import SelectField from "@/components/SelectField";
+import ImageUploadField from "@/components/ImageUploadField";
 import { governments } from "@/lib/constants";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 function CompleteProfileForm() {
-  const { completeGoogleSignUp } = useAuth();
+  const { completeGoogleSignUp, updateUserProfile } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
   const uid = params.get("uid") || "";
@@ -24,6 +26,8 @@ function CompleteProfileForm() {
   const [phone, setPhone] = useState("");
   const [government, setGovernment] = useState("");
   const [churchName, setChurchName] = useState("");
+  const [frontIdFile, setFrontIdFile] = useState<File | null>(null);
+  const [backIdFile, setBackIdFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -36,8 +40,19 @@ function CompleteProfileForm() {
       return;
     }
 
+    if (!frontIdFile || !backIdFile) {
+      setError("يرجى رفع صورة وجه البطاقة وظهر البطاقة");
+      return;
+    }
+
     setLoading(true);
     try {
+      // Upload ID images
+      const [frontIdUrl, backIdUrl] = await Promise.all([
+        uploadIdImage(frontIdFile, uid, "front"),
+        uploadIdImage(backIdFile, uid, "back"),
+      ]);
+
       await completeGoogleSignUp({
         id: uid,
         firstName,
@@ -47,8 +62,14 @@ function CompleteProfileForm() {
         government,
         churchName,
         isApproved: false,
+        frontId: frontIdUrl,
+        backId: backIdUrl,
         favorites: [],
       });
+
+      // Update with ID URLs
+      await updateUserProfile({ frontId: frontIdUrl, backId: backIdUrl });
+
       router.push("/main");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "حدث خطأ أثناء إكمال الملف الشخصي";
@@ -117,6 +138,23 @@ function CompleteProfileForm() {
               value={churchName}
               onChange={(e) => setChurchName(e.target.value)}
             />
+
+            {/* ID Verification Images */}
+            <div className="pt-2">
+              <p className="text-sm font-semibold text-[#21406c] mb-3">صور البطاقة للتحقق من الهوية</p>
+              <div className="space-y-3">
+                <ImageUploadField
+                  label="وجه البطاقة"
+                  value={frontIdFile}
+                  onChange={setFrontIdFile}
+                />
+                <ImageUploadField
+                  label="ظهر البطاقة"
+                  value={backIdFile}
+                  onChange={setBackIdFile}
+                />
+              </div>
+            </div>
 
             <Button type="submit" fullWidth loading={loading}>
               إكمال التسجيل

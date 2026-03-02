@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
+import { uploadIdImage } from "@/lib/storage-service";
 import Button from "@/components/Button";
 import TextField from "@/components/TextField";
 import SelectField from "@/components/SelectField";
+import ImageUploadField from "@/components/ImageUploadField";
 import { governments } from "@/lib/constants";
 
 export default function SignUpPage() {
-  const { signUp } = useAuth();
+  const { signUp, updateUserProfile } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -24,6 +26,8 @@ export default function SignUpPage() {
   const [churchName, setChurchName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [frontIdFile, setFrontIdFile] = useState<File | null>(null);
+  const [backIdFile, setBackIdFile] = useState<File | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -44,9 +48,15 @@ export default function SignUpPage() {
       return;
     }
 
+    if (!frontIdFile || !backIdFile) {
+      setError("يرجى رفع صورة وجه البطاقة وظهر البطاقة");
+      return;
+    }
+
     setLoading(true);
     try {
-      await signUp(email, password, {
+      // First create the account to get the user ID
+      const user = await signUp(email, password, {
         firstName,
         lastName,
         email,
@@ -56,6 +66,16 @@ export default function SignUpPage() {
         isApproved: false,
         favorites: [],
       });
+
+      // Then upload ID images with the user ID
+      const [frontIdUrl, backIdUrl] = await Promise.all([
+        uploadIdImage(frontIdFile, user.id, "front"),
+        uploadIdImage(backIdFile, user.id, "back"),
+      ]);
+
+      // Update user profile with ID image URLs
+      await updateUserProfile({ frontId: frontIdUrl, backId: backIdUrl });
+
       router.push("/main");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "حدث خطأ أثناء إنشاء الحساب";
@@ -132,6 +152,23 @@ export default function SignUpPage() {
               value={churchName}
               onChange={(e) => setChurchName(e.target.value)}
             />
+
+            {/* ID Verification Images */}
+            <div className="pt-2">
+              <p className="text-sm font-semibold text-[#21406c] mb-3">صور البطاقة للتحقق من الهوية</p>
+              <div className="space-y-3">
+                <ImageUploadField
+                  label="وجه البطاقة"
+                  value={frontIdFile}
+                  onChange={setFrontIdFile}
+                />
+                <ImageUploadField
+                  label="ظهر البطاقة"
+                  value={backIdFile}
+                  onChange={setBackIdFile}
+                />
+              </div>
+            </div>
 
             <TextField
               label="كلمة المرور"
