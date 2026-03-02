@@ -106,7 +106,7 @@ export default function HomeTab({ onNavigateGames, onNavigateBrothers }: HomeTab
         <h1 className="text-2xl font-bold text-[#21406c]">
           مرحباً {userData?.firstName} 👋
         </h1>
-        <p className="text-sm text-gray-500 mt-1">مرحباً بك في خطوة للأمام</p>
+        <p className="text-sm text-gray-500 mt-1">اكتشف الألعاب والخدام والكتب</p>
       </div>
 
       {/* Slider/Banner */}
