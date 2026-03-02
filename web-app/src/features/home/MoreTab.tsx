@@ -19,7 +19,7 @@ export default function MoreTab() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
+    <div className="px-4 md:px-8 py-6 max-w-4xl mx-auto">
       {/* User Header */}
       <div className="bg-gradient-to-l from-[#21406c] to-[#415a81] rounded-2xl p-6 text-white mb-6">
         <div className="flex items-center gap-4">

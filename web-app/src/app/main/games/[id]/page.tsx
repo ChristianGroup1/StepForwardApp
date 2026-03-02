@@ -75,7 +75,7 @@ export default function GameDetailsPage() {
         </div>
       )}
 
-      <div className="max-w-3xl mx-auto px-4 py-6">
+      <div className="max-w-4xl mx-auto px-4 md:px-8 py-6">
         {!game.coverUrl && (
           <div className="flex items-center gap-3 mb-6">
             <button onClick={() => router.back()} className="text-gray-500 hover:text-gray-700">

@@ -100,28 +100,23 @@ export default function HomeTab({ onNavigateGames, onNavigateBrothers }: HomeTab
   if (loading) return <LoadingSpinner size="lg" />;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold text-[#21406c]">
-            مرحباً {userData?.firstName} 👋
-          </h1>
-          <p className="text-sm text-gray-500">خطوة للأمام</p>
-        </div>
-        <Link href="/main/favorites">
-          <div className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-            <Image src="/in_active_favorite.svg" alt="المفضلة" width={24} height={24} />
-          </div>
-        </Link>
+    <div className="px-4 md:px-8 py-6 max-w-7xl mx-auto">
+      {/* Greeting */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-[#21406c]">
+          مرحباً {userData?.firstName} 👋
+        </h1>
+        <p className="text-sm text-gray-500 mt-1">مرحباً بك في خطوة للأمام</p>
       </div>
 
       {/* Slider/Banner */}
       <div className="mb-8 rounded-2xl overflow-hidden shadow-sm">
-        <div className="bg-gradient-to-l from-[#21406c] to-[#415a81] p-8 text-white text-center">
-          <Image src="/step_forward_logo.png" alt="Step Forward" width={80} height={80} className="mx-auto mb-3 brightness-0 invert" />
-          <h2 className="text-xl font-bold">خطوة للأمام</h2>
-          <p className="text-sm opacity-80 mt-1">مجتمع خدام الكنيسة</p>
+        <div className="bg-gradient-to-l from-[#21406c] to-[#415a81] p-8 md:p-12 text-white flex items-center justify-between">
+          <div>
+            <h2 className="text-xl md:text-2xl font-bold">خطوة للأمام</h2>
+            <p className="text-sm md:text-base opacity-80 mt-1">مجتمع خدام الكنيسة</p>
+          </div>
+          <Image src="/step_forward_logo.png" alt="Step Forward" width={80} height={80} className="brightness-0 invert hidden sm:block" />
         </div>
       </div>
 
@@ -133,8 +128,8 @@ export default function HomeTab({ onNavigateGames, onNavigateBrothers }: HomeTab
             عرض الكل
           </button>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {games.slice(0, 6).map((game) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {games.slice(0, 10).map((game) => (
             <GameCard key={game.id} game={game} />
           ))}
         </div>
@@ -148,8 +143,8 @@ export default function HomeTab({ onNavigateGames, onNavigateBrothers }: HomeTab
             عرض الكل
           </button>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {brothers.slice(0, 4).map((brother) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {brothers.slice(0, 6).map((brother) => (
             <BrotherCard key={brother.id} brother={brother} />
           ))}
         </div>
@@ -159,8 +154,8 @@ export default function HomeTab({ onNavigateGames, onNavigateBrothers }: HomeTab
       {books.length > 0 && (
         <section className="mb-8">
           <h2 className="text-lg font-bold text-[#21406c] mb-4">الكتب</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {books.slice(0, 6).map((book) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {books.slice(0, 10).map((book) => (
               <BookCard key={book.id} book={book} />
             ))}
           </div>

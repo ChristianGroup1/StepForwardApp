@@ -53,23 +53,23 @@ export default function GamesTab() {
   if (loading) return <LoadingSpinner size="lg" />;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      <h1 className="text-xl font-bold text-[#21406c] mb-4">الألعاب</h1>
+    <div className="px-4 md:px-8 py-6 max-w-7xl mx-auto">
+      <h1 className="text-2xl font-bold text-[#21406c] mb-4">الألعاب</h1>
 
       {/* Search */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-4 max-w-xl">
         <input
           type="text"
           placeholder="ابحث عن لعبة..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          className="flex-1 rounded-xl border border-gray-300 bg-gray-50 py-2.5 px-4 text-gray-900 placeholder-gray-400 focus:border-[#21406c] focus:ring-2 focus:ring-[#21406c]/20 focus:outline-none"
+          className="flex-1 rounded-xl border border-gray-300 bg-white py-2.5 px-4 text-gray-900 placeholder-gray-400 focus:border-[#21406c] focus:ring-2 focus:ring-[#21406c]/20 focus:outline-none"
         />
         <button
           onClick={handleSearch}
           disabled={searching}
-          className="bg-[#21406c] text-white px-4 rounded-xl hover:bg-[#415a81] transition-colors"
+          className="bg-[#21406c] text-white px-5 rounded-xl hover:bg-[#415a81] transition-colors"
         >
           {searching ? "..." : "بحث"}
         </button>
@@ -101,7 +101,7 @@ export default function GamesTab() {
       {filteredGames.length === 0 ? (
         <EmptyState title="لا توجد ألعاب" subtitle="جرب البحث بكلمات مختلفة" />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredGames.map((game) => {
             const isFav = userData?.favorites?.includes(game.id);
             return (

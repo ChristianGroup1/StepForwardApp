@@ -86,18 +86,37 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-6">
+    <div className="min-h-screen flex">
+      {/* Branded side panel - desktop only */}
+      <div className="hidden lg:flex lg:w-1/2 xl:w-2/5 bg-gradient-to-b from-[#21406c] to-[#415a81] items-center justify-center p-12 sticky top-0 h-screen">
+        <div className="text-center text-white max-w-sm">
           <Image
             src="/step_forward_logo.png"
             alt="Step Forward"
-            width={80}
-            height={80}
-            className="mx-auto mb-3"
+            width={160}
+            height={160}
+            className="mx-auto mb-6 brightness-0 invert"
           />
-          <h1 className="text-2xl font-bold text-[#21406c]">إنشاء حساب جديد</h1>
+          <h1 className="text-3xl font-bold mb-3">خطوة للأمام</h1>
+          <p className="text-white/80 text-lg">انضم إلى مجتمع خدام الكنيسة</p>
         </div>
+      </div>
+
+      {/* Form side */}
+      <div className="flex-1 flex items-center justify-center bg-gray-50 px-4 py-8">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-6 lg:hidden">
+            <Image
+              src="/step_forward_logo.png"
+              alt="Step Forward"
+              width={80}
+              height={80}
+              className="mx-auto mb-3"
+            />
+            <h1 className="text-2xl font-bold text-[#21406c]">إنشاء حساب جديد</h1>
+          </div>
+
+          <h2 className="text-2xl font-bold text-[#21406c] mb-6 hidden lg:block">إنشاء حساب جديد</h2>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           {error && (
@@ -200,6 +219,7 @@ export default function SignUpPage() {
             </Link>
           </p>
         </div>
+      </div>
       </div>
     </div>
   );

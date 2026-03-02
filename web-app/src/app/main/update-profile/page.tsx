@@ -51,7 +51,7 @@ export default function UpdateProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-md mx-auto px-4 py-6">
+      <div className="max-w-lg mx-auto px-4 md:px-8 py-6">
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => router.back()} className="text-gray-500 hover:text-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
