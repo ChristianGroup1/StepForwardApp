@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import DOMPurify from "dompurify";
 import { getGameById } from "@/lib/firestore-service";
 import { GameModel } from "@/lib/types";
 import { useAuth } from "@/lib/auth-context";
@@ -176,7 +177,7 @@ export default function GameDetailsPage() {
         <hr className="my-6 border-gray-100" />
         <section className="mb-6">
           <h2 className="text-lg font-bold text-[#21406c] mb-3">الهدف من اللعبة</h2>
-          <div className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: game.target }} />
+          <div className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(game.target) }} />
         </section>
       </div>
     </div>

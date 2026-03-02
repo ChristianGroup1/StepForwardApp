@@ -1,8 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Step Forward - Web App
+
+Next.js + React web version of the Step Forward (خطوة للأمام) Flutter app.
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Backend**: Firebase (Auth, Firestore, Storage)
+- **Font**: Cairo (Arabic)
 
 ## Getting Started
 
-First, run the development server:
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Set up environment variables:
+
+```bash
+cp .env.example .env.local
+```
+
+Then fill in your Firebase project configuration in `.env.local`.
+
+3. Run the development server:
 
 ```bash
 npm run dev

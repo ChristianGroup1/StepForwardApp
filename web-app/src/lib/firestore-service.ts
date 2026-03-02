@@ -33,9 +33,10 @@ export async function getUserFavoriteGames(favoriteIds: string[]): Promise<GameM
   for (let i = 0; i < favoriteIds.length; i += 30) {
     chunks.push(favoriteIds.slice(i, i + 30));
   }
-  for (const chunk of chunks) {
-    const q = query(collection(db, BackendEndpoints.getGames), where("__name__", "in", chunk));
-    const snap = await getDocs(q);
+  const snapshots = await Promise.all(
+    chunks.map((chunk) => getDocs(query(collection(db, BackendEndpoints.getGames), where("__name__", "in", chunk))))
+  );
+  for (const snap of snapshots) {
     snap.docs.forEach((d) => games.push({ id: d.id, ...d.data() } as GameModel));
   }
   return games;
