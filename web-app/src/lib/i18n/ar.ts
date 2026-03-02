@@ -93,6 +93,12 @@ export const ar = {
   updateProfileTitle: "تعديل الملف الشخصي",
   updateSuccess: "تم تحديث البيانات بنجاح",
 
+  // Upload ID
+  errorBothIdsRequired: "يرجى رفع صورة وجه البطاقة وظهر البطاقة",
+  errorLoginRequired: "يجب تسجيل الدخول أولاً",
+  errorUploadFailed: "حدث خطأ أثناء رفع الصور",
+  successIdUploaded: "تم رفع الصور بنجاح! جارٍ إعادة التوجيه...",
+
   // Form fields
   firstName: "الاسم الأول",
   lastName: "الاسم الأخير",

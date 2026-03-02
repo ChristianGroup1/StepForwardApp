@@ -23,12 +23,12 @@ export default function UploadIdPage() {
     setError("");
 
     if (!frontIdFile || !backIdFile) {
-      setError("يرجى رفع صورة وجه البطاقة وظهر البطاقة");
+      setError(t("errorBothIdsRequired"));
       return;
     }
 
     if (!user) {
-      setError("يجب تسجيل الدخول أولاً");
+      setError(t("errorLoginRequired"));
       return;
     }
 
@@ -43,7 +43,7 @@ export default function UploadIdPage() {
       setSuccess(true);
       setTimeout(() => router.push("/main"), 1500);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "حدث خطأ أثناء رفع الصور";
+      const message = err instanceof Error ? err.message : t("errorUploadFailed");
       setError(message);
     } finally {
       setLoading(false);
@@ -70,7 +70,7 @@ export default function UploadIdPage() {
           )}
           {success && (
             <div className="bg-green-50 text-green-600 p-3 rounded-xl mb-4 text-sm text-center">
-              تم رفع الصور بنجاح! جارٍ إعادة التوجيه...
+              {t("successIdUploaded")}
             </div>
           )}
 

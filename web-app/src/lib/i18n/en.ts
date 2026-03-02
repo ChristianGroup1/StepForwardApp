@@ -95,6 +95,12 @@ export const en: Record<TranslationKeys, string> = {
   updateProfileTitle: "Edit Profile",
   updateSuccess: "Profile updated successfully",
 
+  // Upload ID
+  errorBothIdsRequired: "Please upload both front and back of your ID card",
+  errorLoginRequired: "You must be logged in",
+  errorUploadFailed: "An error occurred while uploading images",
+  successIdUploaded: "Images uploaded successfully! Redirecting...",
+
   // Form fields
   firstName: "First Name",
   lastName: "Last Name",
