@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { getBrothers, searchBrothers } from "@/lib/firestore-service";
 import { BrothersModel } from "@/lib/types";
 import { useAuth } from "@/lib/auth-context";
+import { useI18n } from "@/lib/i18n";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import EmptyState from "@/components/EmptyState";
 import { governments } from "@/lib/constants";
@@ -11,6 +12,7 @@ import Image from "next/image";
 
 export default function BrothersTab() {
   const { userData } = useAuth();
+  const { t } = useI18n();
   const [brothers, setBrothers] = useState<BrothersModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
@@ -49,13 +51,13 @@ export default function BrothersTab() {
     return brothers.filter((b) => b.government === selectedGov);
   }, [brothers, selectedGov]);
 
-  // Check user approval
+  // Check user approval — show banner + block brothers list
   if (!loading && userData && !userData.isApproved) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-        <Image src="/wating_approval.png" alt="في انتظار الموافقة" width={200} height={200} className="mx-auto mb-6" />
-        <h2 className="text-xl font-bold text-[#21406c] mb-2">في انتظار الموافقة</h2>
-        <p className="text-gray-500">حسابك في انتظار الموافقة من المسؤولين. يرجى الانتظار.</p>
+        <Image src="/wating_approval.png" alt={t("pendingApproval")} width={200} height={200} className="mx-auto mb-6" />
+        <h2 className="text-xl font-bold text-[#21406c] mb-2">{t("pendingApproval")}</h2>
+        <p className="text-gray-500">{t("pendingApprovalMessage")}</p>
       </div>
     );
   }
@@ -64,13 +66,13 @@ export default function BrothersTab() {
 
   return (
     <div className="px-4 md:px-8 py-6 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold text-[#21406c] mb-4">الخدام</h1>
+      <h1 className="text-2xl font-bold text-[#21406c] mb-4">{t("brothersTitle")}</h1>
 
       {/* Search */}
       <div className="flex gap-2 mb-4 max-w-xl">
         <input
           type="text"
-          placeholder="ابحث عن خادم..."
+          placeholder={t("brothersSearchPlaceholder")}
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -81,7 +83,7 @@ export default function BrothersTab() {
           disabled={searching}
           className="bg-[#21406c] text-white px-5 rounded-xl hover:bg-[#415a81] transition-colors"
         >
-          {searching ? "..." : "بحث"}
+          {searching ? "..." : t("search")}
         </button>
       </div>
 
@@ -93,7 +95,7 @@ export default function BrothersTab() {
             !selectedGov ? "bg-[#21406c] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
           }`}
         >
-          الكل
+          {t("all")}
         </button>
         {governments.slice(0, 8).map((gov) => (
           <button
@@ -109,7 +111,7 @@ export default function BrothersTab() {
       </div>
 
       {filteredBrothers.length === 0 ? (
-        <EmptyState title="لا يوجد خدام" subtitle="جرب البحث بكلمات مختلفة" />
+        <EmptyState title={t("brothersEmpty")} subtitle={t("brothersEmptySubtitle")} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredBrothers.map((brother) => (

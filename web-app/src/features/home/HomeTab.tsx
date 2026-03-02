@@ -6,7 +6,9 @@ import Link from "next/link";
 import { getGames, getBrothers, getBooks } from "@/lib/firestore-service";
 import { GameModel, BrothersModel, BookModel } from "@/lib/types";
 import { useAuth } from "@/lib/auth-context";
+import { useI18n } from "@/lib/i18n";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import ApprovalBanner from "@/components/ApprovalBanner";
 
 function GameCard({ game }: { game: GameModel }) {
   return (
@@ -76,6 +78,7 @@ interface HomeTabProps {
 
 export default function HomeTab({ onNavigateGames, onNavigateBrothers }: HomeTabProps) {
   const { userData } = useAuth();
+  const { t } = useI18n();
   const [games, setGames] = useState<GameModel[]>([]);
   const [brothers, setBrothers] = useState<BrothersModel[]>([]);
   const [books, setBooks] = useState<BookModel[]>([]);
@@ -104,17 +107,24 @@ export default function HomeTab({ onNavigateGames, onNavigateBrothers }: HomeTab
       {/* Greeting */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-[#21406c]">
-          مرحباً {userData?.firstName} 👋
+          {t("homeGreeting")} {userData?.firstName} 👋
         </h1>
-        <p className="text-sm text-gray-500 mt-1">اكتشف الألعاب والخدام والكتب</p>
+        <p className="text-sm text-gray-500 mt-1">{t("homeSubtitle")}</p>
       </div>
+
+      {/* Approval / ID upload banner */}
+      {userData && !userData.isApproved && (
+        <div className="mb-6">
+          <ApprovalBanner />
+        </div>
+      )}
 
       {/* Slider/Banner */}
       <div className="mb-8 rounded-2xl overflow-hidden shadow-sm">
         <div className="bg-gradient-to-l from-[#21406c] to-[#415a81] p-8 md:p-12 text-white flex items-center justify-between">
           <div>
-            <h2 className="text-xl md:text-2xl font-bold">خطوة للأمام</h2>
-            <p className="text-sm md:text-base opacity-80 mt-1">مجتمع خدام الكنيسة</p>
+            <h2 className="text-xl md:text-2xl font-bold">{t("appName")}</h2>
+            <p className="text-sm md:text-base opacity-80 mt-1">{t("appTagline")}</p>
           </div>
           <Image src="/step_forward_logo.png" alt="Step Forward" width={80} height={80} className="brightness-0 invert hidden sm:block" />
         </div>
@@ -123,9 +133,9 @@ export default function HomeTab({ onNavigateGames, onNavigateBrothers }: HomeTab
       {/* Games Section */}
       <section className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-[#21406c]">الألعاب</h2>
+          <h2 className="text-lg font-bold text-[#21406c]">{t("sectionGames")}</h2>
           <button onClick={onNavigateGames} className="text-sm text-[#ffc856] font-semibold hover:underline">
-            عرض الكل
+            {t("viewAll")}
           </button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -138,9 +148,9 @@ export default function HomeTab({ onNavigateGames, onNavigateBrothers }: HomeTab
       {/* Brothers Section */}
       <section className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-[#21406c]">الخدام</h2>
+          <h2 className="text-lg font-bold text-[#21406c]">{t("sectionBrothers")}</h2>
           <button onClick={onNavigateBrothers} className="text-sm text-[#ffc856] font-semibold hover:underline">
-            عرض الكل
+            {t("viewAll")}
           </button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -153,7 +163,7 @@ export default function HomeTab({ onNavigateGames, onNavigateBrothers }: HomeTab
       {/* Books Section */}
       {books.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-lg font-bold text-[#21406c] mb-4">الكتب</h2>
+          <h2 className="text-lg font-bold text-[#21406c] mb-4">{t("sectionBooks")}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {books.slice(0, 10).map((book) => (
               <BookCard key={book.id} book={book} />

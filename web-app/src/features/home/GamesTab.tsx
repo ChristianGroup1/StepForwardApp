@@ -5,13 +5,16 @@ import Link from "next/link";
 import { getGames, searchGames } from "@/lib/firestore-service";
 import { GameModel } from "@/lib/types";
 import { useAuth } from "@/lib/auth-context";
+import { useI18n } from "@/lib/i18n";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import EmptyState from "@/components/EmptyState";
+import ApprovalBanner from "@/components/ApprovalBanner";
 
 const ageTags = ["أطفال", "ابتدائي", "اعدادي", "ثانوي", "جامعة", "كبار"];
 
 export default function GamesTab() {
   const { userData, toggleFavorite } = useAuth();
+  const { t } = useI18n();
   const [games, setGames] = useState<GameModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
@@ -54,13 +57,20 @@ export default function GamesTab() {
 
   return (
     <div className="px-4 md:px-8 py-6 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold text-[#21406c] mb-4">الألعاب</h1>
+      <h1 className="text-2xl font-bold text-[#21406c] mb-4">{t("gamesTitle")}</h1>
+
+      {/* Approval / ID upload banner */}
+      {userData && !userData.isApproved && (
+        <div className="mb-4">
+          <ApprovalBanner />
+        </div>
+      )}
 
       {/* Search */}
       <div className="flex gap-2 mb-4 max-w-xl">
         <input
           type="text"
-          placeholder="ابحث عن لعبة..."
+          placeholder={t("gamesSearchPlaceholder")}
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -71,7 +81,7 @@ export default function GamesTab() {
           disabled={searching}
           className="bg-[#21406c] text-white px-5 rounded-xl hover:bg-[#415a81] transition-colors"
         >
-          {searching ? "..." : "بحث"}
+          {searching ? "..." : t("search")}
         </button>
       </div>
 
@@ -83,7 +93,7 @@ export default function GamesTab() {
             !selectedTag ? "bg-[#21406c] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
           }`}
         >
-          الكل
+          {t("all")}
         </button>
         {ageTags.map((tag) => (
           <button
@@ -99,7 +109,7 @@ export default function GamesTab() {
       </div>
 
       {filteredGames.length === 0 ? (
-        <EmptyState title="لا توجد ألعاب" subtitle="جرب البحث بكلمات مختلفة" />
+        <EmptyState title={t("gamesEmpty")} subtitle={t("gamesEmptySubtitle")} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredGames.map((game) => {
@@ -145,7 +155,7 @@ export default function GamesTab() {
                         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                       />
                     </svg>
-                    {isFav ? "إزالة من المفضلة" : "أضف للمفضلة"}
+                    {isFav ? t("removeFromFavorites") : t("addToFavorites")}
                   </button>
                 </div>
               </div>

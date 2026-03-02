@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { useI18n } from "@/lib/i18n";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import HomeTab from "@/features/home/HomeTab";
 import GamesTab from "@/features/home/GamesTab";
@@ -11,17 +12,18 @@ import MoreTab from "@/features/home/MoreTab";
 import Image from "next/image";
 import Link from "next/link";
 
-const tabs = [
-  { id: "home", label: "الرئيسية", activeIcon: "/active_home.svg", inactiveIcon: "/in_active_home.svg" },
-  { id: "games", label: "الألعاب", activeIcon: "/games_icon.svg", inactiveIcon: "/games_icon.svg" },
-  { id: "brothers", label: "الخدام", activeIcon: "/people_icon.svg", inactiveIcon: "/people_icon.svg" },
-  { id: "more", label: "المزيد", activeIcon: "/more_active.svg", inactiveIcon: "/more_inactive.svg" },
-];
-
 export default function MainPage() {
   const { user, userData, loading } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("home");
+
+  const tabs = [
+    { id: "home", label: t("tabHome"), activeIcon: "/active_home.svg", inactiveIcon: "/in_active_home.svg" },
+    { id: "games", label: t("tabGames"), activeIcon: "/games_icon.svg", inactiveIcon: "/games_icon.svg" },
+    { id: "brothers", label: t("tabBrothers"), activeIcon: "/people_icon.svg", inactiveIcon: "/people_icon.svg" },
+    { id: "more", label: t("tabMore"), activeIcon: "/more_active.svg", inactiveIcon: "/more_inactive.svg" },
+  ];
 
   useEffect(() => {
     if (!loading && (!user || !userData)) {
@@ -44,7 +46,7 @@ export default function MainPage() {
         <div className="flex items-center justify-between px-4 md:px-6 h-16">
           <div className="flex items-center gap-3">
             <Image src="/step_forward_logo.png" alt="Step Forward" width={36} height={36} />
-            <h1 className="text-lg font-bold text-[#21406c] hidden sm:block">خطوة للأمام</h1>
+            <h1 className="text-lg font-bold text-[#21406c] hidden sm:block">{t("appName")}</h1>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/main/favorites" className="p-2 rounded-lg hover:bg-gray-100 transition-colors">

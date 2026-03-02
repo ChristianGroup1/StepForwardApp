@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
+import { I18nProvider } from "@/lib/i18n";
+import { RootShell } from "@/components/RootShell";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://step-forward.app";
 
@@ -64,7 +66,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap"
@@ -72,7 +74,11 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <I18nProvider>
+          <RootShell>
+            <AuthProvider>{children}</AuthProvider>
+          </RootShell>
+        </I18nProvider>
       </body>
     </html>
   );
