@@ -6,7 +6,7 @@ import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_sliver_app_bar.dart';
 import 'package:stepforward/core/widgets/my_divider.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_hashtag_list.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
 
 class GameDetailsViewBody extends StatefulWidget {
@@ -19,7 +19,7 @@ class GameDetailsViewBody extends StatefulWidget {
 }
 
 class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
-  late YoutubePlayerController _controller;
+  YoutubePlayerController? _controller;
 
   @override
   void initState() {
@@ -31,24 +31,24 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
       name: 'open_game_details',
       parameters: {'game_id': widget.game.id, 'game_name': widget.game.name},
     );
-    final videoId =
-        YoutubePlayerController.convertUrlToId(widget.game.videoLink) ?? '';
-    _controller = YoutubePlayerController.fromVideoId(
-      videoId: videoId,
-      autoPlay: false,
-      params: const YoutubePlayerParams(
-        showFullscreenButton: true,
-        enableJavaScript: true,
-        playsInline: true,
-        strictRelatedVideos: false,
-        showVideoAnnotations: false,
-      ),
-    );
+    if (widget.game.videoLink.isNotEmpty) {
+      final videoId = YoutubePlayer.convertUrlToId(widget.game.videoLink);
+      if (videoId != null) {
+        _controller = YoutubePlayerController(
+          initialVideoId: videoId,
+          flags: const YoutubePlayerFlags(
+            autoPlay: false,
+            showLiveFullscreenButton: true,
+            enableCaption: false,
+          ),
+        );
+      }
+    }
   }
 
   @override
   void dispose() {
-    _controller.close();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -69,14 +69,15 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
                 verticalSpace(8),
                 GameHashTagsList(tags: widget.game.tags),
                 const MyDivider(height: 50),
-                if (widget.game.videoLink.isNotEmpty) ...[
+                if (_controller != null) ...[
                   const Text("فيديو اللعبة", style: TextStyles.bold19),
                   verticalSpace(8),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: YoutubePlayer(
-                      controller: _controller,
-                      aspectRatio: 16 / 9,
+                      controller: _controller!,
+                      showVideoProgressIndicator: true,
+                      progressIndicatorColor: Colors.red,
                     ),
                   ),
                   verticalSpace(24),
