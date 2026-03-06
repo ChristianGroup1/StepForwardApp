@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stepforward/core/repos/image_repo.dart';
 import 'package:stepforward/core/services/get_it_service.dart';
 import 'package:stepforward/features/auth/domain/repos/auth_repo.dart';
 import 'package:stepforward/features/home/data/brothers_cubit/brothers_cubit.dart';
@@ -10,6 +11,7 @@ import 'package:stepforward/features/home/presentation/views/widgets/home_view_b
 class HomeView extends StatelessWidget {
   final VoidCallback onNavigateToGamesView;
   final VoidCallback onNavigateToBrothersView;
+
   const HomeView({
     super.key,
     required this.onNavigateToGamesView,
@@ -22,7 +24,8 @@ class HomeView extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (context) =>
-              BrothersCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>())
+              BrothersCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>(),getIt.get<ImagesRepo>())
+                ..checkAndToastIfNotVerified()
                 ..getUserApprovedDataIfNotApproved()
                 ..getBrothers(),
         ),
@@ -33,9 +36,23 @@ class HomeView extends StatelessWidget {
                 ..getBooks(),
         ),
       ],
-      child: HomeViewBody(
-        onNavigateToGamesView: onNavigateToGamesView,
-        onNavigateToBrothersView: onNavigateToBrothersView,
+      child: Builder(
+        builder: (context) {
+          var cubit = context.read<BrothersCubit>();
+          return RefreshIndicator(
+            backgroundColor: Colors.white,
+            onRefresh: () async {
+              await context.read<BrothersCubit>().getBrothers();
+              await context.read<GamesCubit>().getGames();
+              await context.read<GamesCubit>().getBooks();
+              cubit.checkAndToastIfNotVerified();
+            },
+            child: HomeViewBody(
+              onNavigateToGamesView: onNavigateToGamesView,
+              onNavigateToBrothersView: onNavigateToBrothersView,
+            ),
+          );
+        },
       ),
     );
   }

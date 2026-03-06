@@ -18,8 +18,8 @@ class LoginViewBlocConsumer extends StatelessWidget {
       listener: (context, state) {
         if (state is LoginSuccessState) {
           if (state.userModel.churchName == '' ||
-              state.userModel.backId == null ||
-              state.userModel.frontId == null) {
+              state.userModel.phoneNumber == '' ||
+              state.userModel.government == '') {
             context.pushReplacementNamed(
               Routes.completeUserProfileView,
               arguments: state.userModel,

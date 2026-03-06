@@ -10,4 +10,5 @@ class Routes {
   static const updateUserProfile = '/updateUserProfile';
   static const favoritesView = '/favoritesView';
   static const pdfViewerScreen = '/PdfViewerScreen';
+  static const uploadIdView = '/uploadIdView';
 }

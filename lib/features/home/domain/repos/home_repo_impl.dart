@@ -82,28 +82,13 @@ class HomeRepoImpl extends HomeRepo {
     String searchText,
   ) async {
     try {
-      final List<String> prefixes = ["لعبة", "لعبه"];
-
-      List<Map<String, dynamic>> allResults = [];
-
-      for (final prefix in prefixes) {
-        final String query = prefix.isEmpty
-            ? searchText
-            : "$prefix $searchText";
-
-        final results = await databaseService.searchData(
-          query,
-          BackendEndpoints.getGames,
-        );
-
-        allResults.addAll(results);
-      }
-
-      final uniqueResults = {
-        for (var item in allResults) item['id']: item,
-      }.values.toList();
-
-      return right(uniqueResults.map((e) => GameModel.fromJson(e)).toList());
+      final results = await databaseService.searchData(
+        searchText,
+        BackendEndpoints.getGames,
+      );
+      return right(
+        results.map((e) => GameModel.fromJson(e)).toList(),
+      );
     } catch (e) {
       return left(CustomFailure(message: e.toString()));
     }
@@ -114,36 +99,14 @@ class HomeRepoImpl extends HomeRepo {
     String searchText,
   ) async {
     try {
-      final List<String> prefixes = [
-        "الراعي",
-        "الاخ",
-        "القسيس",
-        "الأخ",
-        "القس",
-      ];
-
-      List<Map<String, dynamic>> allResults = [];
-
-      for (final prefix in prefixes) {
-        final String query = prefix.isEmpty
-            ? searchText
-            : "$prefix $searchText";
-
-        final results = await databaseService.searchData(
-          query,
-          BackendEndpoints.getBrothers,
-        );
-
-        allResults.addAll(results);
-      }
-
-      final uniqueResults = {
-        for (var item in allResults) item['id']: item,
-      }.values.toList();
-
-      return right(
-        uniqueResults.map((e) => BrothersModel.fromJson(e)).toList(),
+      final results = await databaseService.searchData(
+        searchText,
+        BackendEndpoints.getBrothers,
       );
+      final brothersList = results
+          .map((e) => BrothersModel.fromJson(e))
+          .toList();
+      return right(brothersList);
     } catch (e) {
       return left(CustomFailure(message: e.toString()));
     }
@@ -225,4 +188,6 @@ class HomeRepoImpl extends HomeRepo {
       return left(CustomFailure(message: e.toString()));
     }
   }
+
+  
 }

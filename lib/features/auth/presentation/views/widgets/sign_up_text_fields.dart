@@ -6,7 +6,6 @@ import 'package:stepforward/core/widgets/custom_text_field.dart';
 import 'package:stepforward/core/widgets/governments_list.dart';
 import 'package:stepforward/features/auth/data/models/user_model.dart';
 import 'package:stepforward/features/auth/data/sign_up_cubit/sign_up_cubit.dart';
-import 'package:stepforward/features/auth/presentation/views/widgets/image_field.dart';
 
 class SignUpTextFields extends StatefulWidget {
   const SignUpTextFields({super.key, required this.cubit, this.user});
@@ -82,20 +81,20 @@ class _SignUpTextFieldsState extends State<SignUpTextFields> {
           },
         ),
         verticalSpace(24),
-        ImageField(
-          onChanged: (value) {
-            widget.cubit.frontId = value;
-          },
-          text: 'وجه البطاقة',
-        ),
-        verticalSpace(24),
-        ImageField(
-          onChanged: (value) {
-            widget.cubit.backId = value;
-          },
-          text: 'ظهر البطاقة',
-        ),
-        verticalSpace(24),
+        // ImageField(
+        //   onChanged: (value) {
+        //     widget.cubit.frontId = value;
+        //   },
+        //   text: 'وجه البطاقة',
+        // ),
+        // verticalSpace(24),
+        // ImageField(
+        //   onChanged: (value) {
+        //     widget.cubit.backId = value;
+        //   },
+        //   text: 'ظهر البطاقة',
+        // ),
+        // verticalSpace(24),
         CustomTextFormField(
           textInputType: TextInputType.phone,
           initialValue: widget.user?.phoneNumber,

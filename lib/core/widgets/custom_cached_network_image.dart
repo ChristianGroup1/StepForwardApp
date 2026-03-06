@@ -32,8 +32,13 @@ class CustomCachedNetworkImageWidget extends StatelessWidget {
           color: AppColors.lightSecondaryColor,
           size: 23,
         ),
-        errorWidget: (context, url, error) =>
-            Image.asset(Assets.assetsImagesStepForwardLogo),
+        errorWidget: (context, url, error) => ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Image.asset(
+            Assets.assetsImagesStepForwardLogo,
+            fit: BoxFit.cover,
+          ),
+        ),
       ),
     );
   }

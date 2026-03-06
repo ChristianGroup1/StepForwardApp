@@ -101,9 +101,11 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
                   const MyDivider(height: 50),
                 ],
 
-                const Text("الهدف من اللعبة", style: TextStyles.bold19),
+                const Text("الهدف الروحي", style: TextStyles.bold19),
                 verticalSpace(8),
                 Html(data: widget.game.target),
+
+                verticalSpace(24),
               ],
             ),
           ),
