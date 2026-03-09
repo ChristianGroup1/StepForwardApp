@@ -10,6 +10,7 @@ import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_cached_network_image.dart';
+import 'package:stepforward/core/widgets/translatable_text.dart';
 import 'package:stepforward/features/home/data/games_cubit/games_cubit.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_hashtag_list.dart';
@@ -50,13 +51,14 @@ class CustomGameItem extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        gameModel.name,
-                        style: TextStyles.bold16.copyWith(
-                          color: AppColors.primaryColor,
+                      Expanded(
+                        child: TranslatableText(
+                          gameModel.name,
+                          style: TextStyles.bold16.copyWith(
+                            color: AppColors.primaryColor,
+                          ),
                         ),
                       ),
-                      const Spacer(),
                       ValueListenableBuilder<List<String>>(
                         valueListenable:
                             userFavoritesService.userFavoritesNotifier,
@@ -93,13 +95,13 @@ class CustomGameItem extends StatelessWidget {
                     ],
                   ),
                   verticalSpace(8),
-                  Text(
+                  TranslatableText(
                     gameModel.explanation,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                     style: TextStyles.semiBold13.copyWith(
                       color: const Color(0xff949D9E),
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   verticalSpace(8),
                   GameHashTagsList(tags: gameModel.tags),
@@ -114,3 +116,4 @@ class CustomGameItem extends StatelessWidget {
     );
   }
 }
+

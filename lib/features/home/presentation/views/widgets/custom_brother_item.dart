@@ -10,6 +10,7 @@ import 'package:stepforward/core/utils/custom_box_decoration.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_cached_network_image.dart';
 import 'package:stepforward/core/widgets/my_divider.dart';
+import 'package:stepforward/core/widgets/translatable_text.dart';
 import 'package:stepforward/features/home/domain/models/brothers_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../../core/utils/app_colors.dart';
@@ -104,17 +105,19 @@ class CustomBrotherItem extends StatelessWidget {
                   ],
                 ),
                 verticalSpace(8),
-                Text(
-                  'الطايفة: ${brotherModel.denomination}',
-                  style: TextStyles.regular14.copyWith(color: Colors.grey),
-                ),
+                if (brotherModel.denomination != null &&
+                    brotherModel.denomination!.isNotEmpty)
+                  TranslatableText(
+                    brotherModel.denomination!,
+                    style: TextStyles.regular14.copyWith(color: Colors.grey),
+                  ),
                 const MyDivider(),
-                Text(
+                TranslatableText(
                   brotherModel.tags.join(' - '),
                   style: TextStyles.bold13.copyWith(color: Colors.grey),
                 ),
                 verticalSpace(8),
-                Text(
+                TranslatableText(
                   '${brotherModel.churchName} - ${brotherModel.city} -  ${brotherModel.government}',
                   style: const TextStyle(color: Colors.grey),
                   maxLines: 4,
@@ -124,7 +127,7 @@ class CustomBrotherItem extends StatelessWidget {
                 Visibility(
                   visible:
                       brotherModel.preferredMinistries?.isNotEmpty ?? false,
-                  child: Text(
+                  child: TranslatableText(
                     '# ${brotherModel.preferredMinistries?.join(' - ')}',
                     style: const TextStyle(color: Colors.grey),
                     maxLines: 2,
@@ -140,3 +143,4 @@ class CustomBrotherItem extends StatelessWidget {
     );
   }
 }
+

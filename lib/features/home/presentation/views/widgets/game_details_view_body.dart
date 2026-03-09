@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:stepforward/core/cubits/language_cubit.dart';
 import 'package:stepforward/core/services/analytics_service.dart';
+import 'package:stepforward/core/services/openai_translation_service.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_sliver_app_bar.dart';
@@ -8,6 +11,7 @@ import 'package:stepforward/core/widgets/my_divider.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_hashtag_list.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
+import 'package:stepforward/generated/l10n.dart';
 
 class GameDetailsViewBody extends StatefulWidget {
   final GameModel game;
@@ -20,6 +24,14 @@ class GameDetailsViewBody extends StatefulWidget {
 
 class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
   YoutubePlayerController? _controller;
+
+  // Translated content fields
+  bool _isTranslating = false;
+  String? _translatedExplanation;
+  String? _translatedTools;
+  String? _translatedLaws;
+  String? _translatedTarget;
+  List<String>? _translatedTags;
 
   @override
   void initState() {
@@ -47,6 +59,44 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _translateIfNeeded();
+  }
+
+  Future<void> _translateIfNeeded() async {
+    final isEnglish =
+        context.read<LanguageCubit>().isEnglish;
+    if (!isEnglish) return;
+    if (_translatedExplanation != null) return; // already translated
+
+    if (mounted) setState(() => _isTranslating = true);
+
+    final textsToTranslate = [
+      widget.game.explanation,
+      widget.game.tools,
+      widget.game.laws,
+      widget.game.target,
+      ...widget.game.tags,
+    ];
+
+    final translated = await OpenAITranslationService.translateListToEnglish(
+      textsToTranslate,
+    );
+
+    if (!mounted) return;
+    final tagOffset = 4;
+    setState(() {
+      _translatedExplanation = translated[0];
+      _translatedTools = translated[1];
+      _translatedLaws = translated[2];
+      _translatedTarget = translated[3];
+      _translatedTags = translated.sublist(tagOffset);
+      _isTranslating = false;
+    });
+  }
+
+  @override
   void dispose() {
     _controller?.dispose();
     super.dispose();
@@ -54,63 +104,120 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
-      slivers: [
-        CustomSliverAppBar(widget: widget),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                verticalSpace(24),
-                const Text("السن المناسب ", style: TextStyles.bold19),
-                verticalSpace(8),
-                GameHashTagsList(tags: widget.game.tags),
-                const MyDivider(height: 50),
-                if (_controller != null) ...[
-                  const Text("فيديو اللعبة", style: TextStyles.bold19),
-                  verticalSpace(8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: YoutubePlayer(
-                      controller: _controller!,
-                      showVideoProgressIndicator: true,
-                      progressIndicatorColor: Colors.red,
-                    ),
-                  ),
-                  verticalSpace(24),
-                  const MyDivider(height: 50),
-                ],
-
-                const Text("شرح اللعبة", style: TextStyles.bold19),
-                verticalSpace(8),
-                Text(widget.game.explanation, style: TextStyles.regular16),
-                const MyDivider(height: 50),
-
-                const Text("الأدوات المطلوبة", style: TextStyles.bold19),
-                verticalSpace(8),
-                Text(widget.game.tools, style: TextStyles.regular16),
-                const MyDivider(height: 50),
-
-                if (widget.game.laws.isNotEmpty) ...[
-                  const Text("القوانين", style: TextStyles.bold19),
-                  verticalSpace(8),
-                  Text(widget.game.laws, style: TextStyles.regular16),
-                  const MyDivider(height: 50),
-                ],
-
-                const Text("الهدف الروحي", style: TextStyles.bold19),
-                verticalSpace(8),
-                Html(data: widget.game.target),
-
-                verticalSpace(24),
-              ],
+    return BlocListener<LanguageCubit, Locale>(
+      listener: (context, locale) {
+        if (locale.languageCode == 'en') {
+          _translatedExplanation = null;
+          _translateIfNeeded();
+        } else {
+          setState(() {
+            _translatedExplanation = null;
+            _translatedTools = null;
+            _translatedLaws = null;
+            _translatedTarget = null;
+            _translatedTags = null;
+            _isTranslating = false;
+          });
+        }
+      },
+      child: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          CustomSliverAppBar(widget: widget),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: _isTranslating
+                  ? _buildTranslatingIndicator(context)
+                  : _buildContent(context),
             ),
           ),
-        ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTranslatingIndicator(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          verticalSpace(16),
+          Text(S.of(context).translating, style: TextStyles.regular16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    final isEnglish = context.read<LanguageCubit>().isEnglish;
+    final s = S.of(context);
+
+    final explanation = isEnglish
+        ? (_translatedExplanation ?? widget.game.explanation)
+        : widget.game.explanation;
+    final tools = isEnglish
+        ? (_translatedTools ?? widget.game.tools)
+        : widget.game.tools;
+    final laws = isEnglish
+        ? (_translatedLaws ?? widget.game.laws)
+        : widget.game.laws;
+    final target = isEnglish
+        ? (_translatedTarget ?? widget.game.target)
+        : widget.game.target;
+    final tags = isEnglish
+        ? (_translatedTags ?? widget.game.tags)
+        : widget.game.tags;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        verticalSpace(24),
+        Text(s.appropriateAge, style: TextStyles.bold19),
+        verticalSpace(8),
+        GameHashTagsList(tags: tags),
+        const MyDivider(height: 50),
+        if (_controller != null) ...[
+          Text(s.gameVideo, style: TextStyles.bold19),
+          verticalSpace(8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: YoutubePlayer(
+              controller: _controller!,
+              showVideoProgressIndicator: true,
+              progressIndicatorColor: Colors.red,
+            ),
+          ),
+          verticalSpace(24),
+          const MyDivider(height: 50),
+        ],
+
+        Text(s.gameExplanation, style: TextStyles.bold19),
+        verticalSpace(8),
+        Text(explanation, style: TextStyles.regular16),
+        const MyDivider(height: 50),
+
+        Text(s.requiredTools, style: TextStyles.bold19),
+        verticalSpace(8),
+        Text(tools, style: TextStyles.regular16),
+        const MyDivider(height: 50),
+
+        if (laws.isNotEmpty) ...[
+          Text(s.rules, style: TextStyles.bold19),
+          verticalSpace(8),
+          Text(laws, style: TextStyles.regular16),
+          const MyDivider(height: 50),
+        ],
+
+        Text(s.spiritualGoal, style: TextStyles.bold19),
+        verticalSpace(8),
+        Html(data: target),
+
+        verticalSpace(24),
       ],
     );
   }
 }
+
