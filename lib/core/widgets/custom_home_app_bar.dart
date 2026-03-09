@@ -8,9 +8,55 @@ class CustomHomeAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      'اهلًا بك ${getUserData().firstName} 👋',
-      style: TextStyles.bold16.copyWith(color: AppColors.primaryColor),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.primaryColor, AppColors.lightPrimaryColor],
+          begin: Alignment.centerRight,
+          end: Alignment.centerLeft,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryColor.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'اهلًا بك 👋',
+                  style: TextStyles.regular14.copyWith(color: Colors.white70),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${getUserData().firstName} ${getUserData().lastName}',
+                  style: TextStyles.bold19.copyWith(color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.notifications_outlined,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

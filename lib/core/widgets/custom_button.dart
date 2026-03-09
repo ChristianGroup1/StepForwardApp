@@ -25,22 +25,43 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double radius = borderRadius ?? 16.0;
     return SizedBox(
       width: width ?? double.infinity,
       height: height ?? 54.h,
-      child: TextButton(
-        style: TextButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius ?? 16.0),
-          ),
-          backgroundColor: backgroundColor ?? AppColors.primaryColor,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: backgroundColor == null
+              ? const LinearGradient(
+                  colors: [AppColors.lightPrimaryColor, AppColors.primaryColor],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )
+              : null,
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(radius),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primaryColor.withOpacity(0.35),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        onPressed: onPressed,
-        child: Padding(
-          padding: padding ?? EdgeInsets.zero,
-          child: Text(
-            text,
-            style: TextStyles.bold16.copyWith(color: textColor ?? Colors.white),
+        child: TextButton(
+          style: TextButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(radius),
+            ),
+            backgroundColor: Colors.transparent,
+          ),
+          onPressed: onPressed,
+          child: Padding(
+            padding: padding ?? EdgeInsets.zero,
+            child: Text(
+              text,
+              style: TextStyles.bold16.copyWith(color: textColor ?? Colors.white),
+            ),
           ),
         ),
       ),

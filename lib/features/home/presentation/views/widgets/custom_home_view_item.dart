@@ -16,16 +16,28 @@ class CustomHomeViewItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CustomCachedNetworkImageWidget(
-          imageUrl: imageUrl,
-          borderRadius: 16,
-          height: isDeviceInPortrait(context)
-              ? MediaQuery.sizeOf(context).height * 0.15
-              : MediaQuery.sizeOf(context).height * 0.42,
-          width: isDeviceInPortrait(context)
-              ? MediaQuery.sizeOf(context).width * 0.28
-              : MediaQuery.sizeOf(context).width * 0.2,
-          fit: BoxFit.cover,
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.12),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: CustomCachedNetworkImageWidget(
+            imageUrl: imageUrl,
+            borderRadius: 16,
+            height: isDeviceInPortrait(context)
+                ? MediaQuery.sizeOf(context).height * 0.15
+                : MediaQuery.sizeOf(context).height * 0.42,
+            width: isDeviceInPortrait(context)
+                ? MediaQuery.sizeOf(context).width * 0.28
+                : MediaQuery.sizeOf(context).width * 0.2,
+            fit: BoxFit.cover,
+          ),
         ),
         verticalSpace(8),
         Text(name, style: TextStyles.bold13),

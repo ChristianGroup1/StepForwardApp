@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/is_device_in_portrait.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
+import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/features/home/data/games_cubit/games_cubit.dart';
@@ -18,7 +19,20 @@ class BooksSectionHomeView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('كتب ومقالات', style: TextStyles.bold16),
+          Row(
+            children: [
+              Container(
+                width: 4,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text('كتب ومقالات', style: TextStyles.bold16.copyWith(color: AppColors.primaryColor)),
+            ],
+          ),
           verticalSpace(12),
           BlocBuilder<GamesCubit, GamesState>(
             buildWhen: (previous, current) =>

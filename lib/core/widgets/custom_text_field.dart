@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 
 class CustomTextFormField extends StatelessWidget {
@@ -92,18 +93,18 @@ class CustomTextFormField extends StatelessWidget {
         fillColor: fillColor ?? const Color(0xffF9FAFA),
         border: border ?? buildBorder(),
         enabledBorder: border ?? buildBorder(),
-        focusedBorder: border ?? buildBorder(),
+        focusedBorder: border ?? buildBorder(color: AppColors.primaryColor),
       ),
     );
   }
 
-  OutlineInputBorder buildBorder() {
+  OutlineInputBorder buildBorder({Color? color}) {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(
-        borderRadius ?? 4.0,
+        borderRadius ?? 12.0,
       ),
-      borderSide: const BorderSide(
-        color: Color(0xffE6E9E9),
+      borderSide: BorderSide(
+        color: color ?? const Color(0xffE6E9E9),
       ),
     );
   }
