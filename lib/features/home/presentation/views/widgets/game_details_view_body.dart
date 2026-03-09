@@ -68,7 +68,7 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
     final isEnglish =
         context.read<LanguageCubit>().isEnglish;
     if (!isEnglish) return;
-    if (_translatedExplanation != null) return; // already translated
+    if (_isTranslating || _translatedExplanation != null) return;
 
     if (mounted) setState(() => _isTranslating = true);
 

@@ -29,30 +29,54 @@ class TranslatableText extends StatefulWidget {
 class _TranslatableTextState extends State<TranslatableText> {
   String? _translated;
   bool _loading = false;
-  String? _lastText;
-  bool _lastIsEnglish = false;
+
+  /// Version counter used to discard stale async results when locale or
+  /// text changes while a translation is already in flight.
+  int _version = 0;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final isEnglish = context.read<LanguageCubit>().isEnglish;
-    if (isEnglish != _lastIsEnglish || widget.text != _lastText) {
-      _lastIsEnglish = isEnglish;
-      _lastText = widget.text;
-      if (isEnglish && widget.text.trim().isNotEmpty) {
+    _applyLanguage(isEnglish);
+  }
+
+  void _applyLanguage(bool isEnglish) {
+    if (isEnglish && widget.text.trim().isNotEmpty) {
+      // Only start a new translation if we don't already have one for this text.
+      if (_translated == null && !_loading) {
         _translate();
-      } else {
-        _translated = null;
-        _loading = false;
+      }
+    } else if (!isEnglish) {
+      _version++;
+      if (_translated != null || _loading) {
+        setState(() {
+          _translated = null;
+          _loading = false;
+        });
       }
     }
   }
 
+  @override
+  void didUpdateWidget(TranslatableText oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.text != widget.text) {
+      // Text changed – discard previous translation and retranslate.
+      _version++;
+      _translated = null;
+      _loading = false;
+      final isEnglish = context.read<LanguageCubit>().isEnglish;
+      _applyLanguage(isEnglish);
+    }
+  }
+
   Future<void> _translate() async {
+    final capturedVersion = ++_version;
     if (mounted) setState(() => _loading = true);
     final result =
         await OpenAITranslationService.translateToEnglish(widget.text);
-    if (mounted) {
+    if (mounted && _version == capturedVersion) {
       setState(() {
         _translated = result;
         _loading = false;
@@ -64,16 +88,7 @@ class _TranslatableTextState extends State<TranslatableText> {
   Widget build(BuildContext context) {
     return BlocListener<LanguageCubit, Locale>(
       listener: (context, locale) {
-        final isEnglish = locale.languageCode == 'en';
-        _lastIsEnglish = isEnglish;
-        if (isEnglish && widget.text.trim().isNotEmpty) {
-          _translate();
-        } else {
-          setState(() {
-            _translated = null;
-            _loading = false;
-          });
-        }
+        _applyLanguage(locale.languageCode == 'en');
       },
       child: _loading
           ? SizedBox(
