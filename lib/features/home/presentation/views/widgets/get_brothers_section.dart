@@ -12,6 +12,7 @@ import 'package:stepforward/core/widgets/search_text_field.dart';
 import 'package:stepforward/features/home/data/brothers_cubit/brothers_cubit.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/custom_brother_item.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/custom_tag_item.dart';
+import 'package:stepforward/generated/l10n.dart';
 
 class GetBrothersSection extends StatelessWidget {
   const GetBrothersSection({
@@ -23,11 +24,12 @@ class GetBrothersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          const SliverToBoxAdapter(
-            child: CustomPageAppBar(title: 'الخدام'),
+          SliverToBoxAdapter(
+            child: CustomPageAppBar(title: s.allServants),
           ),
           SliverToBoxAdapter(child: verticalSpace(24)),
           SliverToBoxAdapter(
@@ -75,9 +77,7 @@ class GetBrothersSection extends StatelessWidget {
                     'فريق تمثيل',
                     'فريق ترانيم',
                   ].map((tag) {
-                    final isSelected = cubit.selectedTags.contains(
-                      tag,
-                    );
+                    final isSelected = cubit.selectedTags.contains(tag);
                     return Row(
                       children: [
                         CustomTagItem(
@@ -93,9 +93,9 @@ class GetBrothersSection extends StatelessWidget {
               ),
             ),
           ),
-    
+
           SliverToBoxAdapter(child: verticalSpace(24)),
-    
+
           SliverToBoxAdapter(child: verticalSpace(24)),
           BlocBuilder<BrothersCubit, BrothersState>(
             buildWhen: (previous, current) =>
@@ -105,18 +105,17 @@ class GetBrothersSection extends StatelessWidget {
             builder: (context, state) {
               if (state is GetBrothersSuccessState) {
                 if (state.brothers.isEmpty) {
-                  return const SliverToBoxAdapter(
+                  return SliverToBoxAdapter(
                     child: CustomEmptyWidget(
-                      title: 'لم يتم ايجاد خدام',
-                      subtitle: 'سيتم اضافة خدام في أقرب وقت',
+                      title: s.noGamesFound,
+                      subtitle: '',
                     ),
                   );
                 }
                 return SliverList.builder(
-                  itemBuilder: (context, index) =>
-                      CustomBrotherItem(
-                        brotherModel: state.brothers[index],
-                      ),
+                  itemBuilder: (context, index) => CustomBrotherItem(
+                    brotherModel: state.brothers[index],
+                  ),
                   itemCount: state.brothers.length,
                 );
               } else if (state is GetBrothersLoadingState) {
@@ -126,10 +125,9 @@ class GetBrothersSection extends StatelessWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
                       itemCount: 10,
-                      itemBuilder: (context, index) =>
-                          CustomBrotherItem(
-                            brotherModel: getDummyBrother(),
-                          ),
+                      itemBuilder: (context, index) => CustomBrotherItem(
+                        brotherModel: getDummyBrother(),
+                      ),
                     ),
                   ),
                 );

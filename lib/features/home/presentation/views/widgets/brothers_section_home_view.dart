@@ -7,6 +7,7 @@ import 'package:stepforward/core/widgets/custom_show_more_blurred_item.dart';
 import 'package:stepforward/features/home/data/brothers_cubit/brothers_cubit.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/custom_home_view_item.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/custom_loading_home_view_item.dart';
+import 'package:stepforward/generated/l10n.dart';
 
 class BrothersSectionHomeView extends StatelessWidget {
   final VoidCallback onNavigateToBrothersView;
@@ -18,6 +19,7 @@ class BrothersSectionHomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return SliverToBoxAdapter(
       child: Visibility(
         visible: getUserData().isApproved,
@@ -25,12 +27,12 @@ class BrothersSectionHomeView extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text('خدام وفرق', style: TextStyles.bold16),
+                Text(s.servantsAndTeams, style: TextStyles.bold16),
                 const Spacer(),
                 GestureDetector(
                   onTap: () => onNavigateToBrothersView(),
                   child: Text(
-                    'المزيد',
+                    s.seeMore,
                     style: TextStyles.semiBold13.copyWith(
                       color: const Color(0xffA5A5A5),
                     ),
@@ -61,7 +63,6 @@ class BrothersSectionHomeView extends StatelessWidget {
                       itemCount: itemCount,
                       itemBuilder: (context, index) {
                         if (showMore && index == 5) {
-                          // Show "More" button as the 6th item
                           return GestureDetector(
                             onTap: onNavigateToBrothersView,
                             child: CustomShowMoreBlurredItem(
@@ -92,7 +93,7 @@ class BrothersSectionHomeView extends StatelessWidget {
                   } else if (state is GetBrothersFailureState) {
                     return Center(
                       child: Text(
-                        'حدث خطأ أثناء تحميل الخدام',
+                        s.brothersLoadError,
                         style: TextStyles.regular16.copyWith(color: Colors.red),
                       ),
                     );

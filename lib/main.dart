@@ -1,8 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:stepforward/core/cubits/language_cubit.dart';
 import 'package:stepforward/core/helper_functions/cache_helper.dart';
 import 'package:stepforward/core/helper_functions/on_generate_routes.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
@@ -27,7 +29,12 @@ void main() async {
     ),
   );
   setupGetIt();
-  runApp(const MyApp());
+  runApp(
+    BlocProvider(
+      create: (_) => LanguageCubit(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -42,37 +49,43 @@ class MyApp extends StatelessWidget {
       return isLoggedIn ? Routes.mainView : Routes.loginView;
     }
 
-    return ScreenUtilInit(
-      designSize: const Size(360, 800),
-      minTextAdapt: false,
-      child: MaterialApp(
-        builder: (context, child) {
-          return MediaQuery(
-            data: MediaQuery.of(
-              context,
-            ).copyWith(textScaler: const TextScaler.linear(1)),
-            child: child!,
-          );
-        },
-        title: 'Step Forward',
-        localizationsDelegates: [
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: S.delegate.supportedLocales,
-        locale: const Locale('ar'),
-        theme: ThemeData(
-          fontFamily: 'Cairo',
-          scaffoldBackgroundColor: Colors.white,
-          colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
-          useMaterial3: true,
-        ),
-        debugShowCheckedModeBanner: false,
-        onGenerateRoute: onGenerateRoutes,
-        initialRoute: getRoute(),
-      ),
+    return BlocBuilder<LanguageCubit, Locale>(
+      builder: (context, locale) {
+        return ScreenUtilInit(
+          designSize: const Size(360, 800),
+          minTextAdapt: false,
+          child: MaterialApp(
+            builder: (context, child) {
+              return MediaQuery(
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(textScaler: const TextScaler.linear(1)),
+                child: child!,
+              );
+            },
+            title: 'Step Forward',
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.delegate.supportedLocales,
+            locale: locale,
+            theme: ThemeData(
+              fontFamily: 'Cairo',
+              scaffoldBackgroundColor: Colors.white,
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: AppColors.primaryColor,
+              ),
+              useMaterial3: true,
+            ),
+            debugShowCheckedModeBanner: false,
+            onGenerateRoute: onGenerateRoutes,
+            initialRoute: getRoute(),
+          ),
+        );
+      },
     );
   }
 }
