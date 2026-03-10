@@ -27,6 +27,7 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
 
   // Translated content fields
   bool _isTranslating = false;
+  String? _translatedName;
   String? _translatedExplanation;
   String? _translatedTools;
   String? _translatedLaws;
@@ -65,14 +66,14 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
   }
 
   Future<void> _translateIfNeeded() async {
-    final isEnglish =
-        context.read<LanguageCubit>().isEnglish;
+    final isEnglish = context.read<LanguageCubit>().isEnglish;
     if (!isEnglish) return;
-    if (_isTranslating || _translatedExplanation != null) return;
+    if (_isTranslating || _translatedName != null) return;
 
     if (mounted) setState(() => _isTranslating = true);
 
     final textsToTranslate = [
+      widget.game.name,
       widget.game.explanation,
       widget.game.tools,
       widget.game.laws,
@@ -85,13 +86,26 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
     );
 
     if (!mounted) return;
-    final tagOffset = 4;
+    const tagOffset = 5;
     setState(() {
-      _translatedExplanation = translated[0];
-      _translatedTools = translated[1];
-      _translatedLaws = translated[2];
-      _translatedTarget = translated[3];
+      _translatedName = translated[0];
+      _translatedExplanation = translated[1];
+      _translatedTools = translated[2];
+      _translatedLaws = translated[3];
+      _translatedTarget = translated[4];
       _translatedTags = translated.sublist(tagOffset);
+      _isTranslating = false;
+    });
+  }
+
+  void _resetTranslations() {
+    setState(() {
+      _translatedName = null;
+      _translatedExplanation = null;
+      _translatedTools = null;
+      _translatedLaws = null;
+      _translatedTarget = null;
+      _translatedTags = null;
       _isTranslating = false;
     });
   }
@@ -107,23 +121,19 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
     return BlocListener<LanguageCubit, Locale>(
       listener: (context, locale) {
         if (locale.languageCode == 'en') {
-          _translatedExplanation = null;
+          _resetTranslations();
           _translateIfNeeded();
         } else {
-          setState(() {
-            _translatedExplanation = null;
-            _translatedTools = null;
-            _translatedLaws = null;
-            _translatedTarget = null;
-            _translatedTags = null;
-            _isTranslating = false;
-          });
+          _resetTranslations();
         }
       },
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          CustomSliverAppBar(widget: widget),
+          CustomSliverAppBar(
+            widget: widget,
+            translatedTitle: _translatedName,
+          ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -220,4 +230,3 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
     );
   }
 }
-

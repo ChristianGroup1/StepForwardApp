@@ -10,15 +10,24 @@ class CustomSliverAppBar extends StatelessWidget {
   const CustomSliverAppBar({
     super.key,
     required this.widget,
+    this.translatedTitle,
   });
 
   final GameDetailsViewBody widget;
 
+  /// When non-null this title is shown instead of the original Arabic game name.
+  /// Supplied by [_GameDetailsViewBodyState] after translation completes.
+  final String? translatedTitle;
+
   @override
   Widget build(BuildContext context) {
+    final displayTitle = translatedTitle ?? widget.game.name;
+
     return SliverAppBar(
       collapsedHeight: 70,
-      expandedHeight:isDeviceInPortrait(context)? MediaQuery.of(context).size.height * 0.35:  MediaQuery.of(context).size.height * 0.6,
+      expandedHeight: isDeviceInPortrait(context)
+          ? MediaQuery.of(context).size.height * 0.35
+          : MediaQuery.of(context).size.height * 0.6,
       pinned: true,
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.white,
@@ -30,14 +39,13 @@ class CustomSliverAppBar extends StatelessWidget {
       ),
       flexibleSpace: LayoutBuilder(
         builder: (context, constraints) {
-          final isCollapsed =
-              constraints.maxHeight <120;
-    
+          final isCollapsed = constraints.maxHeight < 120;
+
           return FlexibleSpaceBar(
             centerTitle: true,
-            titlePadding:  EdgeInsets.symmetric(
-              horizontal: isDeviceInPortrait(context) ?  40: 90,
-              vertical:isDeviceInPortrait(context) ? 24: 18,
+            titlePadding: EdgeInsets.symmetric(
+              horizontal: isDeviceInPortrait(context) ? 40 : 90,
+              vertical: isDeviceInPortrait(context) ? 24 : 18,
             ),
             title: Row(
               mainAxisAlignment: isCollapsed
@@ -58,13 +66,11 @@ class CustomSliverAppBar extends StatelessWidget {
                 if (isCollapsed) const SizedBox(width: 8),
                 Flexible(
                   child: Text(
-                    widget.game.name,
+                    displayTitle,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyles.bold16.copyWith(
                       fontSize: isCollapsed ? 16 : 20,
-                      color: isCollapsed
-                          ? Colors.black
-                          : Colors.white,
+                      color: isCollapsed ? Colors.black : Colors.white,
                     ),
                   ),
                 ),
@@ -96,9 +102,7 @@ class CustomSliverAppBar extends StatelessWidget {
                     const SizedBox(height: kToolbarHeight),
                     CustomCachedNetworkImageWidget(
                       imageUrl: widget.game.coverUrl,
-                      height:
-                          MediaQuery.of(context).size.height * 0.2,
-    
+                      height: MediaQuery.of(context).size.height * 0.2,
                       borderRadius: 16,
                       fit: BoxFit.cover,
                     ),

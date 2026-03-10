@@ -81,6 +81,7 @@ class GamesSectionHomeView extends StatelessWidget {
                           child: CustomHomeViewItem(
                             imageUrl: game.coverUrl,
                             name: game.name,
+                            shouldTranslateName: true,
                           ),
                         ),
                       );

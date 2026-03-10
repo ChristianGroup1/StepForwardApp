@@ -8,6 +8,7 @@ import 'package:stepforward/features/auth/domain/repos/auth_repo.dart';
 import 'package:stepforward/features/home/data/games_cubit/games_cubit.dart';
 import 'package:stepforward/features/home/domain/repos/home_repo.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/favorites_view_body.dart';
+import 'package:stepforward/generated/l10n.dart';
 
 class FavoritesView extends StatelessWidget {
   const FavoritesView({super.key});
@@ -20,7 +21,7 @@ class FavoritesView extends StatelessWidget {
       child: Scaffold(
         appBar: buildAppBar(
           context,
-          title: 'المفضلة',
+          title: S.of(context).favorites,
           onTap: () => context.pop(),
         ),
         body: const Padding(
@@ -34,3 +35,4 @@ class FavoritesView extends StatelessWidget {
     );
   }
 }
+
