@@ -15,7 +15,7 @@ class OpenAiTranslationService {
 
   /// Optional registered e-mail address for the MyMemory free tier.
   /// Passing an e-mail doubles the daily character limit to 10,000.
-  static String _email = '';
+  static String _email = 'fadykhayrat@gmail.com';
 
   /// Optionally pass a registered MyMemory [email] to increase the daily
   /// character limit from 5,000 to 10,000.  Omit or pass an empty string

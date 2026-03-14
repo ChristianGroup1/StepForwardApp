@@ -21,9 +21,11 @@ class CustomMoreViewListTileActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: const EdgeInsets.all(
+        8.0,
+      ), // Padding requires a 'padding' argument
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        // Most likely you were missing the 'child' property name
         children: [
           CustomMoreViewListTileItem(
             title: Text('المفضلة', style: TextStyles.bold16),
@@ -99,6 +101,8 @@ class CustomMoreViewListTileActions extends StatelessWidget {
             },
           ),
           const MyDivider(),
+          CustomMoreViewListTileItem(
+            title: Text('من نحن', style: TextStyles.bold16),
             leading: const Icon(
               Icons.info_outline,
               color: AppColors.primaryColor,
@@ -172,7 +176,7 @@ class CustomMoreViewListTileActions extends StatelessWidget {
             },
           ),
           verticalSpace(24.h),
-        ],
+        ], // Ensure this matches the '[' on line 27
       ),
     );
   }
