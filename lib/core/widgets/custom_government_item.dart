@@ -29,7 +29,7 @@ class CustomGovernorateTagItem extends StatelessWidget {
             const Icon(Icons.location_on, color: AppColors.primaryColor),
             horizontalSpace(4),
             Text(
-              '\${isEn ? "Governorate" : "المحافظة"}: \$governorate',
+              '${isEn ? "Governorate" : "المحافظة"}: $governorate',
               style: TextStyles.bold13.copyWith(color: Colors.black),
             ),
           ],

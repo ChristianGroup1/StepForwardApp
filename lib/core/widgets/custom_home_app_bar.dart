@@ -39,7 +39,7 @@ class CustomHomeAppBar extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '\${getUserData().firstName} \${getUserData().lastName}',
+                  '${getUserData().firstName} ${getUserData().lastName}',
                   style: TextStyles.bold19.copyWith(color: Colors.white),
                 ),
               ],

@@ -47,8 +47,8 @@ class EmailResetPasswordViewBody extends StatelessWidget {
                     text: state is SendEmailToResetPasswordTimerState &&
                             state.seconds > 0
                         ? (isEn
-                            ? 'Send Reset Email (\${state.seconds})'
-                            : 'ارسال رسالة لاعادة التعيين (\${state.seconds})')
+                            ? 'Send Reset Email (${state.seconds})'
+                            : 'ارسال رسالة لاعادة التعيين (${state.seconds})')
                         : (isEn
                             ? 'Send Reset Email'
                             : 'ارسال رسالة لاعادة التعيين'),

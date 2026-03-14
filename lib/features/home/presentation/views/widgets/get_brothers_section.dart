@@ -14,6 +14,15 @@ import 'package:stepforward/features/home/data/brothers_cubit/brothers_cubit.dar
 import 'package:stepforward/features/home/presentation/views/widgets/custom_brother_item.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/custom_tag_item.dart';
 
+/// Maps Arabic servant-role tags → English labels.
+const Map<String, String> _kTagTranslations = {
+  'مرنم': 'Singer',
+  'متكلم': 'Speaker',
+  'فريق رياضي': 'Sports Team',
+  'فريق تمثيل': 'Drama Team',
+  'فريق ترانيم': 'Praise Team',
+};
+
 class GetBrothersSection extends StatelessWidget {
   const GetBrothersSection({super.key, required this.cubit});
 
@@ -22,9 +31,6 @@ class GetBrothersSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEn = context.isEn;
-    final brotherTags = isEn
-        ? ['Singer', 'Speaker', 'Sports Team', 'Drama Team', 'Praise Team']
-        : ['مرنم', 'متكلم', 'فريق رياضي', 'فريق تمثيل', 'فريق ترانيم'];
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: [
@@ -55,35 +61,24 @@ class GetBrothersSection extends StatelessWidget {
               children: [
                 CustomGovernorateTagItem(
                   governorate: cubit.selectedGovernment,
-                  onTap: () {
-                    customGovernmentFilterModalSheet(context, cubit);
-                  },
+                  onTap: () => customGovernmentFilterModalSheet(context, cubit),
                 ),
                 horizontalSpace(12),
                 CustomDenominationItem(
                   denomination: cubit.selectedDenomination,
-                  onTap: () {
-                    customBrotherFilterModalSheet(context, cubit);
-                  },
+                  onTap: () => customBrotherFilterModalSheet(context, cubit),
                 ),
                 horizontalSpace(12),
-                ...brotherTags.map((tag) {
-                  final isSelected = cubit.selectedTags.contains(
-                    isEn
-                        ? ['مرنم', 'متكلم', 'فريق رياضي', 'فريق تمثيل', 'فريق ترانيم'][brotherTags.indexOf(tag)]
-                        : tag,
-                  );
+                ..._kTagTranslations.entries.map((entry) {
+                  final arTag = entry.key;
+                  final displayLabel = isEn ? entry.value : arTag;
+                  final isSelected = cubit.selectedTags.contains(arTag);
                   return Row(
                     children: [
                       CustomTagItem(
-                        tagName: tag,
+                        tagName: displayLabel,
                         isSelected: isSelected,
-                        onTap: () {
-                          final arTag = isEn
-                              ? ['مرنم', 'متكلم', 'فريق رياضي', 'فريق تمثيل', 'فريق ترانيم'][brotherTags.indexOf(tag)]
-                              : tag;
-                          cubit.toggleTag(arTag);
-                        },
+                        onTap: () => cubit.toggleTag(arTag),
                       ),
                       horizontalSpace(12),
                     ],

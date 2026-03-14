@@ -29,7 +29,7 @@ class CustomDenominationItem extends StatelessWidget {
             const Icon(Icons.church, color: AppColors.primaryColor),
             horizontalSpace(4),
             Text(
-              '\${isEn ? "Denomination" : "الطائفة"}: \$denomination',
+              '${isEn ? "Denomination" : "الطائفة"}: $denomination',
               style: TextStyles.bold13.copyWith(color: Colors.black),
             ),
           ],
