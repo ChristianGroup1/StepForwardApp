@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickalert/models/quickalert_type.dart';
+import 'package:stepforward/core/cubits/locale_cubit.dart';
 import 'package:stepforward/core/helper_functions/custom_quick_alret_view.dart';
 import 'package:stepforward/core/helper_functions/delete_account_quick_alret_dialogs.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
@@ -60,8 +61,44 @@ class CustomMoreViewListTileActions extends StatelessWidget {
             onTap: () => context.pushNamed(Routes.forgetPasswordView),
           ),
           const MyDivider(),
-          CustomMoreViewListTileItem(
-            title: Text('من نحن', style: TextStyles.bold16),
+          // Language Toggle
+          BlocBuilder<LocaleCubit, Locale>(
+            builder: (context, locale) {
+              final isArabic = locale.languageCode == 'ar';
+              return CustomMoreViewListTileItem(
+                title: Text(
+                  isArabic ? 'اللغة' : 'Language',
+                  style: TextStyles.bold16,
+                ),
+                leading: const Icon(
+                  Icons.language,
+                  color: AppColors.primaryColor,
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      isArabic ? 'عربي' : 'English',
+                      style: TextStyles.semiBold13.copyWith(
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Switch(
+                      value: !isArabic,
+                      activeColor: AppColors.primaryColor,
+                      onChanged: (switchedToEn) {
+                        context.read<LocaleCubit>().changeLocale(
+                          switchedToEn ? 'en' : 'ar',
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          const MyDivider(),
             leading: const Icon(
               Icons.info_outline,
               color: AppColors.primaryColor,

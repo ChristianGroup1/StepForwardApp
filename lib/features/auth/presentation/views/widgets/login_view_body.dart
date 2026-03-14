@@ -22,139 +22,88 @@ class LoginViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xffEEF2F7), Colors.white],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: kHorizontalPadding,
+        vertical: 32,
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: kHorizontalPadding,
-          vertical: 32,
-        ),
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Form(
-            key: cubit.formKey,
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryColor.withOpacity(0.15),
-                        blurRadius: 24,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      Assets.assetsImagesStepForwardLogo,
-                      height: 100.h,
-                      fit: BoxFit.cover,
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Form(
+          key: cubit.formKey,
+          child: Column(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadiusGeometry.circular(12),
+                child: Image.asset(
+                  Assets.assetsImagesStepForwardLogo,
+                  height: 150.h,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              verticalSpace(30),
+              const Text(
+                'اهلًا بعودتك إلى Step Forward',
+                style: TextStyles.bold23,
+              ),
+              verticalSpace(30),
+              CustomTextFormField(
+                textInputType: TextInputType.emailAddress,
+                labelText: 'البريد الإلكتروني',
+                onChanged: (value) {
+                  cubit.emailController.text = value;
+                },
+              ),
+              verticalSpace(24),
+              CustomTextFormField(
+                suffixIcon: GestureDetector(
+                  onTap: () => cubit.changePasswordVisibility(),
+                  child: cubit.suffixIcon,
+                ),
+                isObscured: cubit.isObscured,
+                labelText: 'كلمة المرور',
+                onChanged: (value) {
+                  cubit.passwordController.text = value;
+                },
+              ),
+              verticalSpace(16),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: GestureDetector(
+                  onTap: () => context.pushNamed(Routes.forgetPasswordView),
+                  child: Text(
+                    'نسيت كلمة المرور ؟ ',
+                    style: TextStyles.bold16.copyWith(
+                      color: AppColors.primaryColor,
                     ),
                   ),
                 ),
-                verticalSpace(24),
-                Text(
-                  'اهلًا بعودتك إلى Step Forward',
-                  style: TextStyles.bold23.copyWith(
-                    color: AppColors.primaryColor,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                verticalSpace(8),
-                Text(
-                  'سجّل دخولك للمتابعة',
-                  style: TextStyles.regular14.copyWith(
-                    color: const Color(0xff949D9E),
-                  ),
-                ),
-                verticalSpace(28),
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 20,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      CustomTextFormField(
-                        textInputType: TextInputType.emailAddress,
-                        labelText: 'البريد الإلكتروني',
-                        onChanged: (value) {
-                          cubit.emailController.text = value;
-                        },
-                      ),
-                      verticalSpace(20),
-                      CustomTextFormField(
-                        suffixIcon: GestureDetector(
-                          onTap: () => cubit.changePasswordVisibility(),
-                          child: cubit.suffixIcon,
-                        ),
-                        isObscured: cubit.isObscured,
-                        labelText: 'كلمة المرور',
-                        onChanged: (value) {
-                          cubit.passwordController.text = value;
-                        },
-                      ),
-                      verticalSpace(12),
-                      Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: GestureDetector(
-                          onTap: () =>
-                              context.pushNamed(Routes.forgetPasswordView),
-                          child: Text(
-                            'نسيت كلمة المرور ؟ ',
-                            style: TextStyles.bold16.copyWith(
-                              color: AppColors.primaryColor,
-                            ),
-                          ),
-                        ),
-                      ),
-                      verticalSpace(20),
-                      CustomButton(
-                        text: 'تسجيل دخول',
-                        textColor: Colors.white,
-                        onPressed: () {
-                          if (cubit.formKey.currentState!.validate()) {
-                            cubit.login();
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                verticalSpace(24),
-                const DontHaveAnAccount(),
-                verticalSpace(24),
-                const OrDivider(),
-                verticalSpace(24),
-                LoginMethodItem(
-                  image: Assets.assetsImagesGoogleIcon,
-                  text: 'تسجيل الدخول بواسطة جوجل',
-                  onTap: () {
-                    AnalyticsService.logLogin(method: 'google');
-                    cubit.signInWIthGoogle();
-                  },
-                ),
-              ],
-            ),
+              ),
+              verticalSpace(24),
+              CustomButton(
+                text: 'تسجيل دخول',
+                textColor: Colors.white,
+                onPressed: () {
+                  if (cubit.formKey.currentState!.validate()) {
+                    //AnalyticsService.logLogin(method: 'email and password');
+                    cubit.login();
+                  }
+                },
+              ),
+              verticalSpace(24),
+              const DontHaveAnAccount(),
+              verticalSpace(24),
+              const OrDivider(),
+              verticalSpace(24),
+              LoginMethodItem(
+                image: Assets.assetsImagesGoogleIcon,
+                text: 'تسجيل الدخول بواسطة جوجل',
+                onTap: () {
+                  AnalyticsService.logLogin(method: 'google');
+                  cubit.signInWIthGoogle();
+                },
+              ),
+            ],
           ),
         ),
       ),
