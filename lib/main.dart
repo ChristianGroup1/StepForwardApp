@@ -35,12 +35,13 @@ void main() async {
   // Optionally pass a registered MyMemory e-mail to increase the daily limit:
   //   flutter run --dart-define=TRANSLATION_EMAIL=your@email.com
   OpenAiTranslationService.configure(
-    email: const String.fromEnvironment('TRANSLATION_EMAIL', defaultValue: ''),
+    email: const String.fromEnvironment(
+      'TRANSLATION_EMAIL',
+      defaultValue: 'fadykhayrat@gmail.com',
+    ),
   );
 
-  runApp(
-    BlocProvider(create: (_) => LocaleCubit(), child: const MyApp()),
-  );
+  runApp(BlocProvider(create: (_) => LocaleCubit(), child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
