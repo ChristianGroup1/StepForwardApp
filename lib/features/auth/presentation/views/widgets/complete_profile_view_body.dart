@@ -73,13 +73,13 @@ class CompleteUserProfileViewBody extends StatelessWidget {
                               }
                             },
                           ),
-                          const Text('بيانات الحساب', style: TextStyles.bold23),
+                          Text(context.isEn ? 'Account Details' : 'بيانات الحساب', style: TextStyles.bold23),
                         ],
                       ),
                       verticalSpace(16),
                       SignUpTextFields(cubit: cubit, user: user),
                       CustomButton(
-                        text: 'إنشاء الحساب',
+                        text: context.isEn ? 'Create Account' : 'إنشاء الحساب',
                         onPressed: () {
                           if (cubit.formKey.currentState!.validate()) {
                             cubit.completeGoogleSignUp(userId: user!.id);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stepforward/core/helper_functions/app_regex.dart';
+import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_drop_down_form_field.dart';
@@ -15,10 +16,13 @@ class UpdateUserProfileTextFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.isEn;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const CustomMoreAppBarWidget(title: 'تعديل البيانات الشخصية'),
+        CustomMoreAppBarWidget(
+          title: isEn ? 'Edit Personal Data' : 'تعديل البيانات الشخصية',
+        ),
         verticalSpace(16),
         CustomTextFormField(
           textInputType: TextInputType.name,
@@ -26,19 +30,16 @@ class UpdateUserProfileTextFields extends StatelessWidget {
           controller: cubit.updatedFirstNameController,
           onChanged: (value) {
             cubit.userMakeChanges();
-
             cubit.updatedFirstNameController.text = value.trim();
           },
         ),
         verticalSpace(16),
-
         CustomTextFormField(
           textInputType: TextInputType.name,
           hintText: getUserData().lastName,
           controller: cubit.updatedLastNameController,
           onChanged: (value) {
             cubit.userMakeChanges();
-
             cubit.updatedLastNameController.text = value.trim();
           },
         ),
@@ -74,7 +75,7 @@ class UpdateUserProfileTextFields extends StatelessWidget {
           },
           validator: (value) {
             if (!AppRegex.isPhoneNumberValid(value!)) {
-              return 'رقم الهاتف غير صالح';
+              return isEn ? 'Invalid phone number' : 'رقم الهاتف غير صالح';
             }
             return null;
           },

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/is_device_in_portrait.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
+import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/widgets/custom_show_more_blurred_item.dart';
 import 'package:stepforward/features/home/data/games_cubit/games_cubit.dart';
@@ -16,19 +17,39 @@ class GamesSectionHomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.isEn;
     return SliverToBoxAdapter(
       child: Column(
         children: [
           Row(
             children: [
-              Text('العاب', style: TextStyles.bold16),
+              Container(
+                width: 4,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                isEn ? 'Games' : 'العاب',
+                style: TextStyles.bold16.copyWith(color: AppColors.primaryColor),
+              ),
               const Spacer(),
               GestureDetector(
                 onTap: () => onNavigateToGamesView(),
-                child: Text(
-                  'المزيد',
-                  style: TextStyles.semiBold13.copyWith(
-                    color: const Color(0xffA5A5A5),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    isEn ? 'More' : 'المزيد',
+                    style: TextStyles.semiBold13.copyWith(
+                      color: AppColors.primaryColor,
+                    ),
                   ),
                 ),
               ),
@@ -46,26 +67,23 @@ class GamesSectionHomeView extends StatelessWidget {
                 final itemCount = showMore ? 6 : games.length;
 
                 return SizedBox(
-                  height:isDeviceInPortrait(context)? MediaQuery.sizeOf(context).height * 0.22:MediaQuery.sizeOf(context).height * 0.55,
+                  height: isDeviceInPortrait(context)
+                      ? MediaQuery.sizeOf(context).height * 0.22
+                      : MediaQuery.sizeOf(context).height * 0.55,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: itemCount,
                     itemBuilder: (context, index) {
                       if (showMore && index == 5) {
                         final blurImageUrl = state.games[5].coverUrl;
-
                         return GestureDetector(
                           onTap: onNavigateToGamesView,
                           child: CustomShowMoreBlurredItem(blurImageUrl: blurImageUrl),
                         );
                       }
-
                       final game = games[index];
                       return Padding(
-                        padding: const EdgeInsets.only(
-                          right: 12,left: 12,top: 16
-                          
-                        ),
+                        padding: const EdgeInsets.only(right: 12, left: 12, top: 16),
                         child: GestureDetector(
                           onTap: () => context.pushNamed(
                             Routes.gameDetails,
@@ -94,4 +112,3 @@ class GamesSectionHomeView extends StatelessWidget {
     );
   }
 }
-

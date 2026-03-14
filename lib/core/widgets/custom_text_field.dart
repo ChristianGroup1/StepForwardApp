@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:stepforward/core/helper_functions/extentions.dart';
+import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 
 class CustomTextFormField extends StatelessWidget {
@@ -25,35 +27,38 @@ class CustomTextFormField extends StatelessWidget {
   final TextStyle? style;
   final void Function(String?)? onSaved;
   final TextStyle? hintStyle;
-  const CustomTextFormField(
-      {super.key,
-      this.hintText,
-      this.labelText,
-      this.border,
-      this.style,
-      this.hintStyle,
-      this.initialValue,
-      this.isEnabled=true,
-      this.isDense,
-      this.borderRadius,
-      this.fillColor,
-      this.textInputType,
-      this.validator,
-      this.readOnly = false,
-      this.suffixIcon,
-      this.onChanged,
-      this.controller,
-      this.isObscured,
-      this.textAlign,
-      this.maxLines = 1,
-      this.contentPadding,
-      this.needsValidation = true,
-      this.onFieldSubmitted,
-      this.onSaved});
+
+  const CustomTextFormField({
+    super.key,
+    this.hintText,
+    this.labelText,
+    this.border,
+    this.style,
+    this.hintStyle,
+    this.initialValue,
+    this.isEnabled = true,
+    this.isDense,
+    this.borderRadius,
+    this.fillColor,
+    this.textInputType,
+    this.validator,
+    this.readOnly = false,
+    this.suffixIcon,
+    this.onChanged,
+    this.controller,
+    this.isObscured,
+    this.textAlign,
+    this.maxLines = 1,
+    this.contentPadding,
+    this.needsValidation = true,
+    this.onFieldSubmitted,
+    this.onSaved,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField( 
+    final isEn = context.isEn;
+    return TextFormField(
       enabled: isEnabled,
       onFieldSubmitted: onFieldSubmitted,
       controller: controller,
@@ -68,7 +73,7 @@ class CustomTextFormField extends StatelessWidget {
           ? validator ??
               (value) {
                 if (value == null || value.isEmpty) {
-                  return 'هذا الحقل مطلوب';
+                  return isEn ? 'This field is required' : 'هذا الحقل مطلوب';
                 }
                 return null;
               }
@@ -84,27 +89,20 @@ class CustomTextFormField extends StatelessWidget {
         suffixIconColor: const Color(0xff949D9E),
         hintText: hintText,
         hintStyle: hintStyle ??
-            TextStyles.bold13.copyWith(
-              color: const Color(0xff949D9E),
-            ),
-            
+            TextStyles.bold13.copyWith(color: const Color(0xff949D9E)),
         filled: true,
         fillColor: fillColor ?? const Color(0xffF9FAFA),
         border: border ?? buildBorder(),
         enabledBorder: border ?? buildBorder(),
-        focusedBorder: border ?? buildBorder(),
+        focusedBorder: border ?? buildBorder(color: AppColors.primaryColor),
       ),
     );
   }
 
-  OutlineInputBorder buildBorder() {
+  OutlineInputBorder buildBorder({Color? color}) {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(
-        borderRadius ?? 4.0,
-      ),
-      borderSide: const BorderSide(
-        color: Color(0xffE6E9E9),
-      ),
+      borderRadius: BorderRadius.circular(borderRadius ?? 12.0),
+      borderSide: BorderSide(color: color ?? const Color(0xffE6E9E9)),
     );
   }
 }

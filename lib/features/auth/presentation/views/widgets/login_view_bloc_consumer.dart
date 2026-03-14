@@ -29,11 +29,12 @@ class LoginViewBlocConsumer extends StatelessWidget {
           }
         }
         if (state is LoginFailureState) {
+          final isEn = context.isEn;
           customQuickAlertView(
             context,
             text: state.errorMessage,
-            title: 'حدث خطأ',
-            confirmBtnText: 'حسنا',
+            title: isEn ? 'An Error Occurred' : 'حدث خطأ',
+            confirmBtnText: isEn ? 'OK' : 'حسنا',
             type: QuickAlertType.error,
             onConfirmBtnTap: () {
               context.pop();

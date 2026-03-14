@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/utils/app_images.dart';
-
 
 class ButtonNavigationBarEntity {
   final String activeImage, inActiveImage;
-  final String Function(BuildContext) name; // Change to function returning a localized string
+  final String Function(BuildContext) name;
 
   ButtonNavigationBarEntity({
     required this.activeImage,
@@ -15,22 +15,22 @@ class ButtonNavigationBarEntity {
 
 List<ButtonNavigationBarEntity> buttonNavigationBarEntityList = [
   ButtonNavigationBarEntity(
-    name: (context) =>'الرئيسية', // Use localized text
+    name: (context) => context.isEn ? 'Home' : 'الرئيسية',
     activeImage: Assets.assetsImagesInActiveHome,
     inActiveImage: Assets.assetsImagesInActiveHome,
   ),
   ButtonNavigationBarEntity(
-    name: (context) =>'الالعاب', // Use localized text
+    name: (context) => context.isEn ? 'Games' : 'الالعاب',
     activeImage: Assets.assetsImagesGamesIcon,
     inActiveImage: Assets.assetsImagesGamesIcon,
   ),
   ButtonNavigationBarEntity(
-    name: (context) =>'الخدام', // Use localized text
+    name: (context) => context.isEn ? 'Servants' : 'الخدام',
     activeImage: Assets.assetsImagesPeopleIcon,
     inActiveImage: Assets.assetsImagesPeopleIcon,
   ),
-   ButtonNavigationBarEntity(
-    name: (context) =>'المزيد', // Use localized text
+  ButtonNavigationBarEntity(
+    name: (context) => context.isEn ? 'More' : 'المزيد',
     activeImage: Assets.assetsImagesMoreActive,
     inActiveImage: Assets.assetsImagesMoreInactive,
   ),

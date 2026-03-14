@@ -40,6 +40,7 @@ class UploadUserIdView extends StatelessWidget {
             }
           },
           builder: (context, state) {
+            final isEn = context.isEn;
             return ModalProgressHUD(
               inAsyncCall: state is AddUserIdsLoadingState,
               progressIndicator: const CustomAnimatedLoadingWidget(),
@@ -61,8 +62,8 @@ class UploadUserIdView extends StatelessWidget {
                               onTap: () => context.pop(),
                               child: const Icon(Icons.arrow_back_ios),
                             ),
-                            const Text(
-                              'رفع صورة البطاقة',
+                            Text(
+                              isEn ? 'Upload ID Photo' : 'رفع صورة البطاقة',
                               style: TextStyles.bold23,
                               textAlign: TextAlign.center,
                             ),
@@ -70,8 +71,9 @@ class UploadUserIdView extends StatelessWidget {
                         ),
                         verticalSpace(12),
                         Text(
-                          'هذا الاجراء بهدف الحفاظ على بيانات الخدام',
-
+                          isEn
+                              ? 'This step is to protect servant data'
+                              : 'هذا الاجراء بهدف الحفاظ على بيانات الخدام',
                           style: TextStyles.bold16,
                         ),
                         verticalSpace(64),
@@ -79,20 +81,18 @@ class UploadUserIdView extends StatelessWidget {
                           onChanged: (value) {
                             context.read<BrothersCubit>().frontId = value;
                           },
-                          text: 'وجه البطاقة',
+                          text: isEn ? 'Front of ID' : 'وجه البطاقة',
                         ),
                         verticalSpace(32),
                         ImageField(
                           onChanged: (value) {
                             context.read<BrothersCubit>().backId = value;
                           },
-                          text: 'ظهر البطاقة',
+                          text: isEn ? 'Back of ID' : 'ظهر البطاقة',
                         ),
-
                         verticalSpace(32),
-
                         CustomButton(
-                          text: 'رفع البطاقة',
+                          text: isEn ? 'Upload ID' : 'رفع البطاقة',
                           onPressed: () {
                             if (context.read<BrothersCubit>().frontId != null &&
                                 context.read<BrothersCubit>().backId != null) {
@@ -100,7 +100,9 @@ class UploadUserIdView extends StatelessWidget {
                             } else {
                               showSnackBar(
                                 context,
-                                text: 'يرجى رفع صورة البطاقة من الجهتين',
+                                text: isEn
+                                    ? 'Please upload both sides of your ID'
+                                    : 'يرجى رفع صورة البطاقة من الجهتين',
                               );
                             }
                           },

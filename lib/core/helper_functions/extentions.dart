@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+extension LocaleContext on BuildContext {
+  /// Returns true when the current app locale is English.
+  bool get isEn => Localizations.localeOf(this).languageCode == 'en';
+}
+
 extension Navigation on BuildContext {
   Future<dynamic> pushNamed(String routeName, {Object? arguments}) {
    return Navigator.of(this).pushNamed(routeName, arguments: arguments);
