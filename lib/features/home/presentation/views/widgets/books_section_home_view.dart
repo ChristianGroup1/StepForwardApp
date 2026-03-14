@@ -81,7 +81,7 @@ class BooksSectionHomeView extends StatelessWidget {
               } else if (state is GetBooksFailureState) {
                 return Center(
                   child: Text(
-                    isEn ? 'Error loading books' : 'حدث خطاء اثناء تحميل الكتب',
+                    isEn ? 'Error loading books' : 'حدث خطأ أثناء تحميل الكتب',
                     style: TextStyles.regular16.copyWith(color: Colors.red),
                   ),
                 );

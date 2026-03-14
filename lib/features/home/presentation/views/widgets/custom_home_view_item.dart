@@ -3,6 +3,7 @@ import 'package:stepforward/core/helper_functions/is_device_in_portrait.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_cached_network_image.dart';
+import 'package:stepforward/core/widgets/translating_text.dart';
 
 class CustomHomeViewItem extends StatelessWidget {
   final String imageUrl, name;
@@ -40,7 +41,15 @@ class CustomHomeViewItem extends StatelessWidget {
           ),
         ),
         verticalSpace(8),
-        Text(name, style: TextStyles.bold13),
+        // TranslatingText automatically translates to English when needed,
+        // using the in-memory cache so each unique name is translated only once.
+        TranslatingText(
+          name,
+          style: TextStyles.bold13,
+          maxLines: 2,
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+        ),
       ],
     );
   }

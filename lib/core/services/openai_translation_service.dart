@@ -2,79 +2,109 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-/// Free translation service using the MyMemory API.
+/// Translation service with in-memory cache and multiple free backends.
 ///
-/// No API key is required.  Free tier allows up to 5,000 characters per day
-/// (per IP).  For higher limits register a free account at
-/// https://mymemory.translated.net and pass your email to [configure].
+/// Primary:  Unofficial Google Translate endpoint (high limits, no API key).
+/// Fallback: MyMemory free API (5,000 chars/day; 10,000 with e-mail).
 ///
-/// The class keeps the same public interface as the previous OpenAI-based
-/// implementation so that no other files need to change.
+/// The in-memory cache ensures each unique Arabic string is translated only
+/// once per app session, drastically reducing API calls.
 class OpenAiTranslationService {
-  static const String _endpoint = 'https://api.mymemory.translated.net/get';
+  // ── Cache ─────────────────────────────────────────────────────────────────
+  static final Map<String, String> _cache = {};
 
-  /// Optional registered e-mail address for the MyMemory free tier.
-  /// Passing an e-mail doubles the daily character limit to 10,000.
+  // ── Backends ──────────────────────────────────────────────────────────────
+  static const _googleEndpoint =
+      'https://translate.googleapis.com/translate_a/single';
+  static const _myMemoryEndpoint = 'https://api.mymemory.translated.net/get';
   static String _email = 'fadykhayrat@gmail.com';
 
-  /// Optionally pass a registered MyMemory [email] to increase the daily
-  /// character limit from 5,000 to 10,000.  Omit or pass an empty string
-  /// to use the service without any account — it works out of the box.
+  /// Optionally configure the MyMemory e-mail address for higher daily limits.
   static void configure({String email = '', String apiKey = ''}) {
-    // Accept either named parameter for backward compatibility.
     final addr = email.isNotEmpty ? email : apiKey;
-    if (addr.isNotEmpty && addr.contains('@')) {
-      _email = addr;
-    }
+    if (addr.isNotEmpty && addr.contains('@')) _email = addr;
   }
 
-  /// Translates [text] from Arabic to English using the MyMemory free API.
+  // ── Public API ─────────────────────────────────────────────────────────────
+
+  /// Translates [text] from Arabic to English.
   /// Returns the original [text] if translation fails or [text] is empty.
   static Future<String> translateToEnglish(String text) async {
-    if (text.isEmpty) return text;
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return trimmed;
+    if (_cache.containsKey(trimmed)) return _cache[trimmed]!;
+
+    // Try primary backend first.
+    String? result = await _googleTranslate(trimmed);
+    if (result == null || result.isEmpty || result == trimmed) {
+      result = await _myMemoryTranslate(trimmed);
+    }
+
+    final translated = (result != null && result.isNotEmpty) ? result : trimmed;
+    _cache[trimmed] = translated;
+    return translated;
+  }
+
+  /// Translates a map of string fields from Arabic to English.
+  static Future<Map<String, String>> translateFields(
+    Map<String, String> fields,
+  ) async {
+    final result = Map<String, String>.from(fields);
+    await Future.wait(
+      fields.entries
+          .where((e) => e.value.isNotEmpty)
+          .map((e) async {
+            result[e.key] = await translateToEnglish(e.value);
+          }),
+    );
+    return result;
+  }
+
+  // ── Private helpers ────────────────────────────────────────────────────────
+
+  static Future<String?> _googleTranslate(String text) async {
     try {
-      final queryParams = {
+      final uri = Uri.parse(_googleEndpoint).replace(queryParameters: {
+        'client': 'gtx',
+        'sl': 'ar',
+        'tl': 'en',
+        'dt': 't',
+        'q': text,
+      });
+      final response = await http.get(uri).timeout(const Duration(seconds: 8));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as List<dynamic>;
+        final parts = data[0] as List<dynamic>;
+        final translated = parts
+            .map((p) => (p as List<dynamic>)[0]?.toString() ?? '')
+            .join();
+        return translated.trim();
+      }
+    } catch (e) {
+      debugPrint('Google translate error: $e');
+    }
+    return null;
+  }
+
+  static Future<String?> _myMemoryTranslate(String text) async {
+    try {
+      final uri = Uri.parse(_myMemoryEndpoint).replace(queryParameters: {
         'q': text,
         'langpair': 'ar|en',
         if (_email.isNotEmpty) 'de': _email,
-      };
-      final uri = Uri.parse(_endpoint).replace(queryParameters: queryParams);
-      final response = await http.get(uri);
-
+      });
+      final response = await http.get(uri).timeout(const Duration(seconds: 8));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
         final translated =
             data['responseData']?['translatedText'] as String? ?? text;
+        // MyMemory returns error text in the translated field when quota exceeded.
+        if (translated.contains('MYMEMORY WARNING')) return null;
         return translated.trim();
-      } else {
-        debugPrint(
-          'MyMemory translation error ${response.statusCode}: ${response.body}',
-        );
       }
-    } catch (e, st) {
-      debugPrint('MyMemory translateToEnglish exception: $e\n$st');
+    } catch (e) {
+      debugPrint('MyMemory translate error: $e');
     }
-    return text;
-  }
-
-  /// Translates a map of string fields from Arabic to English.
-  /// Each field is translated in a separate request to keep individual texts
-  /// within the API's per-request length limit.
-  static Future<Map<String, String>> translateFields(
-    Map<String, String> fields,
-  ) async {
-    final entries = fields.entries.where((e) => e.value.isNotEmpty).toList();
-    if (entries.isEmpty) return fields;
-
-    final result = Map<String, String>.from(fields);
-
-    // Translate each field individually (MyMemory works best per-sentence).
-    await Future.wait(
-      entries.map((e) async {
-        result[e.key] = await translateToEnglish(e.value);
-      }),
-    );
-
-    return result;
+    return null;
   }
 }

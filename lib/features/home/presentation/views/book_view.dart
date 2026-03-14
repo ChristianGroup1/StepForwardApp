@@ -14,23 +14,28 @@ class PdfViewerScreen extends StatelessWidget {
   const PdfViewerScreen({super.key, required this.url, required this.title});
 
   Future<void> downloadPDF(BuildContext context) async {
+    final isEn = context.isEn;
     try {
       Directory? directory;
-
       if (Platform.isAndroid) {
         directory = Directory('/storage/emulated/0/Download');
       } else {
         directory = await getApplicationDocumentsDirectory();
       }
-
       final fileName = '${title.replaceAll(" ", "_")}.pdf';
       final filePath = '${directory.path}/$fileName';
-
       await Dio().download(url, filePath);
-
-      showSnackBar(context, text: 'تم التحميل بنجاح', color: Colors.green);
+      showSnackBar(
+        context,
+        text: isEn ? 'Downloaded successfully' : 'تم التحميل بنجاح',
+        color: Colors.green,
+      );
     } catch (e) {
-      showSnackBar(context, text: 'حدث خطأ اثناء التحميل', color: Colors.red);
+      showSnackBar(
+        context,
+        text: isEn ? 'Error during download' : 'حدث خطأ اثناء التحميل',
+        color: Colors.red,
+      );
     }
   }
 

@@ -68,6 +68,6 @@ String mapException(FirebaseAuthException e, {bool isEn = false}) {
       return isEn ? 'Facebook login was cancelled' : 'تم إلغاء تسجيل الدخول إلى فيسبوك';
 
     default:
-      return isEn ? 'Something went wrong, please try again' : 'حدث خطاء ما، حاول مرة اخرى';
+      return isEn ? 'Something went wrong, please try again' : 'حدث خطأ ما، حاول مرة أخرى';
   }
 }
