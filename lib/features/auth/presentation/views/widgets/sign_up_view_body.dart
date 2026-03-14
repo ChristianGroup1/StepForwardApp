@@ -15,6 +15,7 @@ class SignUpViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.isEn;
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: kHorizontalPadding,
@@ -39,7 +40,7 @@ class SignUpViewBody extends StatelessWidget {
                     },
                   ),
                   Text(
-                    'إنشاء حساب جديد',
+                    isEn ? 'Create New Account' : 'إنشاء حساب جديد',
                     style: TextStyles.bold28.copyWith(
                       color: AppColors.primaryColor,
                     ),
@@ -48,7 +49,9 @@ class SignUpViewBody extends StatelessWidget {
               ),
               verticalSpace(16),
               Text(
-                'قم بإنشاء حساب لتتمتع لتكون جزء من فريقنا  ',
+                isEn
+                    ? 'Create an account to be part of our team'
+                    : 'قم بإنشاء حساب لتتمتع لتكون جزء من فريقنا  ',
                 style: TextStyles.bold13.copyWith(
                   color: const Color(0xff949D9E),
                 ),
@@ -56,7 +59,7 @@ class SignUpViewBody extends StatelessWidget {
               verticalSpace(32),
               SignUpTextFields(cubit: cubit),
               CustomButton(
-                text: 'انشاء حساب',
+                text: isEn ? 'Create Account' : 'انشاء حساب',
                 onPressed: () {
                   if (cubit.formKey.currentState!.validate()) {
                     cubit.signUp();

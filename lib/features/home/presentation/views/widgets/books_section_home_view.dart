@@ -15,6 +15,7 @@ class BooksSectionHomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.isEn;
     return SliverToBoxAdapter(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,7 +31,10 @@ class BooksSectionHomeView extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Text('كتب ومقالات', style: TextStyles.bold16.copyWith(color: AppColors.primaryColor)),
+              Text(
+                isEn ? 'Books & Articles' : 'كتب ومقالات',
+                style: TextStyles.bold16.copyWith(color: AppColors.primaryColor),
+              ),
             ],
           ),
           verticalSpace(12),
@@ -69,7 +73,6 @@ class BooksSectionHomeView extends StatelessWidget {
                         ),
                       );
                     },
-
                     itemCount: state.books.length,
                   ),
                 );
@@ -78,7 +81,7 @@ class BooksSectionHomeView extends StatelessWidget {
               } else if (state is GetBooksFailureState) {
                 return Center(
                   child: Text(
-                    'حدث خطاء اثناء تحميل العاب',
+                    isEn ? 'Error loading books' : 'حدث خطاء اثناء تحميل الكتب',
                     style: TextStyles.regular16.copyWith(color: Colors.red),
                   ),
                 );

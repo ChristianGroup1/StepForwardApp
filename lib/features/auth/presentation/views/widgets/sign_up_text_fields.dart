@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stepforward/core/helper_functions/app_regex.dart';
+import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_drop_down_form_field.dart';
 import 'package:stepforward/core/widgets/custom_text_field.dart';
@@ -29,14 +30,15 @@ class _SignUpTextFieldsState extends State<SignUpTextFields> {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.isEn;
     return Column(
       children: [
         CustomTextFormField(
           textInputType: TextInputType.name,
           initialValue: widget.user?.firstName,
-
-          labelText: widget.user?.firstName == null ? 'الاسم الاول' : null,
-          // hintText: user?.firstName=='' ? null : user?.firstName,
+          labelText: widget.user?.firstName == null
+              ? (isEn ? 'First Name' : 'الاسم الاول')
+              : null,
           onChanged: (value) {
             widget.cubit.firstNameController.text = value;
           },
@@ -45,9 +47,9 @@ class _SignUpTextFieldsState extends State<SignUpTextFields> {
         CustomTextFormField(
           textInputType: TextInputType.name,
           initialValue: widget.user?.lastName,
-
-          labelText: widget.user?.lastName == null ? 'الاسم الاخير' : null,
-          //hintText: user?.lastName=='' ? null : user?.lastName,
+          labelText: widget.user?.lastName == null
+              ? (isEn ? 'Last Name' : 'الاسم الاخير')
+              : null,
           onChanged: (value) {
             widget.cubit.secondNameController.text = value;
           },
@@ -57,9 +59,9 @@ class _SignUpTextFieldsState extends State<SignUpTextFields> {
           isEnabled: widget.user?.email == null ? true : false,
           textInputType: TextInputType.emailAddress,
           initialValue: widget.user?.email,
-
-          labelText: widget.user?.email == null ? 'البريد الإلكتروني' : null,
-          //hintText: user?.email=='' ? null : user?.email,
+          labelText: widget.user?.email == null
+              ? (isEn ? 'Email' : 'البريد الإلكتروني')
+              : null,
           onChanged: (value) {
             widget.cubit.emailController.text = value;
           },
@@ -75,38 +77,22 @@ class _SignUpTextFieldsState extends State<SignUpTextFields> {
         ),
         verticalSpace(24),
         CustomTextFormField(
-          labelText: 'اسم الكنيسة',
+          labelText: isEn ? 'Church Name' : 'اسم الكنيسة',
           onChanged: (value) {
             widget.cubit.churchNameController.text = value;
           },
         ),
         verticalSpace(24),
-        // ImageField(
-        //   onChanged: (value) {
-        //     widget.cubit.frontId = value;
-        //   },
-        //   text: 'وجه البطاقة',
-        // ),
-        // verticalSpace(24),
-        // ImageField(
-        //   onChanged: (value) {
-        //     widget.cubit.backId = value;
-        //   },
-        //   text: 'ظهر البطاقة',
-        // ),
-        // verticalSpace(24),
         CustomTextFormField(
           textInputType: TextInputType.phone,
           initialValue: widget.user?.phoneNumber,
-          labelText: 'رقم الهاتف',
-
-          // hintText: widget.user?.phoneNumber=='' ? null : widget.user?.phoneNumber,
+          labelText: isEn ? 'Phone Number' : 'رقم الهاتف',
           onChanged: (value) {
             widget.cubit.phoneNumberController.text = value;
           },
           validator: (value) {
             if (!AppRegex.isPhoneNumberValid(value!)) {
-              return 'رقم الهاتف غير صالح';
+              return isEn ? 'Invalid phone number' : 'رقم الهاتف غير صالح';
             }
             return null;
           },
@@ -118,15 +104,17 @@ class _SignUpTextFieldsState extends State<SignUpTextFields> {
             child: widget.cubit.suffixIcon,
           ),
           isObscured: widget.cubit.isObscured,
-          labelText: 'كلمة المرور',
+          labelText: isEn ? 'Password' : 'كلمة المرور',
           onChanged: (value) {
             widget.cubit.passwordController.text = value;
           },
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'هذا الحقل مطلوب';
+              return isEn ? 'This field is required' : 'هذا الحقل مطلوب';
             } else if (!AppRegex.isPasswordValid(value)) {
-              return 'كلمة المرور يجب أن لا تقل عن 8 حروف وارقام،\n وتشمل حرف كبير، حرف صغير\n ورمز مثل @ أو !';
+              return isEn
+                  ? 'Password must be at least 8 characters,\nincluding uppercase, lowercase\nand a symbol like @ or !'
+                  : 'كلمة المرور يجب أن لا تقل عن 8 حروف وارقام،\n وتشمل حرف كبير، حرف صغير\n ورمز مثل @ أو !';
             }
             return null;
           },

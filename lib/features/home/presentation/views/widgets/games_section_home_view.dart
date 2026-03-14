@@ -17,6 +17,7 @@ class GamesSectionHomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.isEn;
     return SliverToBoxAdapter(
       child: Column(
         children: [
@@ -31,7 +32,10 @@ class GamesSectionHomeView extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Text('العاب', style: TextStyles.bold16.copyWith(color: AppColors.primaryColor)),
+              Text(
+                isEn ? 'Games' : 'العاب',
+                style: TextStyles.bold16.copyWith(color: AppColors.primaryColor),
+              ),
               const Spacer(),
               GestureDetector(
                 onTap: () => onNavigateToGamesView(),
@@ -42,7 +46,7 @@ class GamesSectionHomeView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    'المزيد',
+                    isEn ? 'More' : 'المزيد',
                     style: TextStyles.semiBold13.copyWith(
                       color: AppColors.primaryColor,
                     ),
@@ -63,26 +67,23 @@ class GamesSectionHomeView extends StatelessWidget {
                 final itemCount = showMore ? 6 : games.length;
 
                 return SizedBox(
-                  height:isDeviceInPortrait(context)? MediaQuery.sizeOf(context).height * 0.22:MediaQuery.sizeOf(context).height * 0.55,
+                  height: isDeviceInPortrait(context)
+                      ? MediaQuery.sizeOf(context).height * 0.22
+                      : MediaQuery.sizeOf(context).height * 0.55,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: itemCount,
                     itemBuilder: (context, index) {
                       if (showMore && index == 5) {
                         final blurImageUrl = state.games[5].coverUrl;
-
                         return GestureDetector(
                           onTap: onNavigateToGamesView,
                           child: CustomShowMoreBlurredItem(blurImageUrl: blurImageUrl),
                         );
                       }
-
                       final game = games[index];
                       return Padding(
-                        padding: const EdgeInsets.only(
-                          right: 12,left: 12,top: 16
-                          
-                        ),
+                        padding: const EdgeInsets.only(right: 12, left: 12, top: 16),
                         child: GestureDetector(
                           onTap: () => context.pushNamed(
                             Routes.gameDetails,
@@ -111,4 +112,3 @@ class GamesSectionHomeView extends StatelessWidget {
     );
   }
 }
-

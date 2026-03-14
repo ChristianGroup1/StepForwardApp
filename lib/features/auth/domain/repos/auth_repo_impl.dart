@@ -7,6 +7,7 @@ import 'package:stepforward/core/errors/failures.dart';
 import 'package:stepforward/core/helper_functions/cache_helper.dart';
 import 'package:stepforward/core/services/database_service.dart';
 import 'package:stepforward/core/services/firebase_auth_service.dart';
+import 'package:stepforward/core/utils/app_locale.dart';
 import 'package:stepforward/core/utils/backend_endpoints.dart';
 import 'package:stepforward/core/utils/chache_helper_keys.dart';
 import 'package:stepforward/features/auth/data/models/user_model.dart';
@@ -54,7 +55,7 @@ class AuthRepoImpl extends AuthRepo {
       if (user != null) {
         await firebaseAuthService.deleteUser();
       }
-      return left(CustomFailure(message: mapException(e)));
+      return left(CustomFailure(message: mapException(e, isEn: AppLocale.isEn)));
     } catch (e) {
       if (user != null) {
         await firebaseAuthService.deleteUser();
@@ -105,7 +106,7 @@ class AuthRepoImpl extends AuthRepo {
       return Left(CustomFailure(message: e.toString()));
     } catch (e) {
       if (user != null) await firebaseAuthService.deleteUser();
-      return Left(CustomFailure(message: 'حدث خطأ ما، حاول مرة اخرى'));
+      return Left(CustomFailure(message: AppLocale.isEn ? 'Something went wrong, please try again' : 'حدث خطأ ما، حاول مرة اخرى'));
     }
   }
 

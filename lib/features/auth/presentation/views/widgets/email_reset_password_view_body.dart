@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/services/firebase_auth_service.dart';
 import 'package:stepforward/core/utils/app_colors.dart';
@@ -14,6 +15,7 @@ class EmailResetPasswordViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.isEn;
     var cubit = context.read<LoginCubit>();
     return SingleChildScrollView(
       child: Padding(
@@ -26,7 +28,9 @@ class EmailResetPasswordViewBody extends StatelessWidget {
                 initialValue: FirebaseAuthService().isLoggedIn()
                     ? getUserData().email
                     : null,
-                hintText: 'اكتب البريد الالكتروني لاعادة تعيين كلمة المرور',
+                hintText: isEn
+                    ? 'Enter your email to reset password'
+                    : 'اكتب البريد الالكتروني لاعادة تعيين كلمة المرور',
                 onChanged: (value) {
                   cubit.emailToResetPasswordController.text = value;
                 },
@@ -40,13 +44,16 @@ class EmailResetPasswordViewBody extends StatelessWidget {
                     backgroundColor: cubit.isEmailButtonDisabled
                         ? Colors.grey
                         : AppColors.primaryColor,
-                    text:
-                        state is SendEmailToResetPasswordTimerState &&
+                    text: state is SendEmailToResetPasswordTimerState &&
                             state.seconds > 0
-                        ? 'ارسال رسالة لاعادة التعيين (${state.seconds})'
-                        : 'ارسال رسالة لاعادة التعيين',
+                        ? (isEn
+                            ? 'Send Reset Email (\${state.seconds})'
+                            : 'ارسال رسالة لاعادة التعيين (\${state.seconds})')
+                        : (isEn
+                            ? 'Send Reset Email'
+                            : 'ارسال رسالة لاعادة التعيين'),
                     onPressed: cubit.isEmailButtonDisabled
-                        ? null // Disable the button
+                        ? null
                         : () {
                             if (cubit.resetPasswordFormKey.currentState!
                                 .validate()) {

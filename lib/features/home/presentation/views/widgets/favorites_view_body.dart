@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/get_dummy_games.dart';
 import 'package:stepforward/core/services/analytics_service.dart';
 import 'package:stepforward/core/widgets/custom_empty_widget.dart';
@@ -15,6 +16,7 @@ class FavoritesViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.isEn;
     return BlocConsumer<GamesCubit, GamesState>(
       buildWhen: (previous, current) =>
           current is FetchUserFavoritesSuccessState ||
@@ -29,11 +31,12 @@ class FavoritesViewBody extends StatelessWidget {
       builder: (context, state) {
         if (state is FetchUserFavoritesSuccessState) {
           if (state.favorites.isEmpty) {
-            return const Center(
+            return Center(
               child: CustomEmptyWidget(
-                title: 'لا توجد ألعاب مفضلة بعد',
-                subtitle:
-                    'يمكنك إضافة الألعاب إلى المفضلة من خلال الضغط على زر الإضافة في صفحة اللعبة.',
+                title: isEn ? 'No favorite games yet' : 'لا توجد ألعاب مفضلة بعد',
+                subtitle: isEn
+                    ? 'You can add games to favorites by pressing the add button on the game page.'
+                    : 'يمكنك إضافة الألعاب إلى المفضلة من خلال الضغط على زر الإضافة في صفحة اللعبة.',
               ),
             );
           }
@@ -53,13 +56,12 @@ class FavoritesViewBody extends StatelessWidget {
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
                     icon: Icons.delete,
-                    label: 'حذف',
+                    label: isEn ? 'Delete' : 'حذف',
                   ),
                 ],
               ),
               child: CustomGameItem(
                 inFavoritesView: true,
-
                 gameModel: state.favorites[index],
               ),
             ),

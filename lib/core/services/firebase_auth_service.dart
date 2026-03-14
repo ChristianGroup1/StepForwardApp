@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:stepforward/core/errors/custom_exceptions.dart';
+import 'package:stepforward/core/utils/app_locale.dart';
 
 class FirebaseAuthService {
   Future<User> createUserWithEmailAndPassword(
@@ -11,10 +12,13 @@ class FirebaseAuthService {
       await credential.user?.sendEmailVerification();
       return credential.user!;
     } on FirebaseAuthException catch (e) {
-      throw CustomException(message: mapException(e));
+      throw CustomException(message: mapException(e, isEn: AppLocale.isEn));
     } catch (e) {
-     
-      throw CustomException(message: 'حدث خطأ ما، حاول مرة اخرى');
+      throw CustomException(
+        message: AppLocale.isEn
+            ? 'Something went wrong, please try again'
+            : 'حدث خطأ ما، حاول مرة اخرى',
+      );
     }
   }
 
@@ -25,10 +29,13 @@ class FirebaseAuthService {
           .signInWithEmailAndPassword(email: email, password: password);
       return credential.user!;
     } on FirebaseAuthException catch (e) {
-      throw CustomException(message: mapException(e));
+      throw CustomException(message: mapException(e, isEn: AppLocale.isEn));
     } catch (e) {
-     
-      throw CustomException(message: 'حدث خطأ ما، حاول مرة اخرى');
+      throw CustomException(
+        message: AppLocale.isEn
+            ? 'Something went wrong, please try again'
+            : 'حدث خطأ ما، حاول مرة اخرى',
+      );
     }
   }
 
@@ -44,18 +51,18 @@ class FirebaseAuthService {
       return (await FirebaseAuth.instance.signInWithCredential(credential))
           .user!;
     } on FirebaseAuthException catch (e) {
-      throw CustomException(message: e.toString());
+      throw CustomException(message: mapException(e, isEn: AppLocale.isEn));
     } catch (e) {
-      
-      throw CustomException(message: 'حدث خطأ ما، حاول مرة اخرى');
+      throw CustomException(
+        message: AppLocale.isEn
+            ? 'Something went wrong, please try again'
+            : 'حدث خطأ ما، حاول مرة اخرى',
+      );
     }
   }
 
-
   Future deleteUser() async {
-    
     await FirebaseAuth.instance.currentUser!.delete();
-    
   }
 
   bool isLoggedIn() {
@@ -66,28 +73,36 @@ class FirebaseAuthService {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
     } catch (e) {
-      
-      throw CustomException(message: 'حدث خطأ ما، حاول مرة اخرى');
+      throw CustomException(
+        message: AppLocale.isEn
+            ? 'Something went wrong, please try again'
+            : 'حدث خطأ ما، حاول مرة اخرى',
+      );
     }
   }
 
   Future<void> signOut() async {
     try {
       await FirebaseAuth.instance.signOut();
-
       await GoogleSignIn().signOut();
-
     } catch (e) {
-     
-      throw CustomException(message: 'حدث خطأ ما، حاول مرة اخرى');
+      throw CustomException(
+        message: AppLocale.isEn
+            ? 'Something went wrong, please try again'
+            : 'حدث خطأ ما، حاول مرة اخرى',
+      );
     }
   }
+
   Future<User> getCurrentUser() async {
     try {
       return FirebaseAuth.instance.currentUser!;
     } catch (e) {
-      
-      throw CustomException(message: 'حدث خطأ ما، حاول مرة اخرى');
+      throw CustomException(
+        message: AppLocale.isEn
+            ? 'Something went wrong, please try again'
+            : 'حدث خطأ ما، حاول مرة اخرى',
+      );
     }
   }
 }

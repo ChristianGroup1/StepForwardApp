@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
@@ -8,6 +9,7 @@ class CustomHomeAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.isEn;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -32,12 +34,12 @@ class CustomHomeAppBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'اهلًا بك 👋',
+                  isEn ? 'Hello 👋' : 'اهلًا بك 👋',
                   style: TextStyles.regular14.copyWith(color: Colors.white70),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${getUserData().firstName} ${getUserData().lastName}',
+                  '\${getUserData().firstName} \${getUserData().lastName}',
                   style: TextStyles.bold19.copyWith(color: Colors.white),
                 ),
               ],

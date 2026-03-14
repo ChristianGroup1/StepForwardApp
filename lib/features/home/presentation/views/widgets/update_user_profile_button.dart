@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/custom_snak_bar.dart';
 import 'package:stepforward/core/widgets/custom_button.dart';
@@ -11,13 +12,17 @@ class UpdateUserProfileButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.isEn;
     return CustomButton(
       backgroundColor: cubit.hasChanges ? AppColors.primaryColor : Colors.grey,
-      text: 'حفظ',
+      text: isEn ? 'Save' : 'حفظ',
       onPressed: () {
         cubit.hasChanges
             ? cubit.updateUserData()
-            : showSnackBar(context, text: 'لا يوجد تغييرات');
+            : showSnackBar(
+                context,
+                text: isEn ? 'No changes to save' : 'لا يوجد تغييرات',
+              );
       },
     );
   }

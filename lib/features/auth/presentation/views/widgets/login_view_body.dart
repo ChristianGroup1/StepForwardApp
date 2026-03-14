@@ -22,6 +22,7 @@ class LoginViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.isEn;
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: kHorizontalPadding,
@@ -42,14 +43,14 @@ class LoginViewBody extends StatelessWidget {
                 ),
               ),
               verticalSpace(30),
-              const Text(
-                'اهلًا بعودتك إلى Step Forward',
+              Text(
+                isEn ? 'Welcome Back to Step Forward' : 'اهلًا بعودتك إلى Step Forward',
                 style: TextStyles.bold23,
               ),
               verticalSpace(30),
               CustomTextFormField(
                 textInputType: TextInputType.emailAddress,
-                labelText: 'البريد الإلكتروني',
+                labelText: isEn ? 'Email' : 'البريد الإلكتروني',
                 onChanged: (value) {
                   cubit.emailController.text = value;
                 },
@@ -61,7 +62,7 @@ class LoginViewBody extends StatelessWidget {
                   child: cubit.suffixIcon,
                 ),
                 isObscured: cubit.isObscured,
-                labelText: 'كلمة المرور',
+                labelText: isEn ? 'Password' : 'كلمة المرور',
                 onChanged: (value) {
                   cubit.passwordController.text = value;
                 },
@@ -72,7 +73,7 @@ class LoginViewBody extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () => context.pushNamed(Routes.forgetPasswordView),
                   child: Text(
-                    'نسيت كلمة المرور ؟ ',
+                    isEn ? 'Forgot Password?' : 'نسيت كلمة المرور ؟ ',
                     style: TextStyles.bold16.copyWith(
                       color: AppColors.primaryColor,
                     ),
@@ -81,11 +82,10 @@ class LoginViewBody extends StatelessWidget {
               ),
               verticalSpace(24),
               CustomButton(
-                text: 'تسجيل دخول',
+                text: isEn ? 'Sign In' : 'تسجيل دخول',
                 textColor: Colors.white,
                 onPressed: () {
                   if (cubit.formKey.currentState!.validate()) {
-                    //AnalyticsService.logLogin(method: 'email and password');
                     cubit.login();
                   }
                 },
@@ -97,7 +97,7 @@ class LoginViewBody extends StatelessWidget {
               verticalSpace(24),
               LoginMethodItem(
                 image: Assets.assetsImagesGoogleIcon,
-                text: 'تسجيل الدخول بواسطة جوجل',
+                text: isEn ? 'Sign in with Google' : 'تسجيل الدخول بواسطة جوجل',
                 onTap: () {
                   AnalyticsService.logLogin(method: 'google');
                   cubit.signInWIthGoogle();

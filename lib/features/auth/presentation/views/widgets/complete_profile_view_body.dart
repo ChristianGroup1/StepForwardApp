@@ -73,7 +73,7 @@ class CompleteUserProfileViewBody extends StatelessWidget {
                               }
                             },
                           ),
-                          const Text('بيانات الحساب', style: TextStyles.bold23),
+                          Text(context.isEn ? 'Account Details' : 'بيانات الحساب', style: TextStyles.bold23),
                         ],
                       ),
                       verticalSpace(16),
