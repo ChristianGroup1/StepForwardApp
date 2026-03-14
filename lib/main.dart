@@ -31,13 +31,11 @@ void main() async {
   );
   setupGetIt();
 
-  // Pass your OpenAI API key via --dart-define=OPENAI_API_KEY=sk-...
-  // or replace the defaultValue with your key.
+  // Translation is powered by the free MyMemory API — no API key required.
+  // Optionally pass a registered MyMemory e-mail to increase the daily limit:
+  //   flutter run --dart-define=TRANSLATION_EMAIL=your@email.com
   OpenAiTranslationService.configure(
-    apiKey: const String.fromEnvironment(
-      'OPENAI_API_KEY',
-      defaultValue: '',
-    ),
+    email: const String.fromEnvironment('TRANSLATION_EMAIL', defaultValue: ''),
   );
 
   runApp(

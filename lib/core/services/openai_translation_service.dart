@@ -2,131 +2,79 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-/// Service for translating Arabic content to English using OpenAI GPT.
+/// Free translation service using the MyMemory API.
 ///
-/// Call [OpenAiTranslationService.configure] once at app startup with your
-/// OpenAI secret key.  Pass the key via
-/// `--dart-define=OPENAI_API_KEY=sk-...` at build time.
+/// No API key is required.  Free tier allows up to 5,000 characters per day
+/// (per IP).  For higher limits register a free account at
+/// https://mymemory.translated.net and pass your email to [configure].
+///
+/// The class keeps the same public interface as the previous OpenAI-based
+/// implementation so that no other files need to change.
 class OpenAiTranslationService {
-  static const String _endpoint =
-      'https://api.openai.com/v1/chat/completions';
+  static const String _endpoint = 'https://api.mymemory.translated.net/get';
 
-  static String _apiKey = '';
-  static bool _configured = false;
+  /// Optional registered e-mail address for the MyMemory free tier.
+  /// Passing an e-mail doubles the daily character limit to 10,000.
+  static String _email = '';
 
-  /// Call once at app startup. Subsequent calls are ignored.
-  static void configure({required String apiKey}) {
-    if (_configured) return;
-    assert(apiKey.isNotEmpty, 'OpenAI API key must not be empty.');
-    _apiKey = apiKey;
-    _configured = true;
+  /// Optionally pass a registered MyMemory [email] to increase the daily
+  /// character limit from 5,000 to 10,000.  Omit or pass an empty string
+  /// to use the service without any account — it works out of the box.
+  static void configure({String email = '', String apiKey = ''}) {
+    // Accept either named parameter for backward compatibility.
+    final addr = email.isNotEmpty ? email : apiKey;
+    if (addr.isNotEmpty && addr.contains('@')) {
+      _email = addr;
+    }
   }
 
-  /// Translates [text] from Arabic to English.
+  /// Translates [text] from Arabic to English using the MyMemory free API.
   /// Returns the original [text] if translation fails or [text] is empty.
   static Future<String> translateToEnglish(String text) async {
-    if (text.isEmpty || _apiKey.isEmpty) return text;
+    if (text.isEmpty) return text;
     try {
-      final response = await http.post(
-        Uri.parse(_endpoint),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_apiKey',
-        },
-        body: jsonEncode({
-          'model': 'gpt-4o-mini',
-          'messages': [
-            {
-              'role': 'system',
-              'content':
-                  'You are a professional Arabic-to-English translator. '
-                  'Translate the following Arabic text to natural English. '
-                  'Return only the translated text, no explanations.',
-            },
-            {'role': 'user', 'content': text},
-          ],
-          'max_tokens': 1024,
-          'temperature': 0.3,
-        }),
-      );
+      final queryParams = {
+        'q': text,
+        'langpair': 'ar|en',
+        if (_email.isNotEmpty) 'de': _email,
+      };
+      final uri = Uri.parse(_endpoint).replace(queryParameters: queryParams);
+      final response = await http.get(uri);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final content =
-            data['choices']?[0]?['message']?['content'] as String? ?? text;
-        return content.trim();
+        final translated =
+            data['responseData']?['translatedText'] as String? ?? text;
+        return translated.trim();
       } else {
         debugPrint(
-          'OpenAI translation error ${response.statusCode}: ${response.body}',
+          'MyMemory translation error ${response.statusCode}: ${response.body}',
         );
       }
     } catch (e, st) {
-      debugPrint('OpenAI translateToEnglish exception: $e\n$st');
+      debugPrint('MyMemory translateToEnglish exception: $e\n$st');
     }
     return text;
   }
 
   /// Translates a map of string fields from Arabic to English.
-  /// Keys with empty values are skipped.
+  /// Each field is translated in a separate request to keep individual texts
+  /// within the API's per-request length limit.
   static Future<Map<String, String>> translateFields(
     Map<String, String> fields,
   ) async {
-    if (_apiKey.isEmpty) return fields;
     final entries = fields.entries.where((e) => e.value.isNotEmpty).toList();
     if (entries.isEmpty) return fields;
 
-    // Build a single prompt for all fields to minimise API calls
-    final prompt = entries.map((e) => '${e.key}: ${e.value}').join('\n\n');
+    final result = Map<String, String>.from(fields);
 
-    try {
-      final response = await http.post(
-        Uri.parse(_endpoint),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_apiKey',
-        },
-        body: jsonEncode({
-          'model': 'gpt-4o-mini',
-          'messages': [
-            {
-              'role': 'system',
-              'content':
-                  'You are a professional Arabic-to-English translator. '
-                  'The input contains labelled fields in the format "fieldName: arabicText". '
-                  'Translate only the values (after the colon) to English. '
-                  'Return the result in the exact same format with the original field names unchanged.',
-            },
-            {'role': 'user', 'content': prompt},
-          ],
-          'max_tokens': 2048,
-          'temperature': 0.3,
-        }),
-      );
+    // Translate each field individually (MyMemory works best per-sentence).
+    await Future.wait(
+      entries.map((e) async {
+        result[e.key] = await translateToEnglish(e.value);
+      }),
+    );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final content =
-            data['choices']?[0]?['message']?['content'] as String? ?? '';
-
-        final result = Map<String, String>.from(fields);
-        for (final line in content.split('\n')) {
-          final idx = line.indexOf(':');
-          if (idx < 0) continue;
-          final key = line.substring(0, idx).trim();
-          final value = line.substring(idx + 1).trim();
-          if (result.containsKey(key)) {
-            result[key] = value;
-          }
-        }
-        return result;
-      } else {
-        debugPrint(
-          'OpenAI translateFields error ${response.statusCode}: ${response.body}',
-        );
-      }
-    } catch (e, st) {
-      debugPrint('OpenAI translateFields exception: $e\n$st');
-    }
-    return fields;
+    return result;
   }
 }
