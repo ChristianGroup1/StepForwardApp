@@ -63,6 +63,8 @@ dependencies:
   page_transition: ^2.1.0
   path_provider: ^2.1.5
   quickalert: ^1.1.0
+  share_plus: ^10.1.4
+  app_links: ^6.4.0
   shared_preferences: ^2.2.3
   skeletonizer: ^2.1.0+1
   url_launcher: ^6.3.1

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:stepforward/core/cubits/locale_cubit.dart';
 import 'package:stepforward/core/services/analytics_service.dart';
 import 'package:stepforward/core/services/openai_translation_service.dart';
@@ -99,6 +100,30 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
     }
   }
 
+  /// Builds the deep link for this game.
+  String get _deepLink => 'stepforward://game/${widget.game.id}';
+
+  /// Shares the game via the system share sheet (WhatsApp, Facebook, etc.).
+  Future<void> _shareGame(bool isEn) async {
+    AnalyticsService.logEvent(
+      name: 'share_game',
+      parameters: {
+        'game_id': widget.game.id,
+        'game_name': widget.game.name,
+      },
+    );
+
+    final gameName = isEn
+        ? (_translatedName ?? widget.game.name)
+        : widget.game.name;
+
+    final shareText = isEn
+        ? '🎮 Check out this game on Step Forward!\n\n$gameName\n\n$_deepLink'
+        : '🎮 شاهد هذه اللعبة على تطبيق Step Forward!\n\n$gameName\n\n$_deepLink';
+
+    await Share.share(shareText, subject: gameName);
+  }
+
   @override
   void dispose() {
     _controller?.dispose();
@@ -142,7 +167,10 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
               CustomScrollView(
                 physics: const BouncingScrollPhysics(),
                 slivers: [
-                  CustomSliverAppBar(widget: widget),
+                  CustomSliverAppBar(
+                    widget: widget,
+                    onShare: () => _shareGame(isEn),
+                  ),
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),

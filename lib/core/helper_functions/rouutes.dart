@@ -11,4 +11,5 @@ class Routes {
   static const favoritesView = '/favoritesView';
   static const pdfViewerScreen = '/PdfViewerScreen';
   static const uploadIdView = '/uploadIdView';
+  static const gameDetailsById = '/gameDetailsById';
 }

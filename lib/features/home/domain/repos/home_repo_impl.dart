@@ -189,5 +189,16 @@ class HomeRepoImpl extends HomeRepo {
     }
   }
 
-  
+  @override
+  Future<Either<Failure, GameModel>> getGameById(String gameId) async {
+    try {
+      final data = await databaseService.getData(
+        path: BackendEndpoints.getGames,
+        documentId: gameId,
+      ) as Map<String, dynamic>;
+      return right(GameModel.fromJson({...data, 'id': gameId}));
+    } catch (e) {
+      return left(CustomFailure(message: e.toString()));
+    }
+  }
 }

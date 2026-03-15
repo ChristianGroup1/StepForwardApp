@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stepforward/core/services/analytics_service.dart';
+import 'package:stepforward/core/services/deep_link_service.dart';
 import 'package:stepforward/core/widgets/custom_buttom_navigation_bar.dart';
 import 'package:stepforward/core/widgets/custom_floating_action_button.dart';
 import 'package:stepforward/features/home/presentation/views/home_view.dart';
@@ -16,6 +17,16 @@ class MainView extends StatefulWidget {
 
 class _MainViewState extends State<MainView> {
   int selectedIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+    // Navigate to any game that was requested via a deep link before the
+    // user authenticated (e.g. cold-start while not logged in).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) DeepLinkService.navigatePendingIfAny(context);
+    });
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       selectedIndex = index;
