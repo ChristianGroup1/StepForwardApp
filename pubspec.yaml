@@ -68,12 +68,17 @@ dependencies:
   url_launcher: ^6.3.1
   webview_flutter: ^4.13.0
   youtube_player_flutter: ^9.1.1
+  youtube_player_embed: ^1.6.4
 
 dev_dependencies:
   change_app_package_name: ^1.1.0
   flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
+
+dependency_overrides:
+  package_info_plus: ^8.0.0
+  video_player: ^2.8.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

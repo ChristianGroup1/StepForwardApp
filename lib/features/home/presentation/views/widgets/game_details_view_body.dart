@@ -9,8 +9,10 @@ import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_sliver_app_bar.dart';
 import 'package:stepforward/core/widgets/my_divider.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_hashtag_list.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:youtube_player_embed/controller/video_controller.dart';
+import 'package:youtube_player_embed/youtube_player_embed.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class GameDetailsViewBody extends StatefulWidget {
   final GameModel game;
@@ -22,7 +24,9 @@ class GameDetailsViewBody extends StatefulWidget {
 }
 
 class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
-  YoutubePlayerController? _controller;
+  bool _videoPlaybackFailed = false;
+  String? _videoId;
+  VideoController? _videoController;
 
   // Translated fields (null until translation completes)
   String? _translatedName;
@@ -45,18 +49,9 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
       name: 'open_game_details',
       parameters: {'game_id': widget.game.id, 'game_name': widget.game.name},
     );
+
     if (widget.game.videoLink.isNotEmpty) {
-      final videoId = YoutubePlayer.convertUrlToId(widget.game.videoLink);
-      if (videoId != null) {
-        _controller = YoutubePlayerController(
-          initialVideoId: videoId,
-          flags: const YoutubePlayerFlags(
-            autoPlay: false,
-            showLiveFullscreenButton: true,
-            enableCaption: false,
-          ),
-        );
-      }
+      _initializeVideo();
     }
 
     // If the app is already in English when this page opens, translate immediately.
@@ -66,6 +61,51 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
         if (locale == 'en') _translateContent();
       }
     });
+  }
+
+  void _initializeVideo() {
+    try {
+      final videoId = _extractYoutubeId(widget.game.videoLink);
+
+      if (videoId == null) {
+        setState(() => _videoPlaybackFailed = true);
+        return;
+      }
+
+      setState(() {
+        _videoId = videoId;
+        _videoPlaybackFailed = false;
+      });
+    } catch (e) {
+      debugPrint('Error initializing video: $e');
+      setState(() => _videoPlaybackFailed = true);
+    }
+  }
+
+  String? _extractYoutubeId(String url) {
+    try {
+      // Handle various YouTube URL formats
+      if (url.contains('youtube.com/watch')) {
+        return Uri.parse(url).queryParameters['v'];
+      } else if (url.contains('youtu.be/')) {
+        return url.split('youtu.be/').last.split('?').first;
+      } else if (url.contains('youtube.com/embed/')) {
+        return url.split('embed/').last.split('?').first;
+      } else if (url.length == 11) {
+        // Direct video ID
+        return url;
+      }
+    } catch (e) {
+      debugPrint('Error extracting YouTube ID: $e');
+    }
+    return null;
+  }
+
+  Future<void> _launchYoutubeVideo() async {
+    final url = widget.game.videoLink;
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    }
   }
 
   Future<void> _translateContent() async {
@@ -100,20 +140,12 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
   }
 
   @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return BlocListener<LocaleCubit, Locale>(
       listener: (context, locale) {
         if (locale.languageCode == 'en') {
           _translateContent();
         } else {
-          // Switching back to Arabic: clear cached translations so they
-          // are re-fetched if the user switches to English again.
           setState(() => _translationDone = false);
         }
       },
@@ -157,20 +189,87 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
                           verticalSpace(8),
                           GameHashTagsList(tags: displayTags),
                           const MyDivider(height: 50),
-                          if (_controller != null) ...[
+                          if (widget.game.videoLink.isNotEmpty) ...[
                             Text(
                               isEn ? 'Game Video' : 'فيديو اللعبة',
                               style: TextStyles.bold19,
                             ),
                             verticalSpace(8),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: YoutubePlayer(
-                                controller: _controller!,
-                                showVideoProgressIndicator: true,
-                                progressIndicatorColor: Colors.red,
+                            if (_videoPlaybackFailed)
+                              GestureDetector(
+                                onTap: _launchYoutubeVideo,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Colors.red[300]!,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.all(24),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.videocam_off,
+                                        size: 48,
+                                        color: Colors.red[400],
+                                      ),
+                                      verticalSpace(12),
+                                      Text(
+                                        isEn
+                                            ? 'Video unavailable'
+                                            : 'الفيديو غير متاح',
+                                        style: TextStyles.bold16,
+                                      ),
+                                      verticalSpace(8),
+                                      Text(
+                                        isEn
+                                            ? 'Tap to open on YouTube'
+                                            : 'اضغط لفتح على يوتيوب',
+                                        style: TextStyles.regular14,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            else if (_videoId != null)
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: YoutubePlayerEmbed(
+                                  key: ValueKey(_videoId),
+                                  callBackVideoController: (controller) {
+                                    _videoController = controller;
+                                  },
+                                  videoId: _videoId!,
+                                  customVideoTitle: widget.game.name,
+                                  autoPlay: false,
+                                  hidenVideoControls: false,
+                                  mute: false,
+                                  enabledShareButton: false,
+                                  hidenChannelImage: true,
+                                  aspectRatio: 16 / 9,
+                                  onVideoStateChange: (state) {
+                                    debugPrint('Video state changed: $state');
+                                  },
+                                  onVideoEnd: () {
+                                    debugPrint('Video ended');
+                                  },
+                                ),
+                              )
+                            else
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  color: Colors.black,
+                                  height: 220,
+                                  child: const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                ),
                               ),
-                            ),
                             verticalSpace(24),
                             const MyDivider(height: 50),
                           ],
@@ -179,10 +278,7 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
                             style: TextStyles.bold19,
                           ),
                           verticalSpace(8),
-                          Text(
-                            displayExplanation,
-                            style: TextStyles.regular16,
-                          ),
+                          Text(displayExplanation, style: TextStyles.regular16),
                           const MyDivider(height: 50),
                           Text(
                             isEn ? 'Required Tools' : 'الأدوات المطلوبة',
