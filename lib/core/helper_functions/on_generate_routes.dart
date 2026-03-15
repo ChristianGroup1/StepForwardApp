@@ -14,6 +14,7 @@ import 'package:stepforward/features/home/domain/models/game_model.dart';
 import 'package:stepforward/features/home/presentation/views/book_view.dart';
 import 'package:stepforward/features/home/presentation/views/favorites_view.dart';
 import 'package:stepforward/features/home/presentation/views/game_details.dart';
+import 'package:stepforward/features/home/presentation/views/game_details_by_id_view.dart';
 import 'package:stepforward/features/home/presentation/views/main_view.dart';
 import 'package:stepforward/features/home/presentation/views/update_user_profile_view.dart';
 import 'package:stepforward/features/home/presentation/views/upload_user_id_view.dart';
@@ -84,6 +85,15 @@ Route onGenerateRoutes(RouteSettings settings) {
       return PageTransition(
         duration: const Duration(milliseconds: 50),
         child: const UploadUserIdView(),
+        type: PageTransitionType.fade,
+      );
+
+    case Routes.gameDetailsById:
+      final gameId = settings.arguments as String;
+      AnalyticsService.logScreenView(screenName: 'GameDetailsByIdView');
+      return PageTransition(
+        duration: const Duration(milliseconds: 50),
+        child: GameDetailsByIdView(gameId: gameId),
         type: PageTransitionType.fade,
       );
     case Routes.pdfViewerScreen:

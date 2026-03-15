@@ -8,9 +8,14 @@ import 'package:stepforward/core/widgets/translating_text.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_details_view_body.dart';
 
 class CustomSliverAppBar extends StatelessWidget {
-  const CustomSliverAppBar({super.key, required this.widget});
+  const CustomSliverAppBar({
+    super.key,
+    required this.widget,
+    this.onShare,
+  });
 
   final GameDetailsViewBody widget;
+  final VoidCallback? onShare;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +34,14 @@ class CustomSliverAppBar extends StatelessWidget {
         icon: const Icon(Icons.arrow_back_ios),
         onPressed: () => Navigator.pop(context),
       ),
+      actions: [
+        if (onShare != null)
+          IconButton(
+            tooltip: isEn ? 'Share' : 'مشاركة',
+            icon: const Icon(Icons.share_outlined),
+            onPressed: onShare,
+          ),
+      ],
       flexibleSpace: LayoutBuilder(
         builder: (context, constraints) {
           final isCollapsed = constraints.maxHeight < 120;

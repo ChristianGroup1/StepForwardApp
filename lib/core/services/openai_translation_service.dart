@@ -20,6 +20,8 @@ class OpenAiTranslationService {
   static String _email = 'fadykhayrat@gmail.com';
 
   /// Optionally configure the MyMemory e-mail address for higher daily limits.
+  /// [email] is the primary parameter; [apiKey] is accepted for backward
+  /// compatibility only — it is treated as an alternative e-mail address.
   static void configure({String email = '', String apiKey = ''}) {
     final addr = email.isNotEmpty ? email : apiKey;
     if (addr.isNotEmpty && addr.contains('@')) _email = addr;

@@ -8,6 +8,7 @@ import 'package:stepforward/core/cubits/locale_cubit.dart';
 import 'package:stepforward/core/helper_functions/cache_helper.dart';
 import 'package:stepforward/core/helper_functions/on_generate_routes.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
+import 'package:stepforward/core/services/deep_link_service.dart';
 import 'package:stepforward/core/services/firebase_auth_service.dart';
 import 'package:stepforward/core/services/get_it_service.dart';
 import 'package:stepforward/core/services/openai_translation_service.dart';
@@ -23,9 +24,9 @@ void main() async {
   //Bloc.observer = MyBlocObserver();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      statusBarColor: Colors.white, // 🔳 makes area near the camera white
-      statusBarIconBrightness: Brightness.dark, // 🌓 dark icons for visibility
-      systemNavigationBarColor: Colors.white, // optional: bottom nav bar
+      statusBarColor: Colors.white,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.white,
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
@@ -41,11 +42,15 @@ void main() async {
     ),
   );
 
+  // Initialise deep-link handling (stepforward://game/{id}).
+  await DeepLinkService.init();
+
   runApp(BlocProvider(create: (_) => LocaleCubit(), child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     String getRoute() {
@@ -62,6 +67,8 @@ class MyApp extends StatelessWidget {
           designSize: const Size(360, 800),
           minTextAdapt: false,
           child: MaterialApp(
+            // Global navigator key used by DeepLinkService for deep links.
+            navigatorKey: DeepLinkService.navigatorKey,
             builder: (context, child) {
               return MediaQuery(
                 data: MediaQuery.of(
