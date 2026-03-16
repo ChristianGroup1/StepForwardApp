@@ -68,7 +68,7 @@ class DeepLinkService {
       gameId = segments.first;
     } else if ((uri.scheme == 'https' || uri.scheme == 'http') &&
         uri.host == Uri.parse(kFirebaseHostingBaseUrl).host) {
-      // App Link / Universal Link: https://stepforward-b4fba.web.app/game/{gameId}
+      // App Link / Universal Link: https://www.elshaddaiteam.com/game/{gameId}
       final segments = uri.pathSegments;
       if (segments.length < 2 || segments[0] != 'game') return;
       gameId = segments[1];

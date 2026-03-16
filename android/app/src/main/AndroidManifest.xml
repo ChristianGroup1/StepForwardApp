@@ -62,7 +62,7 @@
                     android:host="game" />
             </intent-filter>
 
-            <!-- App Links: https://stepforward-b4fba.web.app/game/{id}
+            <!-- App Links: https://www.elshaddaiteam.com/game/{id}
                  Enables verified deep linking so that clicking the shared HTTPS
                  link in WhatsApp / SMS opens the app directly (no browser step).
                  Requires /.well-known/assetlinks.json on the hosting domain with
@@ -73,7 +73,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:scheme="https"
-                    android:host="stepforward-b4fba.web.app"
+                    android:host="www.elshaddaiteam.com"
                     android:pathPrefix="/game/" />
             </intent-filter>
         </activity>

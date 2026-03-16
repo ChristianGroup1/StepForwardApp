@@ -36,7 +36,9 @@ jobs:
       - name: Copy .well-known into build output
         run: cp -r web/.well-known build/web/.well-known
 
-      # Live channel: deploys to https://stepforward-b4fba.web.app on push to main.
+      # Live channel: deploys to Firebase Hosting on push to main.
+      # The site is served at https://www.elshaddaiteam.com (custom domain
+      # configured in Firebase Console → Hosting → Add custom domain).
       # Preview channel: deploys a temporary URL for pull requests.
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
