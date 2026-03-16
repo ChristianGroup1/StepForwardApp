@@ -74,12 +74,12 @@ class FireStoreService implements DatabaseService {
         var result = await data.get();
 
         // Return the fetched data.
-        // Merge the Firestore document ID as 'id' so that models which rely on
-        // 'id' (e.g. GameModel, BrothersModel) always receive a non-empty value.
-        // The document's own 'id' field (if present) takes precedence so that
-        // existing data using a custom id value is not affected.
+        // Always use the Firestore document ID as the authoritative 'id' value.
+        // We spread e.data() first and then set 'id': e.id so that the real
+        // document ID overwrites any (possibly empty or stale) 'id' field that
+        // was stored inside the document body.
         return result.docs
-            .map((e) => {'id': e.id, ...e.data()})
+            .map((e) => {...e.data(), 'id': e.id})
             .toList();
       }
     } catch (e) {
@@ -151,10 +151,10 @@ Future<List<Map<String, dynamic>>> searchData(
       final normalizedSearch = searchText.trim().toLowerCase();
 
       if (name.startsWith(normalizedSearch)) {
-        // Include the Firestore document ID so that models (e.g. GameModel)
-        // always have a non-empty 'id' value; the document's own 'id' field
-        // takes precedence if present (spread after the default).
-        filteredResults.add({'id': doc.id, ...data});
+        // Always use the Firestore document ID as the authoritative 'id' value.
+        // Spread data first, then set 'id': doc.id last so the real document ID
+        // overwrites any (possibly empty or stale) 'id' field in the document.
+        filteredResults.add({...data, 'id': doc.id});
       }
     }
 
