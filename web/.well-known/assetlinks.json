@@ -4,7 +4,9 @@
     "target": {
       "namespace": "android_app",
       "package_name": "com.stepforward",
-      "sha256_cert_fingerprints": []
+      "sha256_cert_fingerprints": [
+        "ADD_YOUR_SHA256_HERE"
+      ]
     }
   }
 ]
