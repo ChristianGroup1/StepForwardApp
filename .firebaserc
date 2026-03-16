@@ -1,7 +1,5 @@
 {
   "projects": {
-    "staging": "stepforward-b4fba"
-  },
-  "targets": {},
-  "etags": {}
+    "default": "stepforward-b4fba"
+  }
 }
