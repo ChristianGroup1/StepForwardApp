@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
 import 'package:stepforward/core/services/firebase_auth_service.dart';
+import 'package:stepforward/core/utils/constants.dart';
 
 /// Handles incoming deep links with the scheme `stepforward://game/{gameId}`.
 ///
@@ -58,13 +59,24 @@ class DeepLinkService {
   // ── Private helpers ────────────────────────────────────────────────────────
 
   static void _handleUri(Uri uri) {
-    if (uri.scheme != 'stepforward') return;
-    if (uri.host != 'game') return;
+    String? gameId;
 
-    final segments = uri.pathSegments;
-    if (segments.isEmpty) return;
-    final gameId = segments.first;
-    if (gameId.isEmpty) return;
+    if (uri.scheme == 'stepforward' && uri.host == 'game') {
+      // Custom scheme: stepforward://game/{gameId}
+      final segments = uri.pathSegments;
+      if (segments.isEmpty) return;
+      gameId = segments.first;
+    } else if ((uri.scheme == 'https' || uri.scheme == 'http') &&
+        uri.host == Uri.parse(kFirebaseHostingBaseUrl).host) {
+      // App Link / Universal Link: https://stepforward-b4fba.web.app/game/{gameId}
+      final segments = uri.pathSegments;
+      if (segments.length < 2 || segments[0] != 'game') return;
+      gameId = segments[1];
+    } else {
+      return;
+    }
+
+    if (gameId == null || gameId.isEmpty) return;
 
     debugPrint('DeepLinkService: received link for game $gameId');
     _navigateToGame(gameId);

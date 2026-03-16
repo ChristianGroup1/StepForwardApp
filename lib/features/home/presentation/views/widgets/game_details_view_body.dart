@@ -12,6 +12,7 @@ import 'package:stepforward/core/widgets/my_divider.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_hashtag_list.dart';
 import 'package:youtube_player_embed/controller/video_controller.dart';
 import 'package:youtube_player_embed/youtube_player_embed.dart';
+import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -140,8 +141,14 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
     }
   }
 
-  /// Builds the deep link for this game.
-  String get _deepLink => 'stepforward://game/${widget.game.id}';
+  /// Builds the shareable HTTPS link for this game.
+  ///
+  /// Using an HTTPS URL ensures the link is recognised as a hyperlink in
+  /// messaging apps (WhatsApp, SMS, etc.) and is directly tappable.
+  /// The Firebase Hosting page at this URL attempts to open the app via the
+  /// custom scheme `stepforward://game/{id}`, falling back to Google Play if
+  /// the app is not installed.
+  String get _deepLink => '$kFirebaseHostingBaseUrl/game/${widget.game.id}';
 
   /// Shares the game via the system share sheet (WhatsApp, Facebook, etc.).
   Future<void> _shareGame(bool isEn) async {

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Step Forward – Opening game…</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 40px 32px;
+      text-align: center;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    }
+    .logo { font-size: 48px; margin-bottom: 16px; }
+    h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 8px; }
+    p  { font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 24px; }
+    .btn {
+      display: inline-block;
+      background: #1a73e8;
+      color: #fff;
+      border-radius: 10px;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      margin: 6px;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid #1a73e8;
+      color: #1a73e8;
+    }
+    #status { margin-top: 20px; font-size: 14px; color: #888; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">🎮</div>
+    <h1 id="title">Opening game…</h1>
+    <p id="desc">If the app doesn't open automatically, tap the button below.</p>
+    <a id="openBtn" class="btn" href="#">Open in Step Forward</a>
+    <br/>
+    <div id="status"></div>
+  </div>
+
+  <script>
+    // Extract the game ID from the URL path: /game/{gameId}
+    var pathParts = window.location.pathname.split('/').filter(Boolean);
+    var gameId = pathParts.length >= 2 ? pathParts[1] : null;
+
+    var appLink  = gameId ? 'stepforward://game/' + gameId : 'stepforward://';
+    var storeUrl = 'https://play.google.com/store/apps/details?id=com.stepforward';
+
+    var openBtn  = document.getElementById('openBtn');
+    var status   = document.getElementById('status');
+
+    if (!gameId) {
+      document.getElementById('title').textContent = 'Invalid link';
+      document.getElementById('desc').textContent  = 'This link does not contain a valid game ID.';
+      openBtn.style.display = 'none';
+    } else {
+      openBtn.href = appLink;
+
+      // Auto-attempt to open the app after a short delay
+      setTimeout(function () {
+        window.location.href = appLink;
+      }, 300);
+
+      // After 2 seconds, if user is still on this page the app may not be installed
+      setTimeout(function () {
+        status.innerHTML =
+          'App not installed? ' +
+          '<a href="' + storeUrl + '" style="color:#1a73e8;">Get it on Google Play</a>';
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
