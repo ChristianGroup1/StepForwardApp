@@ -4,7 +4,7 @@
     "target": {
       "namespace": "android_app",
       "package_name": "com.stepforward",
-      "sha256_cert_fingerprints": []
+      "sha256_cert_fingerprints": ["41:43:e2:ac:45:f0:29:1b:14:5f:84:4d:cf:43:a1:cf:0c:5b:b6:1f:4d:6c:8d:92:11:b2:d5:67:5a:f2:4c:d5","cd:43:9e:cf:89:23:50:12:c5:e2:b8:e7:d6:0c:70:d7:65:9e:f7:9e:8b:e6:03:d8:72:9d:3e:ae:06:8b:cd:1b"]
     }
   }
 ]
