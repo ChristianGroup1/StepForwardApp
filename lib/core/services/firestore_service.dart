@@ -73,8 +73,14 @@ class FireStoreService implements DatabaseService {
         // Fetch the data from Firestore
         var result = await data.get();
 
-        // Return the fetched data
-        return result.docs.map((e) => e.data()).toList();
+        // Return the fetched data.
+        // Merge the Firestore document ID as 'id' so that models which rely on
+        // 'id' (e.g. GameModel, BrothersModel) always receive a non-empty value.
+        // The document's own 'id' field (if present) takes precedence so that
+        // existing data using a custom id value is not affected.
+        return result.docs
+            .map((e) => {'id': e.id, ...e.data()})
+            .toList();
       }
     } catch (e) {
       throw CustomException(message: 'Failed to fetch data: ${e.toString()}');
@@ -145,7 +151,10 @@ Future<List<Map<String, dynamic>>> searchData(
       final normalizedSearch = searchText.trim().toLowerCase();
 
       if (name.startsWith(normalizedSearch)) {
-        filteredResults.add(data);
+        // Include the Firestore document ID so that models (e.g. GameModel)
+        // always have a non-empty 'id' value; the document's own 'id' field
+        // takes precedence if present (spread after the default).
+        filteredResults.add({'id': doc.id, ...data});
       }
     }
 

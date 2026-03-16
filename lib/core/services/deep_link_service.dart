@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:stepforward/core/helper_functions/cache_helper.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
 import 'package:stepforward/core/services/firebase_auth_service.dart';
+import 'package:stepforward/core/utils/chache_helper_keys.dart';
 import 'package:stepforward/core/utils/constants.dart';
 
 /// Handles incoming deep links with the scheme `stepforward://game/{gameId}`.
@@ -84,11 +86,24 @@ class DeepLinkService {
 
   static void _navigateToGame(String gameId) {
     final nav = navigatorKey.currentState;
-    if (nav == null || !FirebaseAuthService().isLoggedIn()) {
+    if (nav == null || !_isUserAuthenticated()) {
       // Navigator not ready or user not logged in — save for later.
       _pendingGameId = gameId;
       return;
     }
     nav.pushNamed(Routes.gameDetailsById, arguments: gameId);
+  }
+
+  /// Returns true if there is an active user session.
+  ///
+  /// Firebase Auth restores the session from its local cache after
+  /// [Firebase.initializeApp], but there can be a brief window on some
+  /// devices where [FirebaseAuth.currentUser] is still null while the
+  /// local SharedPreferences cache already has the user data saved from the
+  /// previous session.  Checking the cache as a fallback prevents a
+  /// spurious redirect to LoginView during cold-start deep-link handling.
+  static bool _isUserAuthenticated() {
+    return FirebaseAuthService().isLoggedIn() ||
+        CacheHelper.getData(key: kSaveUserDataKey) != null;
   }
 }
