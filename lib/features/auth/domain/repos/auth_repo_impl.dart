@@ -228,7 +228,7 @@ class AuthRepoImpl extends AuthRepo {
       await firebaseAuthService.signOut();
 
       // Remove cached user data
-
+      await CacheHelper.removeData(key: kSaveUserDataKey);
       await CacheHelper.removeData(key: kSaveUserLocationKey);
 
       return const Right(null);

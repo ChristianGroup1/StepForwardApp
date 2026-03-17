@@ -51,9 +51,11 @@ class DeepLinkService {
     if (_pendingGameId != null) {
       final id = _pendingGameId!;
       _pendingGameId = null;
-      Navigator.of(context).pushNamedAndRemoveUntil(
+      // mainView is already the current route when this is called from
+      // MainView.initState, so a simple pushNamed is sufficient and keeps
+      // mainView in the stack so the back button works correctly.
+      Navigator.of(context).pushNamed(
         Routes.gameDetailsById,
-        ModalRoute.withName(Routes.mainView),
         arguments: id,
       );
     }
@@ -101,16 +103,20 @@ class DeepLinkService {
 
     // Defer to the next rendered frame so that navigation happens after Flutter
     // has fully resumed rendering when the app comes back from the background
-    // (warm-start).  Calling pushNamedAndRemoveUntil synchronously while the
+    // (warm-start).  Calling navigation synchronously while the
     // rendering engine is still transitioning from paused→active causes the
     // new route to be inserted at the wrong z-order, making the game-details
     // screen appear hidden beneath the home screen.
+    //
+    // We first push mainView as the root (clearing the entire stack) and then
+    // push gameDetailsById on top.  This guarantees that pressing Back from the
+    // game-details screen always returns to mainView, regardless of which
+    // screen was visible when the deep link arrived.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        Routes.gameDetailsById,
-        ModalRoute.withName(Routes.mainView),
-        arguments: gameId,
-      );
+      final nav = navigatorKey.currentState;
+      if (nav == null) return;
+      nav.pushNamedAndRemoveUntil(Routes.mainView, (route) => false);
+      nav.pushNamed(Routes.gameDetailsById, arguments: gameId);
     });
   }
 
