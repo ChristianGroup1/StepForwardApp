@@ -20,13 +20,13 @@ class CustomMoreViewHeader extends StatelessWidget {
           width: double.infinity,
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [AppColors.primaryColor, AppColors.primaryColor],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+              colors: [AppColors.primaryColor, AppColors.lightPrimaryColor],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(24),
-              bottomRight: Radius.circular(24),
+              bottomLeft: Radius.circular(32),
+              bottomRight: Radius.circular(32),
             ),
           ),
         ),

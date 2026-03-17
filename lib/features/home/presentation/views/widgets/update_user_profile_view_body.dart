@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/core/utils/custom_snak_bar.dart';
@@ -14,7 +15,8 @@ class UpdateUserProfileViewBody extends StatefulWidget {
   const UpdateUserProfileViewBody({super.key});
 
   @override
-  State<UpdateUserProfileViewBody> createState() => _UpdateUserProfileViewBodyState();
+  State<UpdateUserProfileViewBody> createState() =>
+      _UpdateUserProfileViewBodyState();
 }
 
 class _UpdateUserProfileViewBodyState extends State<UpdateUserProfileViewBody> {
@@ -31,6 +33,7 @@ class _UpdateUserProfileViewBodyState extends State<UpdateUserProfileViewBody> {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.isEn;
     var cubit = context.read<MoreCubit>();
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -38,7 +41,10 @@ class _UpdateUserProfileViewBodyState extends State<UpdateUserProfileViewBody> {
       child: BlocConsumer<MoreCubit, MoreState>(
         listener: (context, state) {
           if (state is UpdateUserProfileSuccessState) {
-            showSnackBar(context, text: 'تم التعديل بنجاح');
+            showSnackBar(
+              context,
+              text: isEn ? 'Updated successfully' : 'تم التعديل بنجاح',
+            );
           } else if (state is UpdateUserProfileFailureState) {
             showSnackBar(context, text: state.errorMessage);
           }

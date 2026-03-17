@@ -12,6 +12,7 @@ Future<dynamic> customGovernmentFilterModalSheet(
   BuildContext context,
   BrothersCubit cubit,
 ) {
+  final isEn = context.isEn;
   return showModalBottomSheet(
     showDragHandle: true,
     context: context,
@@ -19,50 +20,44 @@ Future<dynamic> customGovernmentFilterModalSheet(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
     builder: (context) {
-      final List<String> allGovernments = ['الكل', ...governments];
-
+      final List<String> allGovernments = [isEn ? 'All' : 'الكل', ...governments];
       return Padding(
         padding: const EdgeInsets.only(bottom: 40.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("اختر المحافظة", style: TextStyles.bold16),
+            Text(
+              isEn ? 'Select Governorate' : 'اختر المحافظة',
+              style: TextStyles.bold16,
+            ),
             const MyDivider(height: 32),
             Flexible(
               child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 16,),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: allGovernments.length,
                 separatorBuilder: (_, __) => const MyDivider(height: 20),
                 itemBuilder: (context, index) {
                   final government = allGovernments[index];
-                  final isSelected =
-                      government == cubit.selectedGovernment ||
-                      (government == 'الكل' &&
-                          cubit.selectedGovernment == 'الكل');
-        
+                  final isAll = isEn ? government == 'All' : government == 'الكل';
+                  final isSelected = isAll
+                      ? cubit.selectedGovernment == 'الكل'
+                      : government == cubit.selectedGovernment;
                   return ListTile(
                     leading: const Icon(Icons.location_on_outlined),
                     title: Text(
                       government,
                       style: TextStyles.semiBold16.copyWith(
                         fontSize: isSelected ? 17 : 15,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.w500,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                         color: isSelected ? AppColors.primaryColor : Colors.black,
                       ),
                     ),
                     trailing: isSelected
-                        ? const Icon(
-                            Icons.check_circle_outline,
-                            color: AppColors.primaryColor,
-                          )
+                        ? const Icon(Icons.check_circle_outline, color: AppColors.primaryColor)
                         : null,
                     onTap: () {
-                      cubit.changeGovernment(
-                        government == 'الكل' ? 'الكل' : government,
-                      );
-                      context.pop();
+                      cubit.changeGovernment(isAll ? 'الكل' : government);
+                      Navigator.of(context).pop();
                     },
                   );
                 },
@@ -75,10 +70,12 @@ Future<dynamic> customGovernmentFilterModalSheet(
     },
   );
 }
+
 Future<dynamic> customBrotherFilterModalSheet(
   BuildContext context,
   BrothersCubit cubit,
 ) {
+  final isEn = context.isEn;
   return showModalBottomSheet(
     showDragHandle: true,
     context: context,
@@ -86,44 +83,41 @@ Future<dynamic> customBrotherFilterModalSheet(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
     builder: (context) {
-      final List<String> allDenomination = ['الكل', ...denominationList]; // Assuming 'brothers' is a predefined list of brother tags or categories you have        
+      final List<String> allDenomination = [isEn ? 'All' : 'الكل', ...denominationList];
       return Padding(
         padding: const EdgeInsets.only(bottom: 40.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("اختر الطايفة", style: TextStyles.bold16),
+            Text(
+              isEn ? 'Select Denomination' : 'اختر الطايفة',
+              style: TextStyles.bold16,
+            ),
             const MyDivider(height: 32),
             Flexible(
               child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 16,),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: allDenomination.length,
                 separatorBuilder: (_, __) => const MyDivider(height: 20),
                 itemBuilder: (context, index) {
-                  final brother = allDenomination[index];
-                  final isSelected = cubit.selectedTags.contains(brother);
-        
+                  final denomination = allDenomination[index];
+                  final isSelected = cubit.selectedTags.contains(denomination);
                   return ListTile(
                     leading: const Icon(Icons.person_outline),
                     title: Text(
-                      brother,
+                      denomination,
                       style: TextStyles.semiBold16.copyWith(
                         fontSize: isSelected ? 17 : 15,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.w500,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                         color: isSelected ? AppColors.primaryColor : Colors.black,
                       ),
                     ),
                     trailing: isSelected
-                        ? const Icon(
-                            Icons.check_circle_outline,
-                            color: AppColors.primaryColor,
-                          )
+                        ? const Icon(Icons.check_circle_outline, color: AppColors.primaryColor)
                         : null,
                     onTap: () {
-                      cubit.changeDenomination(brother);
-                      context.pop();
+                      cubit.changeDenomination(denomination);
+                      Navigator.of(context).pop();
                     },
                   );
                 },
@@ -131,7 +125,7 @@ Future<dynamic> customBrotherFilterModalSheet(
             ),
             verticalSpace(14),
           ],
-        ),        
+        ),
       );
     },
   );

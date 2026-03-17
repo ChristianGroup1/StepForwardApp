@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_images.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
@@ -15,7 +16,7 @@ class ChatBotFloatingButton extends StatefulWidget {
 class _ChatBotFloatingButtonState extends State<ChatBotFloatingButton> {
   bool _showMessage = false;
   double _opacity = 0;
-  Offset _slideOffset = const Offset(0, 0.2); // Start from below
+  Offset _slideOffset = const Offset(0, 0.2);
 
   @override
   void initState() {
@@ -37,28 +38,23 @@ class _ChatBotFloatingButtonState extends State<ChatBotFloatingButton> {
       _slideOffset = const Offset(0, 0.2);
     });
     Future.delayed(const Duration(milliseconds: 800), () {
-      if (mounted) {
-        setState(() {
-          _showMessage = false;
-        });
-      }
+      if (mounted) setState(() => _showMessage = false);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.isEn;
     return Padding(
       padding: const EdgeInsets.only(bottom: 2, right: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ChatBotScreen()),
-              );
-            },
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ChatBotScreen()),
+            ),
             child: CircleAvatar(
               radius: 30,
               backgroundColor: AppColors.lightPrimaryColor,
@@ -111,8 +107,9 @@ class _ChatBotFloatingButtonState extends State<ChatBotFloatingButton> {
                       ),
                       horizontalSpace(4),
                       Text(
-                        'كيف يمكنني مساعدتك؟',
-                        style: TextStyles.bold13.copyWith(color: Colors.white),
+                        isEn ? 'How can I help you?' : 'كيف يمكنني مساعدتك؟',
+                        style:
+                            TextStyles.bold13.copyWith(color: Colors.white),
                       ),
                     ],
                   ),

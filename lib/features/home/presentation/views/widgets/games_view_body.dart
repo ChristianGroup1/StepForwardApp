@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/get_dummy_games.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/core/utils/custom_snak_bar.dart';
@@ -19,6 +20,7 @@ class GamesViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.isEn;
     final cubit = context.watch<GamesCubit>();
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -27,7 +29,9 @@ class GamesViewBody extends StatelessWidget {
       ),
       child: CustomScrollView(
         slivers: [
-          const SliverToBoxAdapter(child: CustomPageAppBar(title: 'الألعاب')),
+          SliverToBoxAdapter(
+            child: CustomPageAppBar(title: isEn ? 'Games' : 'الألعاب'),
+          ),
           SliverToBoxAdapter(child: verticalSpace(24)),
           SliverToBoxAdapter(
             child: SearchTextField(
@@ -38,7 +42,9 @@ class GamesViewBody extends StatelessWidget {
           SliverToBoxAdapter(child: verticalSpace(20)),
           SliverToBoxAdapter(
             child: TagsList(
-              tags: ['اطفال', 'اعدادي', 'ثانوي', 'جامعة'],
+              tags: isEn
+                  ? ['Children', 'Middle School', 'High School', 'University']
+                  : ['اطفال', 'اعدادي', 'ثانوي', 'جامعة'],
               onTagToggle: cubit.toggleTag,
               selectedTags: cubit.selectedTags,
             ),
@@ -56,14 +62,14 @@ class GamesViewBody extends StatelessWidget {
               if (state is AddGameToFavoritesSuccessState) {
                 showSnackBar(
                   context,
-                  text: 'تم اضافة اللعبة للمفضلة',
+                  text: isEn ? 'Game added to favorites' : 'تم اضافة اللعبة للمفضلة',
                   color: Colors.green,
                 );
               }
               if (state is RemoveGameFromFavoritesSuccessState) {
                 showSnackBar(
                   context,
-                  text: 'تم حذف اللعبة من المفضلة',
+                  text: isEn ? 'Game removed from favorites' : 'تم حذف اللعبة من المفضلة',
                   color: Colors.red,
                 );
               }
@@ -71,10 +77,12 @@ class GamesViewBody extends StatelessWidget {
             builder: (context, state) {
               if (state is GetGamesSuccessState) {
                 if (state.games.isEmpty) {
-                  return const SliverToBoxAdapter(
+                  return SliverToBoxAdapter(
                     child: CustomEmptyWidget(
-                      title: 'لا يوجد العاب لهذا السن',
-                      subtitle: 'سيتم اضافة العاب اكثر قريبًا  ',
+                      title: isEn ? 'No games for this age' : 'لا يوجد العاب لهذا السن',
+                      subtitle: isEn
+                          ? 'More games will be added soon'
+                          : 'سيتم اضافة العاب اكثر قريبًا  ',
                     ),
                   );
                 }
@@ -92,9 +100,10 @@ class GamesViewBody extends StatelessWidget {
                 return SliverToBoxAdapter(
                   child: Skeletonizer(
                     child: ListView.builder(
-                       shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(), 
-                      itemBuilder: (context, index) => CustomGameItem(gameModel: getDummyGames()),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) =>
+                          CustomGameItem(gameModel: getDummyGames()),
                       itemCount: 5,
                     ),
                   ),

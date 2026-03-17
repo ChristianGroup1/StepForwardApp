@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Step Forward</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      background: #f0f4ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 32px 32px;
+      text-align: center;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(26, 115, 232, 0.12);
+    }
+    .logo { font-size: 56px; margin-bottom: 20px; }
+    h1  { font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 10px; }
+    p   { font-size: 15px; color: #666; line-height: 1.65; margin-bottom: 28px; }
+    .btn {
+      display: block;
+      width: 100%;
+      background: #1a73e8;
+      color: #fff;
+      border-radius: 12px;
+      padding: 15px 24px;
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:active { background: #1557b0; }
+    .btn-store {
+      display: inline-block;
+      background: transparent;
+      border: 2px solid #1a73e8;
+      color: #1a73e8;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      margin: 6px 4px 0;
+      cursor: pointer;
+    }
+    #stores { display: none; margin-top: 20px; }
+    #hint   { margin-top: 16px; font-size: 13px; color: #999; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">🎮</div>
+    <h1 id="title">Opening game…</h1>
+    <p  id="desc">Tap the button below if the app does not open automatically.</p>
+
+    <a id="openBtn" class="btn" href="#">Open in Step Forward</a>
+
+    <div id="stores">
+      <a id="androidStore" class="btn-store" href="https://play.google.com/store/apps/details?id=com.stepforward">📱 Google Play</a>
+      <a id="iosStore"     class="btn-store" href="https://apps.apple.com/app/id6742620580">🍎 App Store</a>
+    </div>
+
+    <div id="hint">App not installed? Download it from the store above.</div>
+  </div>
+
+  <script>
+    /* ── helpers ── */
+    function isAndroid() { return /android/i.test(navigator.userAgent); }
+    function isIOS()     { return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+
+    /* ── parse game ID from path  /game/{gameId} ── */
+    var parts  = window.location.pathname.split('/').filter(Boolean);
+    var gameId = (parts.length >= 2 && parts[0] === 'game') ? parts[1] : null;
+
+    var PACKAGE   = 'com.stepforward';
+    var PLAY_URL  = 'https://play.google.com/store/apps/details?id=' + PACKAGE;
+    var STORE_URL = 'https://apps.apple.com/app/id6742620580';
+
+    if (!gameId) {
+      document.getElementById('title').textContent = 'Invalid link';
+      document.getElementById('desc').textContent  = 'This link does not contain a valid game ID.';
+      document.getElementById('openBtn').style.display = 'none';
+    } else {
+      var customScheme = 'stepforward://game/' + gameId;
+
+      /*
+       * Android Chrome:  use  intent://  URI — the most reliable way to open
+       * an app from a browser; includes a built-in Play Store fallback.
+       *
+       * iOS Safari / other:  fall back to the stepforward:// custom scheme.
+       */
+      var appLink = isAndroid()
+        ? 'intent://game/' + gameId + '#Intent;scheme=stepforward;package=' + PACKAGE
+          + ';S.browser_fallback_url=' + encodeURIComponent(PLAY_URL) + ';end'
+        : customScheme;
+
+      var openBtn = document.getElementById('openBtn');
+      openBtn.href = appLink;
+
+      /* Show the correct store button for this platform */
+      if (isAndroid()) {
+        document.getElementById('iosStore').style.display = 'none';
+      } else if (isIOS()) {
+        document.getElementById('androidStore').style.display = 'none';
+      }
+
+      /* Attempt to open the app automatically, 250 ms after page load.
+         On Android the intent:// URI is handled reliably by Chrome.
+         On iOS, setting location.href to a custom scheme works in Safari. */
+      var opened = false;
+      function tryOpen() {
+        opened = true;
+        window.location.href = appLink;
+      }
+
+      window.addEventListener('load', function () {
+        setTimeout(tryOpen, 250);
+      });
+
+      /* Clicking the button also triggers the open */
+      openBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        tryOpen();
+      });
+
+      /* After 2 s, show the store download links so users who don't have
+         the app installed can find it easily. */
+      setTimeout(function () {
+        document.getElementById('stores').style.display = 'block';
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

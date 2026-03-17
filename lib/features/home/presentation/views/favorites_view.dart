@@ -16,11 +16,12 @@ class FavoritesView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          GamesCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>())..fetchUserFavorites(),
+          GamesCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>())
+            ..fetchUserFavorites(),
       child: Scaffold(
         appBar: buildAppBar(
           context,
-          title: 'المفضلة',
+          title: context.isEn ? 'Favorites' : 'المفضلة',
           onTap: () => context.pop(),
         ),
         body: const Padding(

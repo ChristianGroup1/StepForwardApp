@@ -51,6 +51,31 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- Deep link: stepforward://game/{id} -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="stepforward"
+                    android:host="game" />
+            </intent-filter>
+
+            <!-- App Links: https://www.elshaddaiteam.com/game/{id}
+                 Enables verified deep linking so that clicking the shared HTTPS
+                 link in WhatsApp / SMS opens the app directly (no browser step).
+                 Requires /.well-known/assetlinks.json on the hosting domain with
+                 the correct SHA-256 certificate fingerprint. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="www.elshaddaiteam.com"
+                    android:pathPrefix="/game/" />
+            </intent-filter>
         </activity>
 
         <meta-data

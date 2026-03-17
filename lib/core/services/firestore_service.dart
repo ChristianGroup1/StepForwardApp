@@ -73,8 +73,14 @@ class FireStoreService implements DatabaseService {
         // Fetch the data from Firestore
         var result = await data.get();
 
-        // Return the fetched data
-        return result.docs.map((e) => e.data()).toList();
+        // Return the fetched data.
+        // Always use the Firestore document ID as the authoritative 'id' value.
+        // We spread e.data() first and then set 'id': e.id so that the real
+        // document ID overwrites any (possibly empty or stale) 'id' field that
+        // was stored inside the document body.
+        return result.docs
+            .map((e) => {...e.data(), 'id': e.id})
+            .toList();
       }
     } catch (e) {
       throw CustomException(message: 'Failed to fetch data: ${e.toString()}');
@@ -145,7 +151,10 @@ Future<List<Map<String, dynamic>>> searchData(
       final normalizedSearch = searchText.trim().toLowerCase();
 
       if (name.startsWith(normalizedSearch)) {
-        filteredResults.add(data);
+        // Always use the Firestore document ID as the authoritative 'id' value.
+        // Spread data first, then set 'id': doc.id last so the real document ID
+        // overwrites any (possibly empty or stale) 'id' field in the document.
+        filteredResults.add({...data, 'id': doc.id});
       }
     }
 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Universal Links: enables https://www.elshaddaiteam.com/game/{id}
+	     to open the app directly when tapped in WhatsApp / Messages / Safari.
+	     Requires /.well-known/apple-app-site-association on the hosting domain. -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:www.elshaddaiteam.com</string>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,129 @@
+import 'dart:async';
+import 'package:app_links/app_links.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:stepforward/core/helper_functions/cache_helper.dart';
+import 'package:stepforward/core/helper_functions/rouutes.dart';
+import 'package:stepforward/core/services/firebase_auth_service.dart';
+import 'package:stepforward/core/utils/chache_helper_keys.dart';
+import 'package:stepforward/core/utils/constants.dart';
+
+/// Handles incoming deep links with the scheme `stepforward://game/{gameId}`.
+///
+/// Usage:
+///   1. Call [DeepLinkService.init] in `main()` after Firebase is initialised.
+///   2. Assign [navigatorKey] to `MaterialApp.navigatorKey`.
+///   3. Call [navigatePendingIfAny] from `MainView.initState` so that links
+///      received before the user was authenticated are handled after login.
+class DeepLinkService {
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
+  static final _appLinks = AppLinks();
+  static StreamSubscription<Uri>? _sub;
+
+  /// If a deep link arrived before the user was authenticated, we store the
+  /// game ID here so MainView can handle it after login.
+  static String? _pendingGameId;
+
+  /// Initialises the service.  Call once in `main()`.
+  static Future<void> init() async {
+    try {
+      // Cold-start: app was launched via a deep link.
+      final initialUri = await _appLinks.getInitialLink();
+      if (initialUri != null) {
+        _handleUri(initialUri);
+      }
+    } catch (e) {
+      debugPrint('DeepLinkService init error: $e');
+    }
+
+    // Warm-start: app was already running when the link was tapped.
+    _sub = _appLinks.uriLinkStream.listen(
+      _handleUri,
+      onError: (e) => debugPrint('DeepLinkService stream error: $e'),
+    );
+  }
+
+  /// Call this from `MainView.initState` (after the user has logged in) to
+  /// navigate to a game that was requested before authentication was ready.
+  static void navigatePendingIfAny(BuildContext context) {
+    if (_pendingGameId != null) {
+      final id = _pendingGameId!;
+      _pendingGameId = null;
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        Routes.gameDetailsById,
+        ModalRoute.withName(Routes.mainView),
+        arguments: id,
+      );
+    }
+  }
+
+  /// Releases the stream subscription.
+  static void dispose() => _sub?.cancel();
+
+  // ── Private helpers ────────────────────────────────────────────────────────
+
+  static void _handleUri(Uri uri) {
+    String? gameId;
+
+    if (uri.scheme == 'stepforward' && uri.host == 'game') {
+      // Custom scheme: stepforward://game/{gameId}
+      final segments = uri.pathSegments;
+      if (segments.isEmpty) return;
+      gameId = segments.first;
+    } else if ((uri.scheme == 'https' || uri.scheme == 'http') &&
+        uri.host == Uri.parse(kFirebaseHostingBaseUrl).host) {
+      // App Link / Universal Link: https://www.elshaddaiteam.com/game/{gameId}
+      final segments = uri.pathSegments;
+      if (segments.length < 2 || segments[0] != 'game') return;
+      gameId = segments[1];
+    } else {
+      return;
+    }
+
+    if (gameId == null || gameId.isEmpty) return;
+
+    debugPrint('DeepLinkService: received link for game $gameId');
+    _navigateToGame(gameId);
+  }
+
+  static void _navigateToGame(String gameId) {
+    final nav = navigatorKey.currentState;
+    if (nav == null || !_isUserAuthenticated()) {
+      // Navigator not ready or user not logged in — save for later.
+      _pendingGameId = gameId;
+      return;
+    }
+    // Clear pending so that navigatePendingIfAny (called from MainView.initState)
+    // does not push a second copy of the same game details route.
+    _pendingGameId = null;
+
+    // Defer to the next rendered frame so that navigation happens after Flutter
+    // has fully resumed rendering when the app comes back from the background
+    // (warm-start).  Calling pushNamedAndRemoveUntil synchronously while the
+    // rendering engine is still transitioning from paused→active causes the
+    // new route to be inserted at the wrong z-order, making the game-details
+    // screen appear hidden beneath the home screen.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        Routes.gameDetailsById,
+        ModalRoute.withName(Routes.mainView),
+        arguments: gameId,
+      );
+    });
+  }
+
+  /// Returns true if there is an active user session.
+  ///
+  /// Firebase Auth restores the session from its local cache after
+  /// [Firebase.initializeApp], but there can be a brief window on some
+  /// devices where [FirebaseAuth.currentUser] is still null while the
+  /// local SharedPreferences cache already has the user data saved from the
+  /// previous session.  Checking the cache as a fallback prevents a
+  /// spurious redirect to LoginView during cold-start deep-link handling.
+  static bool _isUserAuthenticated() {
+    return FirebaseAuthService().isLoggedIn() ||
+        CacheHelper.getData(key: kSaveUserDataKey) != null;
+  }
+}

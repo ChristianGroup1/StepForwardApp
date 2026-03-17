@@ -1,0 +1,49 @@
+name: Deploy to Firebase Hosting
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write  # allows Firebase action to post preview URLs on PRs
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Flutter web
+        run: flutter build web --release
+
+      # Flutter copies web/ → build/web/ during build, but we explicitly ensure
+      # the .well-known/ directory (Android App Links + iOS Universal Links) is
+      # present in the build output, since some build environments may skip it.
+      - name: Copy .well-known into build output
+        run: cp -r web/.well-known build/web/.well-known
+
+      # Live channel: deploys to Firebase Hosting on push to main.
+      # The site is served at https://www.elshaddaiteam.com (custom domain
+      # configured in Firebase Console → Hosting → Add custom domain).
+      # Preview channel: deploys a temporary URL for pull requests.
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: ${{ github.event_name == 'push' && 'live' || '' }}
+          projectId: stepforward-b4fba

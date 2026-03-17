@@ -22,6 +22,7 @@ abstract class HomeRepo {
     String searchText,
   );
 
-  Future<Either<Failure,List<BookModel>>> getBooks();
- 
+  Future<Either<Failure, List<BookModel>>> getBooks();
+
+  Future<Either<Failure, GameModel>> getGameById(String gameId);
 }
