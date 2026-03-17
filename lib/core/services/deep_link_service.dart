@@ -51,7 +51,11 @@ class DeepLinkService {
     if (_pendingGameId != null) {
       final id = _pendingGameId!;
       _pendingGameId = null;
-      Navigator.of(context).pushNamed(Routes.gameDetailsById, arguments: id);
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        Routes.gameDetailsById,
+        ModalRoute.withName(Routes.mainView),
+        arguments: id,
+      );
     }
   }
 
@@ -91,7 +95,14 @@ class DeepLinkService {
       _pendingGameId = gameId;
       return;
     }
-    nav.pushNamed(Routes.gameDetailsById, arguments: gameId);
+    // Clear pending so that navigatePendingIfAny (called from MainView.initState)
+    // does not push a second copy of the same game details route.
+    _pendingGameId = null;
+    nav.pushNamedAndRemoveUntil(
+      Routes.gameDetailsById,
+      ModalRoute.withName(Routes.mainView),
+      arguments: gameId,
+    );
   }
 
   /// Returns true if there is an active user session.
