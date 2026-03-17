@@ -98,11 +98,20 @@ class DeepLinkService {
     // Clear pending so that navigatePendingIfAny (called from MainView.initState)
     // does not push a second copy of the same game details route.
     _pendingGameId = null;
-    nav.pushNamedAndRemoveUntil(
-      Routes.gameDetailsById,
-      ModalRoute.withName(Routes.mainView),
-      arguments: gameId,
-    );
+
+    // Defer to the next rendered frame so that navigation happens after Flutter
+    // has fully resumed rendering when the app comes back from the background
+    // (warm-start).  Calling pushNamedAndRemoveUntil synchronously while the
+    // rendering engine is still transitioning from paused→active causes the
+    // new route to be inserted at the wrong z-order, making the game-details
+    // screen appear hidden beneath the home screen.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        Routes.gameDetailsById,
+        ModalRoute.withName(Routes.mainView),
+        arguments: gameId,
+      );
+    });
   }
 
   /// Returns true if there is an active user session.
