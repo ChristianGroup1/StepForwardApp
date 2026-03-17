@@ -10,8 +10,7 @@ import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_sliver_app_bar.dart';
 import 'package:stepforward/core/widgets/my_divider.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_hashtag_list.dart';
-import 'package:youtube_player_embed/controller/video_controller.dart';
-import 'package:youtube_player_embed/youtube_player_embed.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -28,7 +27,7 @@ class GameDetailsViewBody extends StatefulWidget {
 class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
   bool _videoPlaybackFailed = false;
   String? _videoId;
-  VideoController? _videoController;
+  YoutubePlayerController? _videoController;
 
   // Translated fields (null until translation completes)
   String? _translatedName;
@@ -66,41 +65,34 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
   }
 
   void _initializeVideo() {
+    YoutubePlayerController? controller;
     try {
-      final videoId = _extractYoutubeId(widget.game.videoLink);
+      final videoId = YoutubePlayer.convertUrlToId(widget.game.videoLink);
 
       if (videoId == null) {
         setState(() => _videoPlaybackFailed = true);
         return;
       }
 
+      controller = YoutubePlayerController(
+        initialVideoId: videoId,
+        flags: const YoutubePlayerFlags(
+          autoPlay: false,
+          mute: false,
+          disableDragSeek: false,
+        ),
+      );
+
       setState(() {
         _videoId = videoId;
+        _videoController = controller;
         _videoPlaybackFailed = false;
       });
     } catch (e) {
+      controller?.dispose();
       debugPrint('Error initializing video: $e');
       setState(() => _videoPlaybackFailed = true);
     }
-  }
-
-  String? _extractYoutubeId(String url) {
-    try {
-      // Handle various YouTube URL formats
-      if (url.contains('youtube.com/watch')) {
-        return Uri.parse(url).queryParameters['v'];
-      } else if (url.contains('youtu.be/')) {
-        return url.split('youtu.be/').last.split('?').first;
-      } else if (url.contains('youtube.com/embed/')) {
-        return url.split('embed/').last.split('?').first;
-      } else if (url.length == 11) {
-        // Direct video ID
-        return url;
-      }
-    } catch (e) {
-      debugPrint('Error extracting YouTube ID: $e');
-    }
-    return null;
   }
 
   Future<void> _launchYoutubeVideo() async {
@@ -108,6 +100,12 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     }
+  }
+
+  @override
+  void dispose() {
+    _videoController?.dispose();
+    super.dispose();
   }
 
   Future<void> _translateContent() async {
@@ -270,26 +268,18 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
                                   ),
                                 ),
                               )
-                            else if (_videoId != null)
+                            else if (_videoId != null && _videoController != null)
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
-                                child: YoutubePlayerEmbed(
+                                child: YoutubePlayer(
                                   key: ValueKey(_videoId),
-                                  callBackVideoController: (controller) {
-                                    _videoController = controller;
-                                  },
-                                  videoId: _videoId!,
-                                  customVideoTitle: widget.game.name,
-                                  autoPlay: false,
-                                  hidenVideoControls: false,
-                                  mute: false,
-                                  enabledShareButton: false,
-                                  hidenChannelImage: true,
+                                  controller: _videoController!,
+                                  showVideoProgressIndicator: true,
                                   aspectRatio: 16 / 9,
-                                  onVideoStateChange: (state) {
-                                    debugPrint('Video state changed: $state');
+                                  onReady: () {
+                                    debugPrint('Video player is ready');
                                   },
-                                  onVideoEnd: () {
+                                  onEnded: (data) {
                                     debugPrint('Video ended');
                                   },
                                 ),
