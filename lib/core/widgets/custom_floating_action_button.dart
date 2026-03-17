@@ -47,77 +47,7 @@ class _ChatBotFloatingButtonState extends State<ChatBotFloatingButton> {
     final isEn = context.isEn;
     return Padding(
       padding: const EdgeInsets.only(bottom: 2, right: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ChatBotScreen()),
-            ),
-            child: CircleAvatar(
-              radius: 30,
-              backgroundColor: AppColors.lightPrimaryColor,
-              child: CircleAvatar(
-                radius: 28,
-                backgroundColor: Colors.white,
-                child: ClipOval(
-                  child: Image.asset(
-                    Assets.assetsImagesStepForwardLogo,
-                    fit: BoxFit.cover,
-                    width: 50,
-                    height: 50,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          if (_showMessage)
-            AnimatedSlide(
-              duration: const Duration(milliseconds: 400),
-              offset: _slideOffset,
-              curve: Curves.easeOut,
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 400),
-                opacity: _opacity,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  margin: const EdgeInsets.only(right: 2),
-                  decoration: const BoxDecoration(
-                    color: AppColors.primaryColor,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                      bottomLeft: Radius.circular(10),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      GestureDetector(
-                        onTap: _dismissMessage,
-                        child: const Icon(
-                          Icons.close,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                      ),
-                      horizontalSpace(4),
-                      Text(
-                        isEn ? 'How can I help you?' : 'كيف يمكنني مساعدتك؟',
-                        style:
-                            TextStyles.bold13.copyWith(color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: []),
     );
   }
 }
