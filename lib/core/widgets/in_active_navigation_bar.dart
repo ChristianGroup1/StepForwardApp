@@ -13,11 +13,14 @@ class InActiveNavigationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.asset(
-      color: Colors.white,
-      image,
-      height: isDeviceInPortrait(context)? 25.h :65.h,
-      width: 25.w,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      child: SvgPicture.asset(
+        color: Colors.white,
+        image,
+        height: isDeviceInPortrait(context) ? 25.h : 65.h,
+        width: 25.w,
+      ),
     );
   }
 }

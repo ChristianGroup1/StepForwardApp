@@ -43,6 +43,7 @@ class _CustomButtonNavigationBarState extends State<CustomButtonNavigationBar> {
           final index = entry.key;
           final item = entry.value;
           return GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () {
               setState(() {
                 widget.onItemTapped(index);
