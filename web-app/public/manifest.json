@@ -1,0 +1,18 @@
+{
+  "name": "خطوة للأمام - Step Forward",
+  "short_name": "خطوة للأمام",
+  "description": "مجتمع خدام الكنيسة. اكتشف ألعاب الخدمة، تواصل مع الخدام، وتصفح الكتب والموارد المفيدة.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#21406c",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "/step_forward_logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
