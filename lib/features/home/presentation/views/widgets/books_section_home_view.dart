@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/is_device_in_portrait.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
+import 'package:stepforward/core/services/recently_opened_service.dart';
 import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/spacing.dart';
@@ -33,7 +34,9 @@ class BooksSectionHomeView extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 isEn ? 'Books & Articles' : 'كتب ومقالات',
-                style: TextStyles.bold16.copyWith(color: AppColors.primaryColor),
+                style: TextStyles.bold16.copyWith(
+                  color: AppColors.primaryColor,
+                ),
               ),
             ],
           ),
@@ -55,6 +58,7 @@ class BooksSectionHomeView extends StatelessWidget {
                       final book = state.books[index];
                       return GestureDetector(
                         onTap: () {
+                          recentlyOpenedService.addBook(book);
                           context.pushNamed(
                             Routes.pdfViewerScreen,
                             arguments: {'url': book.url, 'title': book.name},

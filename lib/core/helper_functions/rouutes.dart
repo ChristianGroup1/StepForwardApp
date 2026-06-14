@@ -9,6 +9,12 @@ class Routes {
   static const gameDetails = '/gameDetails';
   static const updateUserProfile = '/updateUserProfile';
   static const favoritesView = '/favoritesView';
+  static const preparationChecklistView = '/preparationChecklistView';
+  static const teamSplitterView = '/teamSplitterView';
+  static const serviceHistoryView = '/serviceHistoryView';
+  static const teamWorkspaceView = '/teamWorkspaceView';
+  static const teamPreparationView = '/teamPreparationView';
+  static const teamServiceHistoryView = '/teamServiceHistoryView';
   static const pdfViewerScreen = '/PdfViewerScreen';
   static const uploadIdView = '/uploadIdView';
   static const gameDetailsById = '/gameDetailsById';

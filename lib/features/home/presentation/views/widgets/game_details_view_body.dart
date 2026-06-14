@@ -9,6 +9,8 @@ import 'package:stepforward/core/services/get_it_service.dart';
 import 'package:stepforward/core/services/analytics_service.dart';
 import 'package:stepforward/core/services/game_rating_service.dart';
 import 'package:stepforward/core/services/openai_translation_service.dart';
+import 'package:stepforward/core/services/preparation_list_service.dart';
+import 'package:stepforward/core/services/recently_opened_service.dart';
 import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/spacing.dart';
@@ -51,10 +53,13 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
   bool _loadedSimilarGames = false;
   final GameRatingService _ratingService = GameRatingService();
   int _rating = 0;
+  bool _isInPreparationList = false;
 
   @override
   void initState() {
     super.initState();
+    _isInPreparationList = preparationListService.containsGame(widget.game.id);
+    recentlyOpenedService.addGame(widget.game);
     AnalyticsService.logScreenView(
       screenName: 'GameDetailsView - ${widget.game.name}',
     );
@@ -78,12 +83,15 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
     });
   }
 
-  void _loadRating() {
-    setState(() => _rating = _ratingService.getRating(widget.game.id));
+  Future<void> _loadRating() async {
+    final rating = await _ratingService.getRating(widget.game.id);
+    if (mounted) {
+      setState(() => _rating = rating);
+    }
   }
 
   Future<void> _rateGame(int rating) async {
-    await _ratingService.saveRating(gameId: widget.game.id, rating: rating);
+    final isEn = context.isEn;
 
     AnalyticsService.logEvent(
       name: 'rate_game',
@@ -94,9 +102,69 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
       },
     );
 
+    try {
+      final synced = await _ratingService.saveRating(
+        gameId: widget.game.id,
+        rating: rating,
+      );
+      if (!synced && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isEn
+                  ? 'Rating saved locally, but could not sync online'
+                  : 'تم حفظ التقييم محليًا، لكن تعذرت مزامنته',
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isEn
+                  ? 'Rating saved locally, but could not sync online'
+                  : 'تم حفظ التقييم محليًا، لكن تعذرت مزامنته',
+            ),
+          ),
+        );
+      }
+    }
+
     if (mounted) {
       setState(() => _rating = rating);
     }
+  }
+
+  Future<void> _togglePreparationList(bool isEn) async {
+    if (_isInPreparationList) {
+      await preparationListService.removeGame(widget.game.id);
+    } else {
+      await preparationListService.addGame(widget.game);
+    }
+
+    if (!mounted) return;
+
+    setState(() => _isInPreparationList = !_isInPreparationList);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          _isInPreparationList
+              ? (isEn
+                    ? 'Game added to preparation list'
+                    : 'تمت إضافة اللعبة لقائمة التحضير')
+              : (isEn
+                    ? 'Game removed from preparation list'
+                    : 'تمت إزالة اللعبة من قائمة التحضير'),
+        ),
+        action: SnackBarAction(
+          label: isEn ? 'Open' : 'فتح',
+          onPressed: () => context.pushNamed(Routes.preparationChecklistView),
+        ),
+      ),
+    );
   }
 
   Future<void> _loadSimilarGames() async {
@@ -493,6 +561,27 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
                             ),
                           ],
                           verticalSpace(24),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () => _togglePreparationList(isEn),
+                              icon: Icon(
+                                _isInPreparationList
+                                    ? Icons.playlist_remove_rounded
+                                    : Icons.playlist_add_check_rounded,
+                              ),
+                              label: Text(
+                                _isInPreparationList
+                                    ? (isEn
+                                          ? 'Remove from preparation'
+                                          : 'إزالة من التحضير')
+                                    : (isEn
+                                          ? 'Add to preparation'
+                                          : 'أضف للتحضير'),
+                              ),
+                            ),
+                          ),
+                          verticalSpace(10),
                           SizedBox(
                             width: double.infinity,
                             child: FilledButton.icon(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
@@ -7,6 +8,8 @@ class CustomTextFormField extends StatelessWidget {
   final String? hintText;
   final TextInputType? textInputType;
   final int maxLines;
+  final int? minLines;
+  final TextInputAction? textInputAction;
   final Widget? suffixIcon;
   final TextEditingController? controller;
   final EdgeInsetsGeometry? contentPadding;
@@ -27,6 +30,7 @@ class CustomTextFormField extends StatelessWidget {
   final TextStyle? style;
   final void Function(String?)? onSaved;
   final TextStyle? hintStyle;
+  final List<TextInputFormatter>? inputFormatters;
 
   const CustomTextFormField({
     super.key,
@@ -41,6 +45,7 @@ class CustomTextFormField extends StatelessWidget {
     this.borderRadius,
     this.fillColor,
     this.textInputType,
+    this.textInputAction,
     this.validator,
     this.readOnly = false,
     this.suffixIcon,
@@ -49,10 +54,12 @@ class CustomTextFormField extends StatelessWidget {
     this.isObscured,
     this.textAlign,
     this.maxLines = 1,
+    this.minLines,
     this.contentPadding,
     this.needsValidation = true,
     this.onFieldSubmitted,
     this.onSaved,
+    this.inputFormatters,
   });
 
   @override
@@ -72,6 +79,8 @@ class CustomTextFormField extends StatelessWidget {
       readOnly: readOnly,
       textAlign: textAlign ?? TextAlign.start,
       obscureText: isObscured ?? false,
+      minLines: minLines,
+      maxLines: isObscured == true ? 1 : maxLines,
       onChanged: onChanged,
       style: style ?? TextStyle(color: theme.colorScheme.onSurface),
       validator: needsValidation
@@ -84,6 +93,8 @@ class CustomTextFormField extends StatelessWidget {
                 }
           : null,
       keyboardType: textInputType ?? TextInputType.emailAddress,
+      textInputAction: textInputAction,
+      inputFormatters: inputFormatters,
       decoration: InputDecoration(
         hintMaxLines: maxLines,
         isDense: isDense,

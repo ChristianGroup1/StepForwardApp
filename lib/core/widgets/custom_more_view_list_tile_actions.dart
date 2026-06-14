@@ -46,6 +46,70 @@ class CustomMoreViewListTileActions extends StatelessWidget {
                 onTap: () => context.pushNamed(Routes.favoritesView),
               ),
               const MyDivider(),
+              CustomMoreViewListTileItem(
+                title: Text(
+                  isEn ? 'Preparation List' : 'قائمة التحضير',
+                  style: TextStyles.bold16,
+                ),
+                leading: const Icon(
+                  Icons.checklist_rounded,
+                  color: AppColors.primaryColor,
+                ),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios,
+                  color: AppColors.primaryColor,
+                ),
+                onTap: () => context.pushNamed(Routes.preparationChecklistView),
+              ),
+              const MyDivider(),
+              CustomMoreViewListTileItem(
+                title: Text(
+                  isEn ? 'Team Splitter' : 'تقسيم المجموعات',
+                  style: TextStyles.bold16,
+                ),
+                leading: const Icon(
+                  Icons.groups_rounded,
+                  color: AppColors.primaryColor,
+                ),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios,
+                  color: AppColors.primaryColor,
+                ),
+                onTap: () => context.pushNamed(Routes.teamSplitterView),
+              ),
+              const MyDivider(),
+              CustomMoreViewListTileItem(
+                title: Text(
+                  isEn ? 'Old Services' : 'خدمات قديمة',
+                  style: TextStyles.bold16,
+                ),
+                leading: const Icon(
+                  Icons.history_rounded,
+                  color: AppColors.primaryColor,
+                ),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios,
+                  color: AppColors.primaryColor,
+                ),
+                onTap: () => context.pushNamed(Routes.serviceHistoryView),
+              ),
+              const MyDivider(),
+              CustomMoreViewListTileItem(
+                title: Text(
+                  isEn ? 'My Team' : 'فريقي',
+                  style: TextStyles.bold16,
+                ),
+                leading: const Icon(
+                  Icons.group_work_rounded,
+                  color: AppColors.primaryColor,
+                ),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios,
+                  color: AppColors.primaryColor,
+                ),
+                onTap: () => context.pushNamed(Routes.teamWorkspaceView),
+              ),
+              const MyDivider(),
               // Edit Profile
               CustomMoreViewListTileItem(
                 title: Text(
@@ -171,7 +235,9 @@ class CustomMoreViewListTileActions extends StatelessWidget {
                     confirmBtnText: isEn ? 'Yes' : 'نعم',
                     type: QuickAlertType.warning,
                     onConfirmBtnTap: () async {
-                      await context.read<MoreCubit>().signOut();
+                      final moreCubit = context.read<MoreCubit>();
+                      await moreCubit.signOut();
+                      if (!context.mounted) return;
                       context.pushNamedAndRemoveUntil(
                         Routes.loginView,
                         predicate: (route) => false,
@@ -200,6 +266,7 @@ class CustomMoreViewListTileActions extends StatelessWidget {
                     onConfirmBtnTap: () async {
                       final accountCubit = context.read<MoreCubit>();
                       final user = await accountCubit.getCurrentUser();
+                      if (!context.mounted) return;
                       final bool isEmailUser =
                           user.providerData.first.providerId == 'password';
                       if (isEmailUser) {

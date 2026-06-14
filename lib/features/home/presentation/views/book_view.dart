@@ -25,12 +25,14 @@ class PdfViewerScreen extends StatelessWidget {
       final fileName = '${title.replaceAll(" ", "_")}.pdf';
       final filePath = '${directory.path}/$fileName';
       await Dio().download(url, filePath);
+      if (!context.mounted) return;
       showSnackBar(
         context,
         text: isEn ? 'Downloaded successfully' : 'تم التحميل بنجاح',
         color: Colors.green,
       );
     } catch (e) {
+      if (!context.mounted) return;
       showSnackBar(
         context,
         text: isEn ? 'Error during download' : 'حدث خطأ اثناء التحميل',

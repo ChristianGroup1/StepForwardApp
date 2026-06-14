@@ -53,6 +53,7 @@ class HomeRepoImpl extends HomeRepo {
       final List<dynamic> currentFavorites = userDoc.data()?['favorites'] ?? [];
 
       final bool isAlreadyFavorite = currentFavorites.contains(gameId);
+      final shouldAddFavorite = !isAlreadyFavorite;
 
       await databaseService.updateData(
         path: BackendEndpoints.getUserData,
@@ -63,6 +64,9 @@ class HomeRepoImpl extends HomeRepo {
               : FieldValue.arrayUnion([gameId]),
         },
       );
+
+      await _syncCachedFavoriteIds(gameId, shouldAdd: shouldAddFavorite);
+      await _syncCachedFavoriteGame(gameId, shouldAdd: shouldAddFavorite);
 
       return right(null);
     } catch (e) {
@@ -147,9 +151,29 @@ class HomeRepoImpl extends HomeRepo {
       });
 
       final games = await Future.wait(gamesFutures);
+      await _cacheList(kCachedFavoriteGamesKey, games.map((e) => e.toJson()));
 
       return Right(games);
     } catch (e) {
+      final cachedFavoriteGames = _readCachedList(
+        kCachedFavoriteGamesKey,
+        (json) => GameModel.fromJson(json),
+      );
+      if (cachedFavoriteGames.isNotEmpty) return right(cachedFavoriteGames);
+
+      final cachedUser = getCachedUserData();
+      final favoriteIds = cachedUser?.favorites ?? [];
+      final cachedGames = _readCachedList(
+        kCachedGamesKey,
+        (json) => GameModel.fromJson(json),
+      );
+      final favoritesFromGamesCache = cachedGames
+          .where((game) => favoriteIds.contains(game.id))
+          .toList();
+      if (favoritesFromGamesCache.isNotEmpty) {
+        return right(favoritesFromGamesCache);
+      }
+
       return Left(CustomFailure(message: e.toString()));
     }
   }
@@ -168,6 +192,9 @@ class HomeRepoImpl extends HomeRepo {
           'favorites': FieldValue.arrayRemove([gameId]),
         },
       );
+
+      await _syncCachedFavoriteIds(gameId, shouldAdd: false);
+      await _syncCachedFavoriteGame(gameId, shouldAdd: false);
 
       return right(null);
     } catch (e) {
@@ -257,5 +284,57 @@ class HomeRepoImpl extends HomeRepo {
     } catch (_) {
       return [];
     }
+  }
+
+  Future<void> _syncCachedFavoriteGame(
+    String gameId, {
+    required bool shouldAdd,
+  }) async {
+    final cachedFavorites = _readCachedList(
+      kCachedFavoriteGamesKey,
+      (json) => GameModel.fromJson(json),
+    );
+    cachedFavorites.removeWhere((game) => game.id == gameId);
+
+    if (shouldAdd) {
+      final cachedGames = _readCachedList(
+        kCachedGamesKey,
+        (json) => GameModel.fromJson(json),
+      );
+      final matchingGames = cachedGames.where((game) => game.id == gameId);
+      if (matchingGames.isNotEmpty) cachedFavorites.add(matchingGames.first);
+    }
+
+    await _cacheList(
+      kCachedFavoriteGamesKey,
+      cachedFavorites.map((game) => game.toJson()),
+    );
+  }
+
+  Future<void> _syncCachedFavoriteIds(
+    String gameId, {
+    required bool shouldAdd,
+  }) async {
+    final cachedData = CacheHelper.getData(key: kSaveUserDataKey);
+    if (cachedData is! String || cachedData.isEmpty) return;
+
+    try {
+      final decoded = jsonDecode(cachedData);
+      if (decoded is! Map) return;
+
+      final userData = Map<String, dynamic>.from(decoded);
+      final favorites = List<String>.from(userData['favorites'] ?? []);
+      if (shouldAdd) {
+        if (!favorites.contains(gameId)) favorites.add(gameId);
+      } else {
+        favorites.remove(gameId);
+      }
+      userData['favorites'] = favorites;
+
+      await CacheHelper.saveData(
+        key: kSaveUserDataKey,
+        value: jsonEncode(userData),
+      );
+    } catch (_) {}
   }
 }

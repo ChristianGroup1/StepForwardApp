@@ -9,11 +9,18 @@ import 'package:stepforward/features/auth/presentation/views/forget_password_vie
 import 'package:stepforward/features/auth/presentation/views/login_view.dart';
 import 'package:stepforward/features/auth/presentation/views/sign_up_view.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
+import 'package:stepforward/features/home/domain/models/team_workspace_model.dart';
 import 'package:stepforward/features/home/presentation/views/book_view.dart';
 import 'package:stepforward/features/home/presentation/views/favorites_view.dart';
 import 'package:stepforward/features/home/presentation/views/game_details.dart';
 import 'package:stepforward/features/home/presentation/views/game_details_by_id_view.dart';
 import 'package:stepforward/features/home/presentation/views/main_view.dart';
+import 'package:stepforward/features/home/presentation/views/preparation_checklist_view.dart';
+import 'package:stepforward/features/home/presentation/views/service_history_view.dart';
+import 'package:stepforward/features/home/presentation/views/team_preparation_view.dart';
+import 'package:stepforward/features/home/presentation/views/team_service_history_view.dart';
+import 'package:stepforward/features/home/presentation/views/team_splitter_view.dart';
+import 'package:stepforward/features/home/presentation/views/team_workspace_view.dart';
 import 'package:stepforward/features/home/presentation/views/update_user_profile_view.dart';
 import 'package:stepforward/features/home/presentation/views/upload_user_id_view.dart';
 
@@ -76,6 +83,57 @@ Route onGenerateRoutes(RouteSettings settings) {
       return PageTransition(
         duration: const Duration(milliseconds: 50),
         child: const FavoritesView(),
+        type: PageTransitionType.fade,
+      );
+    case Routes.preparationChecklistView:
+      AnalyticsService.logScreenView(screenName: 'PreparationChecklistView');
+
+      return PageTransition(
+        duration: const Duration(milliseconds: 50),
+        child: const PreparationChecklistView(),
+        type: PageTransitionType.fade,
+      );
+    case Routes.teamSplitterView:
+      AnalyticsService.logScreenView(screenName: 'TeamSplitterView');
+
+      return PageTransition(
+        duration: const Duration(milliseconds: 50),
+        child: const TeamSplitterView(),
+        type: PageTransitionType.fade,
+      );
+    case Routes.serviceHistoryView:
+      AnalyticsService.logScreenView(screenName: 'ServiceHistoryView');
+
+      return PageTransition(
+        duration: const Duration(milliseconds: 50),
+        child: const ServiceHistoryView(),
+        type: PageTransitionType.fade,
+      );
+    case Routes.teamWorkspaceView:
+      AnalyticsService.logScreenView(screenName: 'TeamWorkspaceView');
+      final inviteCode = settings.arguments is String
+          ? settings.arguments as String
+          : null;
+
+      return PageTransition(
+        duration: const Duration(milliseconds: 50),
+        child: TeamWorkspaceView(initialInviteCode: inviteCode),
+        type: PageTransitionType.fade,
+      );
+    case Routes.teamPreparationView:
+      AnalyticsService.logScreenView(screenName: 'TeamPreparationView');
+      final team = settings.arguments as TeamWorkspaceModel;
+      return PageTransition(
+        duration: const Duration(milliseconds: 50),
+        child: TeamPreparationView(team: team),
+        type: PageTransitionType.fade,
+      );
+    case Routes.teamServiceHistoryView:
+      AnalyticsService.logScreenView(screenName: 'TeamServiceHistoryView');
+      final team = settings.arguments as TeamWorkspaceModel;
+      return PageTransition(
+        duration: const Duration(milliseconds: 50),
+        child: TeamServiceHistoryView(team: team),
         type: PageTransitionType.fade,
       );
     case Routes.uploadIdView:

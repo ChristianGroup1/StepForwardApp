@@ -10,12 +10,12 @@ void main() {
 
     final service = GameRatingService();
 
-    expect(service.getRating('game-1'), 0);
+    expect(service.getLocalRating('game-1'), 0);
 
     await service.saveRating(gameId: 'game-1', rating: 4);
 
-    expect(service.getRating('game-1'), 4);
-    expect(service.getRating('game-2'), 0);
+    expect(service.getLocalRating('game-1'), 4);
+    expect(service.getLocalRating('game-2'), 0);
   });
 
   test('GameRatingService clamps rating between 1 and 5', () async {
@@ -27,7 +27,7 @@ void main() {
     await service.saveRating(gameId: 'game-1', rating: 9);
     await service.saveRating(gameId: 'game-2', rating: -1);
 
-    expect(service.getRating('game-1'), 5);
-    expect(service.getRating('game-2'), 1);
+    expect(service.getLocalRating('game-1'), 5);
+    expect(service.getLocalRating('game-2'), 1);
   });
 }

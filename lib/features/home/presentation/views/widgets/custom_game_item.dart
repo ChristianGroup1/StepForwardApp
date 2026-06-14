@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/is_device_in_portrait.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
+import 'package:stepforward/core/services/recently_opened_service.dart';
 import 'package:stepforward/core/services/user_favorites_service.dart';
 
 import 'package:stepforward/core/utils/app_colors.dart';
@@ -26,6 +27,7 @@ class CustomGameItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        recentlyOpenedService.addGame(gameModel);
         context.pushNamed(Routes.gameDetails, arguments: gameModel);
       },
       child: Padding(

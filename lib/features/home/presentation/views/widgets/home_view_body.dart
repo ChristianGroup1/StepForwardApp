@@ -8,6 +8,7 @@ import 'package:stepforward/features/home/presentation/views/widgets/brothers_se
 import 'package:stepforward/features/home/presentation/views/widgets/custom_slider_widget.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/games_section_home_view.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/products_section_home_view.dart';
+import 'package:stepforward/features/home/presentation/views/widgets/recently_opened_section_home_view.dart';
 
 class HomeViewBody extends StatelessWidget {
   final VoidCallback onNavigateToGamesView;
@@ -39,6 +40,8 @@ class HomeViewBody extends StatelessWidget {
             ),
           ),
           SliverToBoxAdapter(child: verticalSpace(12)),
+          const RecentlyOpenedSectionHomeView(),
+          SliverToBoxAdapter(child: verticalSpace(8)),
           GamesSectionHomeView(onNavigateToGamesView: onNavigateToGamesView),
           SliverToBoxAdapter(child: verticalSpace(8)),
           BrothersSectionHomeView(

@@ -22,6 +22,7 @@ class DeepLinkService {
   /// If a deep link arrived before the user was authenticated, we store the
   /// game ID here so MainView can handle it after login.
   static String? _pendingGameId;
+  static String? _pendingTeamInviteCode;
 
   /// Initialises the service.  Call once in `main()`.
   static Future<void> init() async {
@@ -52,6 +53,12 @@ class DeepLinkService {
       // MainView.initState, so a simple pushNamed is sufficient and keeps
       // mainView in the stack so the back button works correctly.
       Navigator.of(context).pushNamed(Routes.gameDetailsById, arguments: id);
+    } else if (_pendingTeamInviteCode != null) {
+      final code = _pendingTeamInviteCode!;
+      _pendingTeamInviteCode = null;
+      Navigator.of(
+        context,
+      ).pushNamed(Routes.teamWorkspaceView, arguments: code);
     }
   }
 
@@ -62,26 +69,46 @@ class DeepLinkService {
 
   static void _handleUri(Uri uri) {
     String? gameId;
+    String? teamInviteCode;
 
     if (uri.scheme == 'stepforward' && uri.host == 'game') {
       // Custom scheme: stepforward://game/{gameId}
       final segments = uri.pathSegments;
       if (segments.isEmpty) return;
       gameId = segments.first;
+    } else if (uri.scheme == 'stepforward' && uri.host == 'team') {
+      final segments = uri.pathSegments;
+      if (segments.isEmpty) return;
+      teamInviteCode = segments.first;
     } else if ((uri.scheme == 'https' || uri.scheme == 'http') &&
         uri.host == Uri.parse(kFirebaseHostingBaseUrl).host) {
-      // App Link / Universal Link: https://stepforwardteam.com/game/{gameId}
+      // App Link / Universal Link:
+      // https://stepforwardteam.com/game/{gameId}
+      // https://stepforwardteam.com/team/{inviteCode}
       final segments = uri.pathSegments;
-      if (segments.length < 2 || segments[0] != 'game') return;
-      gameId = segments[1];
+      if (segments.length < 2) return;
+      if (segments[0] == 'game') {
+        gameId = segments[1];
+      } else if (segments[0] == 'team') {
+        teamInviteCode = segments[1];
+      } else {
+        return;
+      }
     } else {
       return;
     }
 
-    if (gameId.isEmpty) return;
+    if (gameId != null) {
+      if (gameId.isEmpty) return;
 
-    debugPrint('DeepLinkService: received link for game $gameId');
-    _navigateToGame(gameId);
+      debugPrint('DeepLinkService: received link for game $gameId');
+      _navigateToGame(gameId);
+      return;
+    }
+
+    if (teamInviteCode == null || teamInviteCode.isEmpty) return;
+    debugPrint('DeepLinkService: received link for team $teamInviteCode');
+    _navigateToTeam(teamInviteCode);
   }
 
   static void _navigateToGame(String gameId) {
@@ -111,6 +138,22 @@ class DeepLinkService {
       if (nav == null) return;
       nav.pushNamedAndRemoveUntil(Routes.mainView, (route) => false);
       nav.pushNamed(Routes.gameDetailsById, arguments: gameId);
+    });
+  }
+
+  static void _navigateToTeam(String inviteCode) {
+    final nav = navigatorKey.currentState;
+    if (nav == null || !_isUserAuthenticated()) {
+      _pendingTeamInviteCode = inviteCode;
+      return;
+    }
+    _pendingTeamInviteCode = null;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final nav = navigatorKey.currentState;
+      if (nav == null) return;
+      nav.pushNamedAndRemoveUntil(Routes.mainView, (route) => false);
+      nav.pushNamed(Routes.teamWorkspaceView, arguments: inviteCode);
     });
   }
 
