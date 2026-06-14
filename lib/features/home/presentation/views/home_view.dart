@@ -24,7 +24,11 @@ class HomeView extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (context) =>
-              BrothersCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>(),getIt.get<ImagesRepo>())
+              BrothersCubit(
+                  getIt.get<HomeRepo>(),
+                  getIt.get<AuthRepo>(),
+                  getIt.get<ImagesRepo>(),
+                )
                 ..checkAndToastIfNotVerified()
                 ..getUserApprovedDataIfNotApproved()
                 ..getBrothers(),
@@ -40,7 +44,8 @@ class HomeView extends StatelessWidget {
         builder: (context) {
           var cubit = context.read<BrothersCubit>();
           return RefreshIndicator(
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            color: Theme.of(context).colorScheme.primary,
             onRefresh: () async {
               await context.read<BrothersCubit>().getBrothers();
               await context.read<GamesCubit>().getGames();

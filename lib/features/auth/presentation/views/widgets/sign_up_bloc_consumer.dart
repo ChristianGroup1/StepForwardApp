@@ -15,6 +15,7 @@ class SignUpBlocConsumer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var cubit = context.read<SignUpCubit>();
+    final isEn = context.isEn;
     return BlocConsumer<SignUpCubit, SignUpState>(
       listener: (context, state) {
         if (state is SignUpSuccessState) {
@@ -27,8 +28,8 @@ class SignUpBlocConsumer extends StatelessWidget {
           customQuickAlertView(
             context,
             text: state.errorMessage,
-            title: 'حدث خطأ',
-            confirmBtnText: 'حسنا',
+            title: isEn ? 'An Error Occurred' : 'حدث خطأ',
+            confirmBtnText: isEn ? 'OK' : 'حسنا',
             type: QuickAlertType.error,
             onConfirmBtnTap: () {
               context.pop();

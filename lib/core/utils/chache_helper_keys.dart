@@ -1,4 +1,9 @@
 const kIsOnboardingViewKey = 'kIsOnboardingViewKey';
 const kSaveUserDataKey = 'kSaveUserDataKey';
 const kSaveUserLocationKey = 'kSaveUserLocationKey';
-const kAppLanguageKey='kAppLanguageKey';
+const kAppLanguageKey = 'kAppLanguageKey';
+const kAppThemeModeKey = 'kAppThemeModeKey';
+const kCachedGamesKey = 'kCachedGamesKey';
+const kCachedBrothersKey = 'kCachedBrothersKey';
+const kCachedBooksKey = 'kCachedBooksKey';
+const kGameRatingsKey = 'kGameRatingsKey';

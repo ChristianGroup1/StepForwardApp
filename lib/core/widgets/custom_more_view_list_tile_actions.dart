@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:stepforward/core/cubits/locale_cubit.dart';
+import 'package:stepforward/core/cubits/theme_cubit.dart';
 import 'package:stepforward/core/helper_functions/custom_quick_alret_view.dart';
 import 'package:stepforward/core/helper_functions/delete_account_quick_alret_dialogs.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
@@ -30,9 +31,18 @@ class CustomMoreViewListTileActions extends StatelessWidget {
             children: [
               // Favorites
               CustomMoreViewListTileItem(
-                title: Text(isEn ? 'Favorites' : 'المفضلة', style: TextStyles.bold16),
-                leading: const Icon(Icons.favorite, color: AppColors.primaryColor),
-                trailing: const Icon(Icons.arrow_forward_ios, color: AppColors.primaryColor),
+                title: Text(
+                  isEn ? 'Favorites' : 'المفضلة',
+                  style: TextStyles.bold16,
+                ),
+                leading: const Icon(
+                  Icons.favorite,
+                  color: AppColors.primaryColor,
+                ),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios,
+                  color: AppColors.primaryColor,
+                ),
                 onTap: () => context.pushNamed(Routes.favoritesView),
               ),
               const MyDivider(),
@@ -42,8 +52,14 @@ class CustomMoreViewListTileActions extends StatelessWidget {
                   isEn ? 'Edit Profile' : 'تعديل الملف الشخصي',
                   style: TextStyles.bold16,
                 ),
-                leading: const Icon(Icons.person, color: AppColors.primaryColor),
-                trailing: const Icon(Icons.arrow_forward_ios, color: AppColors.primaryColor),
+                leading: const Icon(
+                  Icons.person,
+                  color: AppColors.primaryColor,
+                ),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios,
+                  color: AppColors.primaryColor,
+                ),
                 onTap: () => context.pushNamed(Routes.updateUserProfile),
               ),
               const MyDivider(),
@@ -53,26 +69,64 @@ class CustomMoreViewListTileActions extends StatelessWidget {
                   isEn ? 'Reset Password' : 'اعادة تعيين كلمة المرور',
                   style: TextStyles.bold16,
                 ),
-                leading: const Icon(Icons.password_rounded, color: AppColors.primaryColor),
-                trailing: const Icon(Icons.arrow_forward_ios, color: AppColors.primaryColor),
+                leading: const Icon(
+                  Icons.password_rounded,
+                  color: AppColors.primaryColor,
+                ),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios,
+                  color: AppColors.primaryColor,
+                ),
                 onTap: () => context.pushNamed(Routes.forgetPasswordView),
+              ),
+              const MyDivider(),
+              // Theme Toggle
+              BlocBuilder<ThemeCubit, ThemeMode>(
+                builder: (context, themeMode) {
+                  final isDark = themeMode == ThemeMode.dark;
+                  return CustomMoreViewListTileItem(
+                    title: Text(
+                      isEn ? 'Dark Mode' : 'الوضع الداكن',
+                      style: TextStyles.bold16,
+                    ),
+                    leading: const Icon(
+                      Icons.dark_mode_outlined,
+                      color: AppColors.primaryColor,
+                    ),
+                    trailing: Switch(
+                      value: isDark,
+                      activeThumbColor: AppColors.primaryColor,
+                      onChanged: (value) {
+                        context.read<ThemeCubit>().toggleTheme(value);
+                      },
+                    ),
+                  );
+                },
               ),
               const MyDivider(),
               // Language Toggle
               CustomMoreViewListTileItem(
-                title: Text(isEn ? 'Language' : 'اللغة', style: TextStyles.bold16),
-                leading: const Icon(Icons.language, color: AppColors.primaryColor),
+                title: Text(
+                  isEn ? 'Language' : 'اللغة',
+                  style: TextStyles.bold16,
+                ),
+                leading: const Icon(
+                  Icons.language,
+                  color: AppColors.primaryColor,
+                ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       isEn ? 'English' : 'عربي',
-                      style: TextStyles.semiBold13.copyWith(color: AppColors.primaryColor),
+                      style: TextStyles.semiBold13.copyWith(
+                        color: AppColors.primaryColor,
+                      ),
                     ),
                     const SizedBox(width: 4),
                     Switch(
                       value: isEn,
-                      activeColor: AppColors.primaryColor,
+                      activeThumbColor: AppColors.primaryColor,
                       onChanged: (switchedToEn) {
                         context.read<LocaleCubit>().changeLocale(
                           switchedToEn ? 'en' : 'ar',
@@ -85,9 +139,18 @@ class CustomMoreViewListTileActions extends StatelessWidget {
               const MyDivider(),
               // About Us
               CustomMoreViewListTileItem(
-                title: Text(isEn ? 'About Us' : 'من نحن', style: TextStyles.bold16),
-                leading: const Icon(Icons.info_outline, color: AppColors.primaryColor),
-                trailing: const Icon(Icons.arrow_forward_ios, color: AppColors.primaryColor),
+                title: Text(
+                  isEn ? 'About Us' : 'من نحن',
+                  style: TextStyles.bold16,
+                ),
+                leading: const Icon(
+                  Icons.info_outline,
+                  color: AppColors.primaryColor,
+                ),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios,
+                  color: AppColors.primaryColor,
+                ),
                 onTap: () => showAboutUsDialog(context),
               ),
               const Divider(),
@@ -101,7 +164,9 @@ class CustomMoreViewListTileActions extends StatelessWidget {
                 onTap: () {
                   customQuickAlertView(
                     context,
-                    text: isEn ? 'Do you want to sign out?' : 'هل تريد تسجيل الخروج؟',
+                    text: isEn
+                        ? 'Do you want to sign out?'
+                        : 'هل تريد تسجيل الخروج؟',
                     title: isEn ? 'Sign Out' : 'تسجيل الخروج',
                     confirmBtnText: isEn ? 'Yes' : 'نعم',
                     type: QuickAlertType.warning,

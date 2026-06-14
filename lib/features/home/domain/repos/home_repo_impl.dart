@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:stepforward/core/errors/failures.dart';
+import 'package:stepforward/core/helper_functions/cache_helper.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/services/database_service.dart';
 import 'package:stepforward/core/utils/backend_endpoints.dart';
+import 'package:stepforward/core/utils/chache_helper_keys.dart';
 import 'package:stepforward/features/home/domain/models/book_model.dart';
 import 'package:stepforward/features/home/domain/models/brothers_model.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
@@ -20,8 +24,15 @@ class HomeRepoImpl extends HomeRepo {
           await databaseService.getData(path: BackendEndpoints.getGames)
               as List<Map<String, dynamic>>;
       var gamesList = games.map((e) => GameModel.fromJson(e)).toList();
+      await _cacheList(kCachedGamesKey, gamesList.map((e) => e.toJson()));
       return right(gamesList);
     } catch (e) {
+      final cachedGames = _readCachedList(
+        kCachedGamesKey,
+        (json) => GameModel.fromJson(json),
+      );
+      if (cachedGames.isNotEmpty) return right(cachedGames);
+
       return left(CustomFailure(message: e.toString()));
     }
   }
@@ -73,6 +84,11 @@ class HomeRepoImpl extends HomeRepo {
       final favorites = List<String>.from(userData['favorites'] ?? []);
       return right(favorites);
     } catch (e) {
+      final cachedUser = getCachedUserData();
+      if (cachedUser?.favorites != null) {
+        return right(cachedUser!.favorites!);
+      }
+
       return left(CustomFailure(message: e.toString()));
     }
   }
@@ -86,9 +102,7 @@ class HomeRepoImpl extends HomeRepo {
         searchText,
         BackendEndpoints.getGames,
       );
-      return right(
-        results.map((e) => GameModel.fromJson(e)).toList(),
-      );
+      return right(results.map((e) => GameModel.fromJson(e)).toList());
     } catch (e) {
       return left(CustomFailure(message: e.toString()));
     }
@@ -170,8 +184,15 @@ class HomeRepoImpl extends HomeRepo {
       var brothersList = brothersData
           .map((e) => BrothersModel.fromJson(e))
           .toList();
+      await _cacheList(kCachedBrothersKey, brothersList.map((e) => e.toJson()));
       return right(brothersList);
     } catch (e) {
+      final cachedBrothers = _readCachedList(
+        kCachedBrothersKey,
+        (json) => BrothersModel.fromJson(json),
+      );
+      if (cachedBrothers.isNotEmpty) return right(cachedBrothers);
+
       return left(CustomFailure(message: e.toString()));
     }
   }
@@ -183,8 +204,15 @@ class HomeRepoImpl extends HomeRepo {
           await databaseService.getData(path: BackendEndpoints.getBooks)
               as List<Map<String, dynamic>>;
       var booksList = booksData.map((e) => BookModel.fromJson(e)).toList();
+      await _cacheList(kCachedBooksKey, booksList.map((e) => e.toJson()));
       return right(booksList);
     } catch (e) {
+      final cachedBooks = _readCachedList(
+        kCachedBooksKey,
+        (json) => BookModel.fromJson(json),
+      );
+      if (cachedBooks.isNotEmpty) return right(cachedBooks);
+
       return left(CustomFailure(message: e.toString()));
     }
   }
@@ -192,13 +220,42 @@ class HomeRepoImpl extends HomeRepo {
   @override
   Future<Either<Failure, GameModel>> getGameById(String gameId) async {
     try {
-      final data = await databaseService.getData(
-        path: BackendEndpoints.getGames,
-        documentId: gameId,
-      ) as Map<String, dynamic>;
+      final data =
+          await databaseService.getData(
+                path: BackendEndpoints.getGames,
+                documentId: gameId,
+              )
+              as Map<String, dynamic>;
       return right(GameModel.fromJson({...data, 'id': gameId}));
     } catch (e) {
       return left(CustomFailure(message: e.toString()));
+    }
+  }
+
+  Future<void> _cacheList(
+    String key,
+    Iterable<Map<String, dynamic>> values,
+  ) async {
+    await CacheHelper.saveData(key: key, value: jsonEncode(values.toList()));
+  }
+
+  List<T> _readCachedList<T>(
+    String key,
+    T Function(Map<String, dynamic> json) fromJson,
+  ) {
+    final cachedData = CacheHelper.getData(key: key);
+    if (cachedData is! String || cachedData.isEmpty) return [];
+
+    try {
+      final decoded = jsonDecode(cachedData);
+      if (decoded is! List) return [];
+
+      return decoded
+          .whereType<Map>()
+          .map((item) => fromJson(Map<String, dynamic>.from(item)))
+          .toList();
+    } catch (_) {
+      return [];
     }
   }
 }

@@ -8,11 +8,7 @@ import 'package:stepforward/core/widgets/translating_text.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_details_view_body.dart';
 
 class CustomSliverAppBar extends StatelessWidget {
-  const CustomSliverAppBar({
-    super.key,
-    required this.widget,
-    this.onShare,
-  });
+  const CustomSliverAppBar({super.key, required this.widget, this.onShare});
 
   final GameDetailsViewBody widget;
   final VoidCallback? onShare;
@@ -20,15 +16,16 @@ class CustomSliverAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEn = context.isEn;
+    final colorScheme = Theme.of(context).colorScheme;
     return SliverAppBar(
       collapsedHeight: 70,
       expandedHeight: isDeviceInPortrait(context)
           ? MediaQuery.of(context).size.height * 0.35
           : MediaQuery.of(context).size.height * 0.6,
       pinned: true,
-      backgroundColor: Colors.white,
-      surfaceTintColor: Colors.white,
-      foregroundColor: Colors.black,
+      backgroundColor: colorScheme.surface,
+      surfaceTintColor: colorScheme.surface,
+      foregroundColor: colorScheme.onSurface,
       elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios),
@@ -75,7 +72,9 @@ class CustomSliverAppBar extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyles.bold16.copyWith(
                             fontSize: isCollapsed ? 16 : 20,
-                            color: isCollapsed ? Colors.black : Colors.white,
+                            color: isCollapsed
+                                ? colorScheme.onSurface
+                                : Colors.white,
                           ),
                         )
                       : Text(
@@ -83,7 +82,9 @@ class CustomSliverAppBar extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyles.bold16.copyWith(
                             fontSize: isCollapsed ? 16 : 20,
-                            color: isCollapsed ? Colors.black : Colors.white,
+                            color: isCollapsed
+                                ? colorScheme.onSurface
+                                : Colors.white,
                           ),
                         ),
                 ),

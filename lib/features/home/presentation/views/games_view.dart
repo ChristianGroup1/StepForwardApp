@@ -12,14 +12,19 @@ class GamesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => GamesCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>())..getGames()..getUserApprovedDataIfNotApproved(),
+      create: (context) =>
+          GamesCubit(getIt.get<HomeRepo>(), getIt.get<AuthRepo>())
+            ..getGames()
+            ..getUserApprovedDataIfNotApproved(),
       child: Builder(
         builder: (context) {
           return RefreshIndicator(
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            color: Theme.of(context).colorScheme.primary,
             onRefresh: () => context.read<GamesCubit>().getGames(),
-            child: const GamesViewBody());
-        }
+            child: const GamesViewBody(),
+          );
+        },
       ),
     );
   }

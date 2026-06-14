@@ -18,7 +18,9 @@ class AskingForUserIdWidget extends StatelessWidget {
             Icon(Icons.perm_identity, size: 80, color: Colors.grey.shade400),
             const SizedBox(height: 16),
             Text(
-              isEn ? 'Your ID has not been added' : 'لم يتم إضافة الهوية الخاصة بك',
+              isEn
+                  ? 'Your ID has not been added'
+                  : 'لم يتم إضافة الهوية الخاصة بك',
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -31,7 +33,10 @@ class AskingForUserIdWidget extends StatelessWidget {
               isEn
                   ? 'Please upload a photo of your front and back ID to access all features.'
                   : 'الرجاء رفع صورة الهوية الأمامية والخلفية حتى تتمكن من استخدام جميع الميزات.',
-              style: const TextStyle(fontSize: 16, color: Colors.black54),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),

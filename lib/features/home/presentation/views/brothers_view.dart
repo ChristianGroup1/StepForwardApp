@@ -24,7 +24,8 @@ class BrothersView extends StatelessWidget {
       child: Builder(
         builder: (context) {
           return RefreshIndicator(
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            color: Theme.of(context).colorScheme.primary,
             onRefresh: () {
               return Future.wait([
                 context.read<BrothersCubit>().getBrothers(),

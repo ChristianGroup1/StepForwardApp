@@ -58,6 +58,11 @@ class CustomTextFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEn = context.isEn;
+    final theme = Theme.of(context);
+    final inputFillColor = theme.inputDecorationTheme.fillColor;
+    final borderColor = theme.brightness == Brightness.dark
+        ? Colors.white.withValues(alpha: 0.14)
+        : const Color(0xffE6E9E9);
     return TextFormField(
       enabled: isEnabled,
       onFieldSubmitted: onFieldSubmitted,
@@ -68,15 +73,15 @@ class CustomTextFormField extends StatelessWidget {
       textAlign: textAlign ?? TextAlign.start,
       obscureText: isObscured ?? false,
       onChanged: onChanged,
-      style: style,
+      style: style ?? TextStyle(color: theme.colorScheme.onSurface),
       validator: needsValidation
           ? validator ??
-              (value) {
-                if (value == null || value.isEmpty) {
-                  return isEn ? 'This field is required' : 'هذا الحقل مطلوب';
+                (value) {
+                  if (value == null || value.isEmpty) {
+                    return isEn ? 'This field is required' : 'هذا الحقل مطلوب';
+                  }
+                  return null;
                 }
-                return null;
-              }
           : null,
       keyboardType: textInputType ?? TextInputType.emailAddress,
       decoration: InputDecoration(
@@ -88,12 +93,13 @@ class CustomTextFormField extends StatelessWidget {
         suffixIcon: suffixIcon,
         suffixIconColor: const Color(0xff949D9E),
         hintText: hintText,
-        hintStyle: hintStyle ??
+        hintStyle:
+            hintStyle ??
             TextStyles.bold13.copyWith(color: const Color(0xff949D9E)),
         filled: true,
-        fillColor: fillColor ?? const Color(0xffF9FAFA),
-        border: border ?? buildBorder(),
-        enabledBorder: border ?? buildBorder(),
+        fillColor: fillColor ?? inputFillColor,
+        border: border ?? buildBorder(color: borderColor),
+        enabledBorder: border ?? buildBorder(color: borderColor),
         focusedBorder: border ?? buildBorder(color: AppColors.primaryColor),
       ),
     );

@@ -34,15 +34,20 @@ class GamesSectionHomeView extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 isEn ? 'Games' : 'العاب',
-                style: TextStyles.bold16.copyWith(color: AppColors.primaryColor),
+                style: TextStyles.bold16.copyWith(
+                  color: AppColors.primaryColor,
+                ),
               ),
               const Spacer(),
               GestureDetector(
                 onTap: () => onNavigateToGamesView(),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryColor.withOpacity(0.08),
+                    color: AppColors.primaryColor.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -78,12 +83,18 @@ class GamesSectionHomeView extends StatelessWidget {
                         final blurImageUrl = state.games[5].coverUrl;
                         return GestureDetector(
                           onTap: onNavigateToGamesView,
-                          child: CustomShowMoreBlurredItem(blurImageUrl: blurImageUrl),
+                          child: CustomShowMoreBlurredItem(
+                            blurImageUrl: blurImageUrl,
+                          ),
                         );
                       }
                       final game = games[index];
                       return Padding(
-                        padding: const EdgeInsets.only(right: 12, left: 12, top: 16),
+                        padding: const EdgeInsets.only(
+                          right: 12,
+                          left: 12,
+                          top: 16,
+                        ),
                         child: GestureDetector(
                           onTap: () => context.pushNamed(
                             Routes.gameDetails,

@@ -23,14 +23,19 @@ class CustomGovernorateTagItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         alignment: Alignment.center,
-        decoration: customBoxDecoration(mainColor: Colors.transparent, radius: 32),
+        decoration: customBoxDecoration(
+          mainColor: Colors.transparent,
+          radius: 32,
+        ),
         child: Row(
           children: [
             const Icon(Icons.location_on, color: AppColors.primaryColor),
             horizontalSpace(4),
             Text(
               '${isEn ? "Governorate" : "المحافظة"}: $governorate',
-              style: TextStyles.bold13.copyWith(color: Colors.black),
+              style: TextStyles.bold13.copyWith(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
           ],
         ),

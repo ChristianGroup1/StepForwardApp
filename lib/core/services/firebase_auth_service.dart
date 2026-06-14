@@ -4,12 +4,19 @@ import 'package:stepforward/core/errors/custom_exceptions.dart';
 import 'package:stepforward/core/utils/app_locale.dart';
 
 class FirebaseAuthService {
-  Future<User> createUserWithEmailAndPassword(
-      {required String email, required String password}) async {
+  Future<User> createUserWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
     try {
       final credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
-      await credential.user?.sendEmailVerification();
+      try {
+        await credential.user?.sendEmailVerification();
+      } on FirebaseAuthException {
+        // Account creation should not fail if the verification email cannot be
+        // sent immediately. The app can request another verification email later.
+      }
       return credential.user!;
     } on FirebaseAuthException catch (e) {
       throw CustomException(message: mapException(e, isEn: AppLocale.isEn));
@@ -22,11 +29,15 @@ class FirebaseAuthService {
     }
   }
 
-  Future<User> signInWithEmailAndPassword(
-      {required String email, required String password}) async {
+  Future<User> signInWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
     try {
-      final credential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
       return credential.user!;
     } on FirebaseAuthException catch (e) {
       throw CustomException(message: mapException(e, isEn: AppLocale.isEn));
@@ -48,8 +59,9 @@ class FirebaseAuthService {
         accessToken: googleAuth?.accessToken,
         idToken: googleAuth?.idToken,
       );
-      return (await FirebaseAuth.instance.signInWithCredential(credential))
-          .user!;
+      return (await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      )).user!;
     } on FirebaseAuthException catch (e) {
       throw CustomException(message: mapException(e, isEn: AppLocale.isEn));
     } catch (e) {

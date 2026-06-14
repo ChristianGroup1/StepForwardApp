@@ -15,4 +15,8 @@ class BookModel {
     id: json['id'] ?? '',
     coverUrl: json['coverUrl'] ?? '',
   );
+
+  Map<String, dynamic> toJson() {
+    return {'name': name, 'url': url, 'id': id, 'coverUrl': coverUrl};
+  }
 }

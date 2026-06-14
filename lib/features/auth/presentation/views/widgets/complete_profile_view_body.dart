@@ -23,6 +23,7 @@ class CompleteUserProfileViewBody extends StatelessWidget {
     final cubit = context.read<SignUpCubit>();
     return BlocConsumer<SignUpCubit, SignUpState>(
       listener: (context, state) {
+        final isEn = context.isEn;
         if (state is SignUpSuccessState) {
           context.pushNamedAndRemoveUntil(
             Routes.mainView,
@@ -33,8 +34,8 @@ class CompleteUserProfileViewBody extends StatelessWidget {
           customQuickAlertView(
             context,
             text: state.errorMessage,
-            title: 'حدث خطأ',
-            confirmBtnText: 'حسنا',
+            title: isEn ? 'An Error Occurred' : 'حدث خطأ',
+            confirmBtnText: isEn ? 'OK' : 'حسنا',
             type: QuickAlertType.error,
             onConfirmBtnTap: () {
               context.pop();
@@ -62,7 +63,10 @@ class CompleteUserProfileViewBody extends StatelessWidget {
                       Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.close, color: Colors.black),
+                            icon: Icon(
+                              Icons.close,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                             onPressed: () async {
                               await cubit.deleteUserData(user!.id);
                               if (context.mounted) {
@@ -73,7 +77,10 @@ class CompleteUserProfileViewBody extends StatelessWidget {
                               }
                             },
                           ),
-                          Text(context.isEn ? 'Account Details' : 'بيانات الحساب', style: TextStyles.bold23),
+                          Text(
+                            context.isEn ? 'Account Details' : 'بيانات الحساب',
+                            style: TextStyles.bold23,
+                          ),
                         ],
                       ),
                       verticalSpace(16),

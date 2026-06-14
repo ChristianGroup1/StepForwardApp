@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -17,6 +16,7 @@ class LoginMethodItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -24,28 +24,28 @@ class LoginMethodItem extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 15.h),
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withValues(
+                alpha: theme.brightness == Brightness.dark ? 0.24 : 0.06,
+              ),
               blurRadius: 12,
               offset: const Offset(0, 3),
             ),
           ],
           border: Border.all(
-            color: const Color(0xffEEEEEE),
+            color: theme.brightness == Brightness.dark
+                ? Colors.white.withValues(alpha: 0.12)
+                : const Color(0xffEEEEEE),
           ),
         ),
         child: Row(
           children: [
             SvgPicture.asset(image),
             const Spacer(),
-            Text(
-              text,
-              textAlign: TextAlign.center,
-              style: TextStyles.bold13,
-            ),
+            Text(text, textAlign: TextAlign.center, style: TextStyles.bold13),
             const Spacer(),
           ],
         ),

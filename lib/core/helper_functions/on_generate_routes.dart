@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:stepforward/core/helper_functions/cache_helper.dart';
+import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
 import 'package:stepforward/core/services/analytics_service.dart';
-import 'package:stepforward/core/services/firebase_auth_service.dart';
-import 'package:stepforward/core/utils/chache_helper_keys.dart';
 import 'package:stepforward/features/auth/data/models/user_model.dart';
 import 'package:stepforward/features/auth/presentation/views/complete_user_profile_view.dart';
 import 'package:stepforward/features/auth/presentation/views/forget_password_view.dart';
@@ -108,9 +106,7 @@ Route onGenerateRoutes(RouteSettings settings) {
       );
 
     default:
-      var isLoggedIn =
-          FirebaseAuthService().isLoggedIn() ||
-          CacheHelper.getData(key: kSaveUserDataKey) != null;
+      var isLoggedIn = hasCachedUserData();
       return PageTransition(
         duration: const Duration(milliseconds: 50),
         child: isLoggedIn ? const MainView() : const LoginView(),

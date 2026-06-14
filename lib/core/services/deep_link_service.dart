@@ -1,11 +1,8 @@
 import 'dart:async';
 import 'package:app_links/app_links.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:stepforward/core/helper_functions/cache_helper.dart';
+import 'package:stepforward/core/helper_functions/get_user_data.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
-import 'package:stepforward/core/services/firebase_auth_service.dart';
-import 'package:stepforward/core/utils/chache_helper_keys.dart';
 import 'package:stepforward/core/utils/constants.dart';
 
 /// Handles incoming deep links with the scheme `stepforward://game/{gameId}`.
@@ -54,10 +51,7 @@ class DeepLinkService {
       // mainView is already the current route when this is called from
       // MainView.initState, so a simple pushNamed is sufficient and keeps
       // mainView in the stack so the back button works correctly.
-      Navigator.of(context).pushNamed(
-        Routes.gameDetailsById,
-        arguments: id,
-      );
+      Navigator.of(context).pushNamed(Routes.gameDetailsById, arguments: id);
     }
   }
 
@@ -76,7 +70,7 @@ class DeepLinkService {
       gameId = segments.first;
     } else if ((uri.scheme == 'https' || uri.scheme == 'http') &&
         uri.host == Uri.parse(kFirebaseHostingBaseUrl).host) {
-      // App Link / Universal Link: https://www.elshaddaiteam.com/game/{gameId}
+      // App Link / Universal Link: https://stepforwardteam.com/game/{gameId}
       final segments = uri.pathSegments;
       if (segments.length < 2 || segments[0] != 'game') return;
       gameId = segments[1];
@@ -84,7 +78,7 @@ class DeepLinkService {
       return;
     }
 
-    if (gameId == null || gameId.isEmpty) return;
+    if (gameId.isEmpty) return;
 
     debugPrint('DeepLinkService: received link for game $gameId');
     _navigateToGame(gameId);
@@ -129,7 +123,6 @@ class DeepLinkService {
   /// previous session.  Checking the cache as a fallback prevents a
   /// spurious redirect to LoginView during cold-start deep-link handling.
   static bool _isUserAuthenticated() {
-    return FirebaseAuthService().isLoggedIn() ||
-        CacheHelper.getData(key: kSaveUserDataKey) != null;
+    return hasCachedUserData();
   }
 }

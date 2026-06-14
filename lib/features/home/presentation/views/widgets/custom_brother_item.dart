@@ -86,7 +86,7 @@ class _CustomBrotherItemState extends State<CustomBrotherItem> {
               : brother.tags.join(' - ');
           final displayMinistries = isEn
               ? (_translatedMinistries ??
-                  (brother.preferredMinistries ?? []).join(' - '))
+                    (brother.preferredMinistries ?? []).join(' - '))
               : (brother.preferredMinistries ?? []).join(' - ');
           final displayDenomination = isEn
               ? (_translatedDenomination ?? (brother.denomination ?? ''))
@@ -95,7 +95,7 @@ class _CustomBrotherItemState extends State<CustomBrotherItem> {
           return Container(
             margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4),
             padding: const EdgeInsets.all(8.0),
-            decoration: customCardDecoration(),
+            decoration: customCardDecoration(context: context),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,

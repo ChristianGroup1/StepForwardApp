@@ -7,7 +7,7 @@ part 'sign_up_state.dart';
 
 class SignUpCubit extends Cubit<SignUpState> {
   final AuthRepo authRepo;
-  SignUpCubit(this.authRepo, ) : super(SignUpInitialState());
+  SignUpCubit(this.authRepo) : super(SignUpInitialState());
   final TextEditingController emailController = TextEditingController();
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController churchNameController = TextEditingController();
@@ -18,7 +18,7 @@ class SignUpCubit extends Cubit<SignUpState> {
   final TextEditingController backIdController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  
+
   Icon suffixIcon = const Icon(Icons.visibility);
   bool isObscured = true;
   void changePasswordVisibility() {
@@ -32,13 +32,13 @@ class SignUpCubit extends Cubit<SignUpState> {
   Future<void> signUp() async {
     emit(SignUpLoadingState());
     final result = await authRepo.signUp(
-      email: emailController.text,
+      email: emailController.text.trim(),
       password: passwordController.text,
-      firstName: firstNameController.text,
-      lastName: secondNameController.text,
-      phone: phoneNumberController.text,
-      churchName: churchNameController.text,
-      government: governmentController.text,
+      firstName: firstNameController.text.trim(),
+      lastName: secondNameController.text.trim(),
+      phone: phoneNumberController.text.trim(),
+      churchName: churchNameController.text.trim(),
+      government: governmentController.text.trim(),
     );
     result.fold(
       (failure) {
@@ -52,7 +52,6 @@ class SignUpCubit extends Cubit<SignUpState> {
 
   Future<void> deleteUserData(String uId) async {
     await authRepo.deleteUserData(uId);
-    
   }
 
   Future<void> completeGoogleSignUp({required String userId}) async {
@@ -60,7 +59,6 @@ class SignUpCubit extends Cubit<SignUpState> {
 
     try {
       // Upload front ID
-   
 
       // Create completed user model
       final userModel = UserModel(
@@ -71,7 +69,7 @@ class SignUpCubit extends Cubit<SignUpState> {
         phoneNumber: phoneNumberController.text,
         churchName: churchNameController.text,
         government: governmentController.text,
-        
+
         isApproved: false,
         favorites: [],
       );

@@ -17,10 +17,14 @@ class CustomDropDownButtonFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEn = context.isEn;
+    final theme = Theme.of(context);
+    final borderColor = theme.brightness == Brightness.dark
+        ? Colors.white.withValues(alpha: 0.14)
+        : const Color(0xffE6E9E9);
     final String? selectedValue =
         (items != null && items!.any((item) => item.value == value))
-            ? value
-            : null;
+        ? value
+        : null;
     return DropdownButtonFormField<String>(
       hint: Text(
         isEn ? 'Governorate' : 'المحافظة',
@@ -31,10 +35,10 @@ class CustomDropDownButtonFormField extends StatelessWidget {
         labelStyle: TextStyles.bold16.copyWith(color: const Color(0xff949D9E)),
         hintStyle: TextStyles.bold13.copyWith(color: const Color(0xff949D9E)),
         filled: true,
-        fillColor: const Color(0xffF9FAFA),
-        border: _buildBorder(),
-        enabledBorder: _buildBorder(),
-        focusedBorder: _buildBorder(),
+        fillColor: theme.inputDecorationTheme.fillColor,
+        border: _buildBorder(color: borderColor),
+        enabledBorder: _buildBorder(color: borderColor),
+        focusedBorder: _buildBorder(color: theme.colorScheme.primary),
       ),
       items: items,
       onChanged: onChanged,
@@ -47,10 +51,10 @@ class CustomDropDownButtonFormField extends StatelessWidget {
     );
   }
 
-  OutlineInputBorder _buildBorder() {
+  OutlineInputBorder _buildBorder({Color? color}) {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(4.0),
-      borderSide: const BorderSide(color: Color(0xffE6E9E9)),
+      borderSide: BorderSide(color: color ?? const Color(0xffE6E9E9)),
     );
   }
 }

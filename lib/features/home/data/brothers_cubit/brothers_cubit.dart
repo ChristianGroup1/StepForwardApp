@@ -68,8 +68,13 @@ class BrothersCubit extends Cubit<BrothersState> {
 
   void checkAndToastIfNotVerified() async {
     if (!isEmailVerified) {
-      final user = FirebaseAuth.instance.currentUser;
-      await user?.reload();
+      try {
+        final user = FirebaseAuth.instance.currentUser;
+        await user?.reload();
+      } catch (e) {
+        debugPrint('Failed to refresh email verification state: $e');
+      }
+
       final updatedUser = FirebaseAuth.instance.currentUser;
 
       isEmailVerified = updatedUser?.emailVerified ?? false;
@@ -105,6 +110,7 @@ class BrothersCubit extends Cubit<BrothersState> {
           await authRepo.saveUserData(userModel: freshUser);
         }
       } catch (e) {
+        debugPrint('Failed to refresh approval data: $e');
       }
     }
   }
@@ -122,43 +128,43 @@ class BrothersCubit extends Cubit<BrothersState> {
   }
 
   Future<void> addUserIds() async {
-  if (frontId == null || backId == null) {
-    emit(AddUserIdsFailureState(errorMessage: "برجاء رفع صور الوجه والظهر"));
-    return;
+    if (frontId == null || backId == null) {
+      emit(AddUserIdsFailureState(errorMessage: "برجاء رفع صور الوجه والظهر"));
+      return;
+    }
+
+    emit(AddUserIdsLoadingState());
+
+    final frontUploadResult = await imagesRepo.uploadImage(image: frontId!);
+    await frontUploadResult.fold(
+      (failure) async {
+        emit(AddUserIdsFailureState(errorMessage: failure.message));
+      },
+      (uploadedFrontId) async {
+        frontIdController.text = uploadedFrontId;
+
+        final backUploadResult = await imagesRepo.uploadImage(image: backId!);
+        await backUploadResult.fold(
+          (failure) async {
+            emit(AddUserIdsFailureState(errorMessage: failure.message));
+          },
+          (uploadedBackId) async {
+            backIdController.text = uploadedBackId;
+
+            final addUserIdResult = await authRepo.addUserIds(
+              uId: getUserData().id,
+              frontId: uploadedFrontId,
+              backId: uploadedBackId,
+            );
+
+            addUserIdResult.fold(
+              (failure) =>
+                  emit(AddUserIdsFailureState(errorMessage: failure.message)),
+              (_) => emit(AddUserIdsSuccessState()),
+            );
+          },
+        );
+      },
+    );
   }
-
-  emit(AddUserIdsLoadingState());
-
-  final frontUploadResult = await imagesRepo.uploadImage(image: frontId!);
-  await frontUploadResult.fold(
-    (failure) async {
-      emit(AddUserIdsFailureState(errorMessage: failure.message));
-    },
-    (uploadedFrontId) async {
-      frontIdController.text = uploadedFrontId;
-
-      final backUploadResult = await imagesRepo.uploadImage(image: backId!);
-      await backUploadResult.fold(
-        (failure) async {
-          emit(AddUserIdsFailureState(errorMessage: failure.message));
-        },
-        (uploadedBackId) async {
-          backIdController.text = uploadedBackId;
-
-          final addUserIdResult = await authRepo.addUserIds(
-            uId: getUserData().id ,
-            frontId: uploadedFrontId,
-            backId: uploadedBackId,
-          );
-
-          addUserIdResult.fold(
-            (failure) => emit(AddUserIdsFailureState(errorMessage: failure.message)),
-            (_) => emit(AddUserIdsSuccessState()),
-          );
-        },
-      );
-    },
-  );
-}
-
 }

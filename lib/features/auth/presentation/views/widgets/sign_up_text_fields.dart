@@ -65,6 +65,16 @@ class _SignUpTextFieldsState extends State<SignUpTextFields> {
           onChanged: (value) {
             widget.cubit.emailController.text = value;
           },
+          validator: (value) {
+            final email = value?.trim() ?? '';
+            if (email.isEmpty) {
+              return isEn ? 'This field is required' : 'هذا الحقل مطلوب';
+            }
+            if (!AppRegex.isEmailValid(email)) {
+              return isEn ? 'Invalid email address' : 'البريد غير صالح';
+            }
+            return null;
+          },
         ),
         verticalSpace(24),
         CustomDropDownButtonFormField(
@@ -113,8 +123,8 @@ class _SignUpTextFieldsState extends State<SignUpTextFields> {
               return isEn ? 'This field is required' : 'هذا الحقل مطلوب';
             } else if (!AppRegex.isPasswordValid(value)) {
               return isEn
-                  ? 'Password must be at least 8 characters,\nincluding uppercase, lowercase\nand a symbol like @ or !'
-                  : 'كلمة المرور يجب أن لا تقل عن 8 حروف وارقام،\n وتشمل حرف كبير، حرف صغير\n ورمز مثل @ أو !';
+                  ? 'Password must be at least 8 characters,\nincluding uppercase, lowercase,\na number and a symbol like @ or !'
+                  : 'كلمة المرور يجب أن لا تقل عن 8 حروف،\nوتشمل حرف كبير، حرف صغير،\nرقم ورمز مثل @ أو !';
             }
             return null;
           },

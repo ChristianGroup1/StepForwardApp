@@ -39,23 +39,23 @@ class AuthRepoImpl extends AuthRepo {
       );
       var userModel = UserModel(
         id: user.uid,
-        email: email,
-        firstName: firstName,
-        lastName: lastName,
-        phoneNumber: phone,
-        churchName: churchName,
-        government: government,
+        email: email.trim(),
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        phoneNumber: phone.trim(),
+        churchName: churchName.trim(),
+        government: government.trim(),
+        favorites: const [],
       );
 
       await addUserData(userModel: userModel);
-      await getUserData(id: user.uid);
       await saveUserData(userModel: userModel);
       return Right(userModel);
-    } on FirebaseAuthException catch (e) {
+    } on CustomException catch (e) {
       if (user != null) {
         await firebaseAuthService.deleteUser();
       }
-      return left(CustomFailure(message: mapException(e, isEn: AppLocale.isEn)));
+      return left(CustomFailure(message: e.message));
     } catch (e) {
       if (user != null) {
         await firebaseAuthService.deleteUser();
@@ -106,7 +106,13 @@ class AuthRepoImpl extends AuthRepo {
       return Left(CustomFailure(message: e.toString()));
     } catch (e) {
       if (user != null) await firebaseAuthService.deleteUser();
-      return Left(CustomFailure(message: AppLocale.isEn ? 'Something went wrong, please try again' : 'حدث خطأ ما، حاول مرة اخرى'));
+      return Left(
+        CustomFailure(
+          message: AppLocale.isEn
+              ? 'Something went wrong, please try again'
+              : 'حدث خطأ ما، حاول مرة اخرى',
+        ),
+      );
     }
   }
 
@@ -331,7 +337,7 @@ class AuthRepoImpl extends AuthRepo {
         data: {'frontId': frontId, 'backId': backId},
       );
       var data = await getUserData(id: uId);
-       await saveUserData(userModel: data);
+      await saveUserData(userModel: data);
 
       return const Right(null);
     } on CustomException catch (e) {

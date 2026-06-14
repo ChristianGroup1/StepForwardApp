@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
@@ -13,7 +12,7 @@ void showAboutUsDialog(BuildContext context) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(isEn ? 'About Us' : 'من نحن', style: TextStyles.bold23),
         content: SingleChildScrollView(
           child: Column(
@@ -103,12 +102,17 @@ Widget _contactRow() => Column(
         IconButton(
           constraints: const BoxConstraints(),
           onPressed: () async {
-            final Uri url = Uri.parse('https://www.facebook.com/ElShaddaiSportTeam');
+            final Uri url = Uri.parse(
+              'https://www.facebook.com/ElShaddaiSportTeam',
+            );
             if (await canLaunchUrl(url)) {
               await launchUrl(url, mode: LaunchMode.externalApplication);
             }
           },
-          icon: const FaIcon(FontAwesomeIcons.facebook, color: AppColors.primaryColor),
+          icon: const FaIcon(
+            FontAwesomeIcons.facebook,
+            color: AppColors.primaryColor,
+          ),
         ),
         IconButton(
           constraints: const BoxConstraints(),
@@ -118,7 +122,10 @@ Widget _contactRow() => Column(
               await launchUrl(url, mode: LaunchMode.externalApplication);
             }
           },
-          icon: const FaIcon(FontAwesomeIcons.whatsapp, color: AppColors.primaryColor),
+          icon: const FaIcon(
+            FontAwesomeIcons.whatsapp,
+            color: AppColors.primaryColor,
+          ),
         ),
       ],
     ),
@@ -135,27 +142,40 @@ Widget _contactRow() => Column(
               await launchUrl(url, mode: LaunchMode.externalApplication);
             }
           },
-          icon: const FaIcon(FontAwesomeIcons.github, color: AppColors.primaryColor),
+          icon: const FaIcon(
+            FontAwesomeIcons.github,
+            color: AppColors.primaryColor,
+          ),
         ),
         IconButton(
           constraints: const BoxConstraints(),
           onPressed: () async {
-            final Uri url = Uri.parse('https://www.linkedin.com/in/john-amir-135587240/');
+            final Uri url = Uri.parse(
+              'https://www.linkedin.com/in/john-amir-135587240/',
+            );
             if (await canLaunchUrl(url)) {
               await launchUrl(url, mode: LaunchMode.externalApplication);
             }
           },
-          icon: const FaIcon(FontAwesomeIcons.linkedin, color: AppColors.primaryColor),
+          icon: const FaIcon(
+            FontAwesomeIcons.linkedin,
+            color: AppColors.primaryColor,
+          ),
         ),
         IconButton(
           constraints: const BoxConstraints(),
           onPressed: () async {
-            final Uri url = Uri.parse('https://www.facebook.com/john.amir.1804');
+            final Uri url = Uri.parse(
+              'https://www.facebook.com/john.amir.1804',
+            );
             if (await canLaunchUrl(url)) {
               await launchUrl(url, mode: LaunchMode.externalApplication);
             }
           },
-          icon: const FaIcon(FontAwesomeIcons.facebook, color: AppColors.primaryColor),
+          icon: const FaIcon(
+            FontAwesomeIcons.facebook,
+            color: AppColors.primaryColor,
+          ),
         ),
       ],
     ),
@@ -175,6 +195,10 @@ Widget _sectionTitle(String title) {
 Widget _sectionContent(String content) {
   return Padding(
     padding: const EdgeInsets.only(bottom: 8.0),
-    child: Text(content, style: TextStyles.semiBold13, textAlign: TextAlign.justify),
+    child: Text(
+      content,
+      style: TextStyles.semiBold13,
+      textAlign: TextAlign.justify,
+    ),
   );
 }

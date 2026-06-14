@@ -16,6 +16,7 @@ class GamesCubit extends Cubit<GamesState> {
 
   List<GameModel> allGames = [];
   List<String> selectedTags = [];
+  String? selectedTarget;
   List<BrothersModel> allBrothers = [];
 
   final TextEditingController searchController = TextEditingController();
@@ -28,15 +29,6 @@ class GamesCubit extends Cubit<GamesState> {
 
     // Step 1: Load favorites
     final favoritesResult = await homeRepo.getUserFavoritesIDs();
-    if (favoritesResult.isLeft()) {
-      emit(
-        GetGameFailureState(
-          errorMessage: favoritesResult.fold((l) => l.message, (r) => ''),
-        ),
-      );
-      return;
-    }
-
     final favorites = favoritesResult.getOrElse(() => []);
     userFavoritesService.userFavoritesNotifier.value = favorites;
 
@@ -45,7 +37,7 @@ class GamesCubit extends Cubit<GamesState> {
     result.fold(
       (failure) => emit(GetGameFailureState(errorMessage: failure.message)),
       (games) {
-        allGames = games;
+        allGames = _sortNewestFirst(games);
         emit(GetGamesSuccessState(games: _filteredGames()));
       },
     );
@@ -89,17 +81,19 @@ class GamesCubit extends Cubit<GamesState> {
     );
   }
 
-  // Search games
-  Future<void> searchGames() async {
-    emit(GetGamesLoadingState());
-    final result = await homeRepo.searchGames(searchController.text);
-    result.fold(
-      (failure) => emit(GetGameFailureState(errorMessage: failure.message)),
-      (games) {
-        allGames = games;
-        emit(GetGamesSuccessState(games: _filteredGames()));
-      },
-    );
+  // Search games locally by target without changing Firestore data.
+  void searchGames() {
+    emit(GetGamesSuccessState(games: _filteredGames()));
+  }
+
+  List<String> get availableTargets {
+    final targets = allGames
+        .expand((game) => game.filterTargets)
+        .where((target) => target.isNotEmpty)
+        .toSet()
+        .toList();
+    targets.sort();
+    return targets;
   }
 
   // Refresh user data if not approved
@@ -112,9 +106,8 @@ class GamesCubit extends Cubit<GamesState> {
         if (freshUser.isApproved) {
           await authRepo.saveUserData(userModel: freshUser);
         }
-       
       } catch (e) {
-        
+        debugPrint('Failed to refresh approval data: $e');
       }
     }
   }
@@ -130,11 +123,63 @@ class GamesCubit extends Cubit<GamesState> {
     emit(GetGamesSuccessState(games: _filteredGames()));
   }
 
+  void selectTarget(String target) {
+    selectedTarget = selectedTarget == target ? null : target;
+    emit(GetGamesSuccessState(games: _filteredGames()));
+  }
+
+  void clearFilters() {
+    selectedTags.clear();
+    selectedTarget = null;
+    searchController.clear();
+    emit(GetGamesSuccessState(games: _filteredGames()));
+  }
+
   List<GameModel> _filteredGames() {
-    if (selectedTags.isEmpty) return allGames;
+    final normalizedSearch = _normalize(searchController.text);
+    final normalizedSelectedTarget = _normalize(selectedTarget ?? '');
+
     return allGames.where((game) {
-      return game.tags.any((tag) => selectedTags.contains(tag));
+      final normalizedGoalTags = game.filterTargets.map(_normalize).toList();
+      final matchesTags =
+          selectedTags.isEmpty ||
+          game.tags.any((tag) => selectedTags.contains(tag));
+      final matchesSelectedTarget =
+          normalizedSelectedTarget.isEmpty ||
+          normalizedGoalTags.contains(normalizedSelectedTarget);
+      final matchesTarget =
+          normalizedSearch.isEmpty ||
+          normalizedGoalTags.any((tag) => tag.contains(normalizedSearch));
+
+      return matchesTags && matchesSelectedTarget && matchesTarget;
     }).toList();
+  }
+
+  bool isNewestGame(GameModel game) {
+    if (allGames.isEmpty) return false;
+
+    final newestDate = allGames.first.createdAt;
+    if (newestDate == null) return game.id == allGames.first.id;
+
+    return game.createdAt != null &&
+        game.createdAt!.isAtSameMomentAs(newestDate);
+  }
+
+  List<GameModel> _sortNewestFirst(List<GameModel> games) {
+    return List<GameModel>.from(games)..sort((a, b) {
+      final aDate = a.createdAt;
+      final bDate = b.createdAt;
+
+      if (aDate == null && bDate == null) return 0;
+      if (aDate == null) return 1;
+      if (bDate == null) return -1;
+
+      return bDate.compareTo(aDate);
+    });
+  }
+
+  String _normalize(String value) {
+    return value.trim().toLowerCase();
   }
 
   // Fetch games that are marked as favorites

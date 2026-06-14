@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:stepforward/core/cubits/locale_cubit.dart';
+import 'package:stepforward/core/helper_functions/extentions.dart';
+import 'package:stepforward/core/helper_functions/is_device_in_portrait.dart';
+import 'package:stepforward/core/helper_functions/rouutes.dart';
+import 'package:stepforward/core/services/get_it_service.dart';
 import 'package:stepforward/core/services/analytics_service.dart';
+import 'package:stepforward/core/services/game_rating_service.dart';
 import 'package:stepforward/core/services/openai_translation_service.dart';
+import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/spacing.dart';
+import 'package:stepforward/core/widgets/custom_cached_network_image.dart';
 import 'package:stepforward/core/widgets/custom_sliver_app_bar.dart';
 import 'package:stepforward/core/widgets/my_divider.dart';
+import 'package:stepforward/features/home/data/games_cubit/games_cubit.dart';
+import 'package:stepforward/features/home/domain/repos/home_repo.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_hashtag_list.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:stepforward/core/utils/constants.dart';
@@ -39,6 +47,10 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
 
   bool _isTranslating = false;
   bool _translationDone = false;
+  List<GameModel> _similarGames = [];
+  bool _loadedSimilarGames = false;
+  final GameRatingService _ratingService = GameRatingService();
+  int _rating = 0;
 
   @override
   void initState() {
@@ -60,8 +72,79 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
       if (mounted) {
         final locale = context.read<LocaleCubit>().state.languageCode;
         if (locale == 'en') _translateContent();
+        _loadRating();
+        _loadSimilarGames();
       }
     });
+  }
+
+  void _loadRating() {
+    setState(() => _rating = _ratingService.getRating(widget.game.id));
+  }
+
+  Future<void> _rateGame(int rating) async {
+    await _ratingService.saveRating(gameId: widget.game.id, rating: rating);
+
+    AnalyticsService.logEvent(
+      name: 'rate_game',
+      parameters: {
+        'game_id': widget.game.id,
+        'game_name': widget.game.name,
+        'rating': rating,
+      },
+    );
+
+    if (mounted) {
+      setState(() => _rating = rating);
+    }
+  }
+
+  Future<void> _loadSimilarGames() async {
+    if (_loadedSimilarGames) return;
+    _loadedSimilarGames = true;
+
+    List<GameModel> games = [];
+
+    try {
+      final gamesCubit = context.read<GamesCubit>();
+      games = gamesCubit.allGames;
+    } catch (_) {
+      final result = await getIt.get<HomeRepo>().getGames();
+      games = result.getOrElse(() => []);
+    }
+
+    final similar = _findSimilarGames(games);
+    if (mounted) {
+      setState(() => _similarGames = similar);
+    }
+  }
+
+  List<GameModel> _findSimilarGames(List<GameModel> games) {
+    final current = widget.game;
+    final currentTargets = current.filterTargets.map(_normalize).toSet();
+    final currentTags = current.tags.map(_normalize).toSet();
+
+    final scoredGames =
+        games
+            .where((game) => game.id != current.id)
+            .map((game) {
+              var score = 0;
+              final sharedTargets = game.filterTargets
+                  .map(_normalize)
+                  .where((target) => currentTargets.contains(target))
+                  .length;
+              score += sharedTargets * 3;
+              score += game.tags
+                  .map(_normalize)
+                  .where((tag) => currentTags.contains(tag))
+                  .length;
+              return MapEntry(game, score);
+            })
+            .where((entry) => entry.value > 0)
+            .toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+
+    return scoredGames.map((entry) => entry.key).take(5).toList();
   }
 
   void _initializeVideo() {
@@ -118,7 +201,7 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
       'explanation': game.explanation,
       'tools': game.tools,
       'laws': game.laws,
-      'target': game.target,
+      'target': game.goalTag,
     });
 
     final translatedTagsList = await Future.wait(
@@ -143,7 +226,7 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
   ///
   /// Using an HTTPS URL ensures the link is recognised as a hyperlink in
   /// messaging apps (WhatsApp, SMS, etc.) and is directly tappable.
-  /// The Firebase Hosting page at this URL attempts to open the app via the
+  /// The website page at this URL attempts to open the app via the
   /// custom scheme `stepforward://game/{id}`, falling back to Google Play if
   /// the app is not installed.
   String get _deepLink => '$kFirebaseHostingBaseUrl/game/${widget.game.id}';
@@ -152,22 +235,73 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
   Future<void> _shareGame(bool isEn) async {
     AnalyticsService.logEvent(
       name: 'share_game',
-      parameters: {
-        'game_id': widget.game.id,
-        'game_name': widget.game.name,
-      },
+      parameters: {'game_id': widget.game.id, 'game_name': widget.game.name},
     );
 
     final gameName = isEn
         ? (_translatedName ?? widget.game.name)
         : widget.game.name;
+    final tools = _plainText(
+      isEn ? (_translatedTools ?? widget.game.tools) : widget.game.tools,
+    );
+    final tags =
+        (isEn ? (_translatedTags ?? widget.game.tags) : widget.game.tags)
+            .where((tag) => tag.trim().isNotEmpty)
+            .join(' - ');
 
     final shareText = isEn
-        ? '🎮 Check out this game on Step Forward!\n\n$gameName\n\n$_deepLink'
-        : '🎮 شاهد هذه اللعبة على تطبيق Step Forward!\n\n$gameName\n\n$_deepLink';
+        ? _buildEnglishShareText(gameName: gameName, tags: tags, tools: tools)
+        : _buildArabicShareText(gameName: gameName, tags: tags, tools: tools);
 
     await Share.share(shareText, subject: gameName);
   }
+
+  String _buildArabicShareText({
+    required String gameName,
+    required String tags,
+    required String tools,
+  }) {
+    return [
+      '🎮 لعبة من Step Forward',
+      '',
+      '📌 الاسم: $gameName',
+      if (tags.isNotEmpty) '👥 السن المناسب: $tags',
+      if (tools.isNotEmpty) '🧰 الأدوات: $tools',
+      '',
+      'افتح اللعبة من هنا:',
+      _deepLink,
+    ].join('\n');
+  }
+
+  String _buildEnglishShareText({
+    required String gameName,
+    required String tags,
+    required String tools,
+  }) {
+    return [
+      '🎮 Step Forward Game',
+      '',
+      '📌 Name: $gameName',
+      if (tags.isNotEmpty) '👥 Suitable age: $tags',
+      if (tools.isNotEmpty) '🧰 Tools: $tools',
+      '',
+      'Open the game here:',
+      _deepLink,
+    ].join('\n');
+  }
+
+  String _plainText(String value) {
+    return value
+        .replaceAll(RegExp(r'<[^>]*>'), ' ')
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('&amp;', '&')
+        .replaceAll('&quot;', '"')
+        .replaceAll('&#39;', "'")
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
+
+  String _normalize(String value) => value.trim().toLowerCase();
 
   @override
   Widget build(BuildContext context) {
@@ -192,9 +326,9 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
           final displayLaws = isEn
               ? (_translatedLaws ?? widget.game.laws)
               : widget.game.laws;
-          final displayTarget = isEn
-              ? (_translatedTarget ?? widget.game.target)
-              : widget.game.target;
+          final displayGoalTag = isEn
+              ? (_translatedTarget ?? widget.game.goalTag)
+              : widget.game.goalTag;
           final displayTags = isEn
               ? (_translatedTags ?? widget.game.tags)
               : widget.game.tags;
@@ -268,7 +402,8 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
                                   ),
                                 ),
                               )
-                            else if (_videoId != null && _videoController != null)
+                            else if (_videoId != null &&
+                                _videoController != null)
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
                                 child: YoutubePlayer(
@@ -321,12 +456,53 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
                             Text(displayLaws, style: TextStyles.regular16),
                             const MyDivider(height: 50),
                           ],
-                          Text(
-                            isEn ? 'Spiritual Goal' : 'الهدف الروحي',
-                            style: TextStyles.bold19,
+                          if (displayGoalTag.trim().isNotEmpty) ...[
+                            Text(
+                              isEn ? 'Goal' : 'الهدف',
+                              style: TextStyles.bold19,
+                            ),
+                            verticalSpace(8),
+                            _GoalTagChip(label: displayGoalTag),
+                            const MyDivider(height: 50),
+                          ],
+                          _GameRatingSection(
+                            rating: _rating,
+                            isEn: isEn,
+                            onRate: _rateGame,
                           ),
-                          verticalSpace(8),
-                          Html(data: displayTarget),
+                          if (_similarGames.isNotEmpty) ...[
+                            const MyDivider(height: 50),
+                            Text(
+                              isEn ? 'Similar Games' : 'ألعاب مشابهة',
+                              style: TextStyles.bold19,
+                            ),
+                            verticalSpace(12),
+                            SizedBox(
+                              height: isDeviceInPortrait(context) ? 150 : 260,
+                              child: ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: _similarGames.length,
+                                separatorBuilder: (_, __) =>
+                                    horizontalSpace(12),
+                                itemBuilder: (context, index) {
+                                  return _SimilarGameItem(
+                                    game: _similarGames[index],
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                          verticalSpace(24),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: () => _shareGame(isEn),
+                              icon: const Icon(Icons.share_outlined),
+                              label: Text(
+                                isEn ? 'Share this game' : 'مشاركة اللعبة',
+                              ),
+                            ),
+                          ),
                           verticalSpace(24),
                         ],
                       ),
@@ -365,6 +541,148 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _SimilarGameItem extends StatelessWidget {
+  const _SimilarGameItem({required this.game});
+
+  final GameModel game;
+
+  @override
+  Widget build(BuildContext context) {
+    final width = isDeviceInPortrait(context)
+        ? MediaQuery.sizeOf(context).width * 0.34
+        : MediaQuery.sizeOf(context).width * 0.18;
+
+    return GestureDetector(
+      onTap: () =>
+          context.pushReplacementNamed(Routes.gameDetails, arguments: game),
+      child: SizedBox(
+        width: width,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CustomCachedNetworkImageWidget(
+              imageUrl: game.coverUrl,
+              borderRadius: 12,
+              height: isDeviceInPortrait(context) ? 96 : 190,
+              width: width,
+              fit: BoxFit.cover,
+            ),
+            verticalSpace(8),
+            Text(
+              game.name,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyles.bold13.copyWith(color: AppColors.primaryColor),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GoalTagChip extends StatelessWidget {
+  const _GoalTagChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.primaryColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: AppColors.primaryColor.withValues(alpha: 0.18),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        child: Text(
+          label,
+          style: TextStyles.semiBold13.copyWith(color: AppColors.primaryColor),
+        ),
+      ),
+    );
+  }
+}
+
+class _GameRatingSection extends StatelessWidget {
+  const _GameRatingSection({
+    required this.rating,
+    required this.isEn,
+    required this.onRate,
+  });
+
+  final int rating;
+  final bool isEn;
+  final ValueChanged<int> onRate;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.primaryColor.withValues(alpha: 0.18),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.star_rounded,
+                color: AppColors.secondaryColor,
+                size: 24,
+              ),
+              horizontalSpace(6),
+              Text(
+                isEn ? 'Rate this game' : 'قيّم اللعبة',
+                style: TextStyles.bold19.copyWith(
+                  color: AppColors.primaryColor,
+                ),
+              ),
+            ],
+          ),
+          verticalSpace(8),
+          Text(
+            rating == 0
+                ? (isEn
+                      ? 'Tap a star to save your rating'
+                      : 'اضغط على النجوم لحفظ تقييمك')
+                : (isEn ? 'Your rating: $rating/5' : 'تقييمك: $rating/5'),
+            style: TextStyles.regular14.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          verticalSpace(10),
+          Row(
+            children: List.generate(5, (index) {
+              final starValue = index + 1;
+              final isSelected = starValue <= rating;
+
+              return IconButton(
+                tooltip: '$starValue/5',
+                onPressed: () => onRate(starValue),
+                icon: Icon(
+                  isSelected ? Icons.star_rounded : Icons.star_border_rounded,
+                  color: AppColors.secondaryColor,
+                  size: 34,
+                ),
+              );
+            }),
+          ),
+        ],
       ),
     );
   }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/is_device_in_portrait.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
@@ -16,12 +15,10 @@ import 'package:stepforward/features/home/presentation/views/widgets/game_hashta
 
 class CustomGameItem extends StatelessWidget {
   final GameModel gameModel;
-
   final bool inFavoritesView;
   const CustomGameItem({
     super.key,
     required this.gameModel,
-
     this.inFavoritesView = false,
   });
 
@@ -39,7 +36,9 @@ class CustomGameItem extends StatelessWidget {
             CustomCachedNetworkImageWidget(
               imageUrl: gameModel.coverUrl,
               borderRadius: 16,
-              height: isDeviceInPortrait(context)? MediaQuery.sizeOf(context).height * 0.12:  MediaQuery.sizeOf(context).height * 0.5,
+              height: isDeviceInPortrait(context)
+                  ? MediaQuery.sizeOf(context).height * 0.12
+                  : MediaQuery.sizeOf(context).height * 0.5,
               width: MediaQuery.sizeOf(context).width * 0.22,
               fit: BoxFit.cover,
             ),
@@ -50,13 +49,16 @@ class CustomGameItem extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        gameModel.name,
-                        style: TextStyles.bold16.copyWith(
-                          color: AppColors.primaryColor,
+                      Expanded(
+                        child: Text(
+                          gameModel.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyles.bold16.copyWith(
+                            color: AppColors.primaryColor,
+                          ),
                         ),
                       ),
-                      const Spacer(),
                       ValueListenableBuilder<List<String>>(
                         valueListenable:
                             userFavoritesService.userFavoritesNotifier,

@@ -7,6 +7,7 @@ import 'package:stepforward/features/home/presentation/views/widgets/books_secti
 import 'package:stepforward/features/home/presentation/views/widgets/brothers_section_home_view.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/custom_slider_widget.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/games_section_home_view.dart';
+import 'package:stepforward/features/home/presentation/views/widgets/products_section_home_view.dart';
 
 class HomeViewBody extends StatelessWidget {
   final VoidCallback onNavigateToGamesView;
@@ -45,6 +46,8 @@ class HomeViewBody extends StatelessWidget {
           ),
           SliverToBoxAdapter(child: verticalSpace(8)),
           const BooksSectionHomeView(),
+          SliverToBoxAdapter(child: verticalSpace(8)),
+          const ProductsSectionHomeView(),
         ],
       ),
     );

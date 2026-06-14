@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/get_dummy_games.dart';
+import 'package:stepforward/core/utils/app_colors.dart';
+import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/core/utils/custom_snak_bar.dart';
 import 'package:stepforward/core/utils/spacing.dart';
@@ -34,12 +36,45 @@ class GamesViewBody extends StatelessWidget {
           ),
           SliverToBoxAdapter(child: verticalSpace(24)),
           SliverToBoxAdapter(
-            child: SearchTextField(
-              controller: context.read<GamesCubit>().searchController,
-              onChanged: (value) => context.read<GamesCubit>().searchGames(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.flag_outlined,
+                      size: 20,
+                      color: AppColors.primaryColor,
+                    ),
+                    horizontalSpace(6),
+                    Text(
+                      isEn ? 'Search by game target' : 'البحث بهدف اللعبة',
+                      style: TextStyles.bold16.copyWith(
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpace(8),
+                SearchTextField(
+                  controller: context.read<GamesCubit>().searchController,
+                  onChanged: (value) =>
+                      context.read<GamesCubit>().searchGames(),
+                  hintText: isEn
+                      ? 'Example: prayer, faith, teamwork'
+                      : 'مثال: صلاة، إيمان، تعاون',
+                ),
+              ],
             ),
           ),
           SliverToBoxAdapter(child: verticalSpace(20)),
+          SliverToBoxAdapter(
+            child: _FilterHeader(
+              icon: Icons.group_outlined,
+              title: isEn ? 'Choose age group' : 'اختار السن',
+            ),
+          ),
+          SliverToBoxAdapter(child: verticalSpace(8)),
           SliverToBoxAdapter(
             child: TagsList(
               tags: isEn
@@ -49,6 +84,38 @@ class GamesViewBody extends StatelessWidget {
               selectedTags: cubit.selectedTags,
             ),
           ),
+          if (cubit.availableTargets.isNotEmpty) ...[
+            SliverToBoxAdapter(child: verticalSpace(20)),
+            SliverToBoxAdapter(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _FilterHeader(
+                      icon: Icons.track_changes_outlined,
+                      title: isEn ? 'Choose target' : 'اختار الهدف',
+                    ),
+                  ),
+                  if (cubit.selectedTags.isNotEmpty ||
+                      cubit.selectedTarget != null ||
+                      cubit.searchController.text.isNotEmpty)
+                    TextButton(
+                      onPressed: cubit.clearFilters,
+                      child: Text(isEn ? 'Clear' : 'مسح'),
+                    ),
+                ],
+              ),
+            ),
+            SliverToBoxAdapter(child: verticalSpace(8)),
+            SliverToBoxAdapter(
+              child: TagsList(
+                tags: cubit.availableTargets,
+                onTagToggle: cubit.selectTarget,
+                selectedTags: [
+                  if (cubit.selectedTarget != null) cubit.selectedTarget!,
+                ],
+              ),
+            ),
+          ],
           SliverToBoxAdapter(child: verticalSpace(24)),
           BlocConsumer<GamesCubit, GamesState>(
             buildWhen: (previous, current) =>
@@ -62,14 +129,18 @@ class GamesViewBody extends StatelessWidget {
               if (state is AddGameToFavoritesSuccessState) {
                 showSnackBar(
                   context,
-                  text: isEn ? 'Game added to favorites' : 'تم اضافة اللعبة للمفضلة',
+                  text: isEn
+                      ? 'Game added to favorites'
+                      : 'تم اضافة اللعبة للمفضلة',
                   color: Colors.green,
                 );
               }
               if (state is RemoveGameFromFavoritesSuccessState) {
                 showSnackBar(
                   context,
-                  text: isEn ? 'Game removed from favorites' : 'تم حذف اللعبة من المفضلة',
+                  text: isEn
+                      ? 'Game removed from favorites'
+                      : 'تم حذف اللعبة من المفضلة',
                   color: Colors.red,
                 );
               }
@@ -79,17 +150,21 @@ class GamesViewBody extends StatelessWidget {
                 if (state.games.isEmpty) {
                   return SliverToBoxAdapter(
                     child: CustomEmptyWidget(
-                      title: isEn ? 'No games for this age' : 'لا يوجد العاب لهذا السن',
+                      title: isEn
+                          ? 'No games match these filters'
+                          : 'لا توجد ألعاب تناسب هذه الفلاتر',
                       subtitle: isEn
-                          ? 'More games will be added soon'
-                          : 'سيتم اضافة العاب اكثر قريبًا  ',
+                          ? 'Try another target or age group'
+                          : 'جرّب هدف أو سن مختلف',
                     ),
                   );
                 }
                 return SliverList.separated(
                   separatorBuilder: (context, index) => const MyDivider(),
-                  itemBuilder: (context, index) =>
-                      CustomGameItem(gameModel: state.games[index]),
+                  itemBuilder: (context, index) {
+                    final game = state.games[index];
+                    return CustomGameItem(gameModel: game);
+                  },
                   itemCount: state.games.length,
                 );
               } else if (state is GetGameFailureState) {
@@ -113,6 +188,27 @@ class GamesViewBody extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _FilterHeader extends StatelessWidget {
+  const _FilterHeader({required this.icon, required this.title});
+
+  final IconData icon;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: AppColors.primaryColor),
+        horizontalSpace(6),
+        Text(
+          title,
+          style: TextStyles.bold16.copyWith(color: AppColors.primaryColor),
+        ),
+      ],
     );
   }
 }
