@@ -116,10 +116,45 @@ class TeamWorkspaceService {
     required String teamId,
     required List<GameModel> games,
   }) async {
+    final uniqueGames = _uniqueGamesById(games);
     await _teams.doc(teamId).collection('shared').doc('preparation').set({
-      'games': games.map((game) => game.toJson()).toList(),
+      'games': uniqueGames.map((game) => game.toJson()).toList(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
+  }
+
+  Future<void> addTeamPreparationGame({
+    required String teamId,
+    required GameModel game,
+  }) async {
+    final games = await getTeamPreparationGames(teamId);
+    games
+      ..removeWhere((item) => item.id == game.id)
+      ..add(game);
+
+    await saveTeamPreparationGames(teamId: teamId, games: games);
+  }
+
+  Future<void> removeTeamPreparationGame({
+    required String teamId,
+    required String gameId,
+  }) async {
+    final games = await getTeamPreparationGames(teamId);
+    games.removeWhere((game) => game.id == gameId);
+
+    await saveTeamPreparationGames(teamId: teamId, games: games);
+  }
+
+  Future<void> addPreparationGameToCurrentTeam(GameModel game) async {
+    final team = await _getCurrentTeamForBackgroundSync();
+    if (team == null) return;
+    await addTeamPreparationGame(teamId: team.id, game: game);
+  }
+
+  Future<void> removePreparationGameFromCurrentTeam(String gameId) async {
+    final team = await _getCurrentTeamForBackgroundSync();
+    if (team == null) return;
+    await removeTeamPreparationGame(teamId: team.id, gameId: gameId);
   }
 
   Future<List<GameModel>> getTeamPreparationGames(String teamId) async {
@@ -140,6 +175,28 @@ class TeamWorkspaceService {
         .toList();
   }
 
+  Stream<List<GameModel>> watchTeamPreparationGames(String teamId) {
+    return _teams
+        .doc(teamId)
+        .collection('shared')
+        .doc('preparation')
+        .snapshots()
+        .map((doc) {
+          final data = doc.data();
+          if (data == null) return <GameModel>[];
+
+          final games = data['games'];
+          if (games is! List) return <GameModel>[];
+
+          return games
+              .whereType<Map>()
+              .map(
+                (item) => GameModel.fromJson(Map<String, dynamic>.from(item)),
+              )
+              .toList();
+        });
+  }
+
   Future<List<ServiceHistoryModel>> getTeamHistory(String teamId) async {
     final snapshot = await _teams
         .doc(teamId)
@@ -154,14 +211,38 @@ class TeamWorkspaceService {
         .toList();
   }
 
+  Stream<List<ServiceHistoryModel>> watchTeamHistory(String teamId) {
+    return _teams
+        .doc(teamId)
+        .collection('serviceHistory')
+        .orderBy('date', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map(
+                (doc) =>
+                    ServiceHistoryModel.fromJson({...doc.data(), 'id': doc.id}),
+              )
+              .toList(),
+        );
+  }
+
   Future<void> addTeamHistory({
     required String teamId,
     required ServiceHistoryModel history,
   }) async {
+    final historyId = _historyDocumentId(history);
     await _teams
         .doc(teamId)
         .collection('serviceHistory')
-        .add(history.toFirestore());
+        .doc(historyId)
+        .set(history.toFirestore());
+  }
+
+  Future<void> addHistoryToCurrentTeam(ServiceHistoryModel history) async {
+    final team = await _getCurrentTeamForBackgroundSync();
+    if (team == null) return;
+    await addTeamHistory(teamId: team.id, history: history);
   }
 
   TeamWorkspaceModel? getCachedTeam() {
@@ -190,6 +271,50 @@ class TeamWorkspaceService {
       key: kTeamWorkspaceKey,
       value: jsonEncode(team.toJson()),
     );
+  }
+
+  Future<TeamWorkspaceModel?> _getCurrentTeamForBackgroundSync() async {
+    final user = getCachedUserData();
+    if (user == null) return null;
+
+    final cachedTeam = getCachedTeam();
+    if (cachedTeam != null && cachedTeam.members.contains(user.id)) {
+      return cachedTeam;
+    }
+
+    return getMyTeam();
+  }
+
+  List<GameModel> _uniqueGamesById(List<GameModel> games) {
+    final byId = <String, GameModel>{};
+    for (final game in games) {
+      if (game.id.isEmpty) continue;
+      byId[game.id] = game;
+    }
+    return byId.values.toList();
+  }
+
+  String _historyDocumentId(ServiceHistoryModel history) {
+    final normalizedGames = [...history.games]
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    final signature = [
+      history.title,
+      history.place,
+      history.ageGroup,
+      '${history.date.year}-${history.date.month}-${history.date.day}',
+      ...normalizedGames,
+    ].map((value) => value.trim().toLowerCase()).join('|');
+
+    return 'history_${_fnv1a32(signature).toRadixString(16)}';
+  }
+
+  int _fnv1a32(String value) {
+    var hash = 0x811c9dc5;
+    for (final unit in value.codeUnits) {
+      hash ^= unit;
+      hash = (hash * 0x01000193) & 0xffffffff;
+    }
+    return hash;
   }
 
   Future<String> _generateUniqueInviteCode() async {

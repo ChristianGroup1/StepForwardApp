@@ -2,16 +2,25 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/is_device_in_portrait.dart';
+import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
 import 'package:stepforward/core/widgets/custom_cached_network_image.dart';
 import 'package:stepforward/core/widgets/translating_text.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_details_view_body.dart';
 
 class CustomSliverAppBar extends StatelessWidget {
-  const CustomSliverAppBar({super.key, required this.widget, this.onShare});
+  const CustomSliverAppBar({
+    super.key,
+    required this.widget,
+    this.onShare,
+    this.onTogglePreparation,
+    this.isInPreparationList = false,
+  });
 
   final GameDetailsViewBody widget;
   final VoidCallback? onShare;
+  final VoidCallback? onTogglePreparation;
+  final bool isInPreparationList;
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +41,37 @@ class CustomSliverAppBar extends StatelessWidget {
         onPressed: () => Navigator.pop(context),
       ),
       actions: [
+        if (onTogglePreparation != null)
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 4),
+            child: IconButton.filledTonal(
+              tooltip: isInPreparationList
+                  ? (isEn ? 'Remove from preparation' : 'إزالة من التحضير')
+                  : (isEn ? 'Add to preparation' : 'أضف للتحضير'),
+              style: IconButton.styleFrom(
+                backgroundColor: isInPreparationList
+                    ? AppColors.secondaryColor
+                    : colorScheme.surfaceContainerHighest,
+                foregroundColor: isInPreparationList
+                    ? AppColors.primaryColor
+                    : colorScheme.onSurface,
+              ),
+              icon: Icon(
+                isInPreparationList
+                    ? Icons.playlist_add_check_circle_rounded
+                    : Icons.playlist_add_rounded,
+              ),
+              onPressed: onTogglePreparation,
+            ),
+          ),
         if (onShare != null)
-          IconButton(
-            tooltip: isEn ? 'Share' : 'مشاركة',
-            icon: const Icon(Icons.share_outlined),
-            onPressed: onShare,
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 8),
+            child: IconButton.filledTonal(
+              tooltip: isEn ? 'Share' : 'مشاركة',
+              icon: const Icon(Icons.share_outlined),
+              onPressed: onShare,
+            ),
           ),
       ],
       flexibleSpace: LayoutBuilder(
@@ -100,7 +135,7 @@ class CustomSliverAppBar extends StatelessWidget {
                 ),
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.4),
+                    color: Colors.black.withValues(alpha: 0.4),
                   ),
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),

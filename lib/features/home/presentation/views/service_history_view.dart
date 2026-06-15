@@ -333,11 +333,17 @@ class _AddServiceHistorySheetState extends State<_AddServiceHistorySheet> {
   Widget build(BuildContext context) {
     final isEn = context.isEn;
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final bottomSafeArea = MediaQuery.paddingOf(context).bottom;
 
     return FractionallySizedBox(
       heightFactor: 0.92,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(16, 16, 16, bottomInset + 16),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          16,
+          16,
+          bottomInset + bottomSafeArea + 24,
+        ),
         child: Form(
           key: _formKey,
           child: Column(
@@ -423,16 +429,19 @@ class _AddServiceHistorySheetState extends State<_AddServiceHistorySheet> {
                 ),
               ),
               verticalSpace(12),
-              FilledButton.icon(
-                onPressed: _isSaving ? null : _save,
-                icon: _isSaving
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.save_outlined),
-                label: Text(isEn ? 'Save service' : 'حفظ الخدمة'),
+              SizedBox(
+                height: 52,
+                child: FilledButton.icon(
+                  onPressed: _isSaving ? null : _save,
+                  icon: _isSaving
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.save_outlined),
+                  label: Text(isEn ? 'Save service' : 'حفظ الخدمة'),
+                ),
               ),
             ],
           ),

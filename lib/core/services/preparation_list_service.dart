@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:stepforward/core/helper_functions/cache_helper.dart';
+import 'package:stepforward/core/services/team_workspace_service.dart';
 import 'package:stepforward/core/utils/chache_helper_keys.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
 
@@ -31,11 +32,17 @@ class PreparationListService {
     final exists = games.any((item) => item.id == game.id);
     if (!exists) games.add(game);
     await _saveGames(games);
+    await _runTeamSync(
+      () => teamWorkspaceService.addPreparationGameToCurrentTeam(game),
+    );
   }
 
   Future<void> removeGame(String gameId) async {
     final games = getGames()..removeWhere((game) => game.id == gameId);
     await _saveGames(games);
+    await _runTeamSync(
+      () => teamWorkspaceService.removePreparationGameFromCurrentTeam(gameId),
+    );
   }
 
   Future<void> clearGames() async {
@@ -78,6 +85,12 @@ class PreparationListService {
       key: kPreparationGamesKey,
       value: jsonEncode(games.map((game) => game.toJson()).toList()),
     );
+  }
+
+  Future<void> _runTeamSync(Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (_) {}
   }
 }
 

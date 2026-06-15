@@ -11,6 +11,8 @@ class GameModel {
   final String tools;
   final String videoLink;
   final DateTime? createdAt;
+  final double ratingAverage;
+  final int ratingCount;
 
   GameModel({
     required this.coverUrl,
@@ -24,6 +26,8 @@ class GameModel {
     required this.tools,
     required this.videoLink,
     this.createdAt,
+    this.ratingAverage = 0,
+    this.ratingCount = 0,
     Object? goalTag = '',
   }) : goalTags = _goalTagsFromJson(goalTag);
 
@@ -47,6 +51,8 @@ class GameModel {
       goalTag: json['goalTag'] ?? '',
       tools: json['tools'] ?? '',
       videoLink: json['videoLink'] ?? '',
+      ratingAverage: _doubleFromJson(json['ratingAverage']),
+      ratingCount: _intFromJson(json['ratingCount']),
       createdAt: _dateFromJson(
         json['createdAt'] ?? json['created_at'] ?? json['updatedAt'],
       ),
@@ -66,8 +72,15 @@ class GameModel {
       'goalTag': goalTags,
       'tools': tools,
       'videoLink': videoLink,
+      'ratingAverage': ratingAverage,
+      'ratingCount': ratingCount,
       'createdAt': createdAt?.toIso8601String(),
     };
+  }
+
+  String get formattedRatingAverage {
+    if (ratingCount <= 0 || ratingAverage <= 0) return '0.0';
+    return ratingAverage.toStringAsFixed(1);
   }
 
   static List<String> _goalTagsFromJson(dynamic value) {
@@ -102,5 +115,17 @@ class GameModel {
     } catch (_) {}
 
     return null;
+  }
+
+  static int _intFromJson(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  static double _doubleFromJson(dynamic value) {
+    if (value is double) return value;
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0;
   }
 }

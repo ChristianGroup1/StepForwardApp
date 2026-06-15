@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:stepforward/core/cubits/locale_cubit.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
@@ -13,6 +14,7 @@ import 'package:stepforward/core/services/preparation_list_service.dart';
 import 'package:stepforward/core/services/recently_opened_service.dart';
 import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
+import 'package:stepforward/core/utils/backend_endpoints.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_cached_network_image.dart';
 import 'package:stepforward/core/widgets/custom_sliver_app_bar.dart';
@@ -20,6 +22,7 @@ import 'package:stepforward/core/widgets/my_divider.dart';
 import 'package:stepforward/features/home/data/games_cubit/games_cubit.dart';
 import 'package:stepforward/features/home/domain/repos/home_repo.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_hashtag_list.dart';
+import 'package:stepforward/features/home/presentation/views/widgets/game_rating_summary_chip.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
@@ -53,6 +56,8 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
   bool _loadedSimilarGames = false;
   final GameRatingService _ratingService = GameRatingService();
   int _rating = 0;
+  double _ratingAverage = 0;
+  int _ratingCount = 0;
   bool _isInPreparationList = false;
 
   @override
@@ -85,8 +90,29 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
 
   Future<void> _loadRating() async {
     final rating = await _ratingService.getRating(widget.game.id);
+    final stats = await _loadRatingStats();
     if (mounted) {
-      setState(() => _rating = rating);
+      setState(() {
+        _rating = rating;
+        _ratingAverage = stats.$1;
+        _ratingCount = stats.$2;
+      });
+    }
+  }
+
+  Future<(double, int)> _loadRatingStats() async {
+    try {
+      final gameDoc = await FirebaseFirestore.instance
+          .collection(BackendEndpoints.getGames)
+          .doc(widget.game.id)
+          .get();
+      final data = gameDoc.data() ?? {};
+      return (
+        _doubleFromJson(data['ratingAverage']),
+        _intFromJson(data['ratingCount']),
+      );
+    } catch (_) {
+      return (0.0, 0);
     }
   }
 
@@ -107,6 +133,13 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
         gameId: widget.game.id,
         rating: rating,
       );
+      final stats = await _loadRatingStats();
+      if (mounted) {
+        setState(() {
+          _ratingAverage = stats.$1;
+          _ratingCount = stats.$2;
+        });
+      }
       if (!synced && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -148,8 +181,10 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
 
     setState(() => _isInPreparationList = !_isInPreparationList);
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
+    final snackBarController = messenger.showSnackBar(
       SnackBar(
+        duration: const Duration(seconds: 2),
         content: Text(
           _isInPreparationList
               ? (isEn
@@ -165,6 +200,7 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
         ),
       ),
     );
+    Future.delayed(const Duration(seconds: 2), snackBarController.close);
   }
 
   Future<void> _loadSimilarGames() async {
@@ -371,6 +407,18 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
 
   String _normalize(String value) => value.trim().toLowerCase();
 
+  int _intFromJson(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  double _doubleFromJson(dynamic value) {
+    if (value is double) return value;
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<LocaleCubit, Locale>(
@@ -409,6 +457,8 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
                   CustomSliverAppBar(
                     widget: widget,
                     onShare: () => _shareGame(isEn),
+                    isInPreparationList: _isInPreparationList,
+                    onTogglePreparation: () => _togglePreparationList(isEn),
                   ),
                   SliverToBoxAdapter(
                     child: Padding(
@@ -423,6 +473,11 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
                           ),
                           verticalSpace(8),
                           GameHashTagsList(tags: displayTags),
+                          verticalSpace(10),
+                          GameRatingSummaryChip(
+                            average: _ratingAverage,
+                            count: _ratingCount,
+                          ),
                           const MyDivider(height: 50),
                           if (widget.game.videoLink.isNotEmpty) ...[
                             Text(

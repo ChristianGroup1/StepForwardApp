@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
 import 'package:stepforward/core/helper_functions/is_device_in_portrait.dart';
 import 'package:stepforward/core/helper_functions/rouutes.dart';
+import 'package:stepforward/core/services/preparation_list_service.dart';
 import 'package:stepforward/core/services/recently_opened_service.dart';
 import 'package:stepforward/core/services/user_favorites_service.dart';
 
@@ -13,8 +14,9 @@ import 'package:stepforward/core/widgets/custom_cached_network_image.dart';
 import 'package:stepforward/features/home/data/games_cubit/games_cubit.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
 import 'package:stepforward/features/home/presentation/views/widgets/game_hashtag_list.dart';
+import 'package:stepforward/features/home/presentation/views/widgets/game_rating_summary_chip.dart';
 
-class CustomGameItem extends StatelessWidget {
+class CustomGameItem extends StatefulWidget {
   final GameModel gameModel;
   final bool inFavoritesView;
   const CustomGameItem({
@@ -24,7 +26,54 @@ class CustomGameItem extends StatelessWidget {
   });
 
   @override
+  State<CustomGameItem> createState() => _CustomGameItemState();
+}
+
+class _CustomGameItemState extends State<CustomGameItem> {
+  late bool _isInPreparationList;
+
+  @override
+  void initState() {
+    super.initState();
+    _isInPreparationList = preparationListService.containsGame(
+      widget.gameModel.id,
+    );
+  }
+
+  Future<void> _togglePreparation() async {
+    final isEn = context.isEn;
+    if (_isInPreparationList) {
+      await preparationListService.removeGame(widget.gameModel.id);
+    } else {
+      await preparationListService.addGame(widget.gameModel);
+    }
+
+    if (!mounted) return;
+    setState(() => _isInPreparationList = !_isInPreparationList);
+
+    final messenger = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
+    final snackBarController = messenger.showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 2),
+        content: Text(
+          _isInPreparationList
+              ? (isEn ? 'Added to preparation' : 'تمت الإضافة للتحضير')
+              : (isEn ? 'Removed from preparation' : 'تمت الإزالة من التحضير'),
+        ),
+        action: SnackBarAction(
+          label: isEn ? 'Open' : 'فتح',
+          onPressed: () => context.pushNamed(Routes.preparationChecklistView),
+        ),
+      ),
+    );
+    Future.delayed(const Duration(seconds: 2), snackBarController.close);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final gameModel = widget.gameModel;
+    final inFavoritesView = widget.inFavoritesView;
+
     return GestureDetector(
       onTap: () {
         recentlyOpenedService.addGame(gameModel);
@@ -106,12 +155,37 @@ class CustomGameItem extends StatelessWidget {
                     ),
                   ),
                   verticalSpace(8),
+                  GameRatingSummaryChip(gameId: gameModel.id, compact: true),
+                  verticalSpace(8),
                   GameHashTagsList(tags: gameModel.tags),
+                  verticalSpace(8),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: OutlinedButton.icon(
+                      onPressed: _togglePreparation,
+                      icon: Icon(
+                        _isInPreparationList
+                            ? Icons.playlist_remove_rounded
+                            : Icons.playlist_add_check_rounded,
+                        size: 18,
+                      ),
+                      label: Text(
+                        _isInPreparationList
+                            ? (context.isEn ? 'Remove' : 'إزالة من التحضير')
+                            : (context.isEn ? 'Prepare' : 'أضف للتحضير'),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        foregroundColor: AppColors.primaryColor,
+                        side: BorderSide(
+                          color: AppColors.primaryColor.withValues(alpha: 0.24),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-
-            // Inside CustomGameItem (or any widget showing favorites)
           ],
         ),
       ),

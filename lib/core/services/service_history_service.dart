@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:stepforward/core/helper_functions/cache_helper.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
+import 'package:stepforward/core/services/team_workspace_service.dart';
 import 'package:stepforward/core/utils/backend_endpoints.dart';
 import 'package:stepforward/core/utils/chache_helper_keys.dart';
 import 'package:stepforward/features/home/domain/models/service_history_model.dart';
@@ -86,6 +87,9 @@ class ServiceHistoryService {
       ..removeWhere((item) => item.id == updatedHistory.id)
       ..insert(0, updatedHistory);
     await _cacheHistory(cachedHistory);
+    await _runTeamSync(
+      () => teamWorkspaceService.addHistoryToCurrentTeam(updatedHistory),
+    );
   }
 
   Future<void> deleteHistory(String historyId) async {
@@ -109,6 +113,12 @@ class ServiceHistoryService {
       key: kServiceHistoryKey,
       value: jsonEncode(history.map((item) => item.toJson()).toList()),
     );
+  }
+
+  Future<void> _runTeamSync(Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (_) {}
   }
 }
 

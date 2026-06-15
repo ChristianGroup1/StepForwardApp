@@ -7,6 +7,22 @@ import 'package:stepforward/core/utils/backend_endpoints.dart';
 import 'package:stepforward/core/utils/chache_helper_keys.dart';
 
 class GameRatingService {
+  Future<GameRatingStats> getStats(String gameId) async {
+    try {
+      final gameDoc = await FirebaseFirestore.instance
+          .collection(BackendEndpoints.getGames)
+          .doc(gameId)
+          .get();
+      final data = gameDoc.data() ?? {};
+      return GameRatingStats(
+        average: _parseDouble(data['ratingAverage']),
+        count: _parseInt(data['ratingCount']),
+      );
+    } catch (_) {
+      return const GameRatingStats();
+    }
+  }
+
   int getLocalRating(String gameId) {
     final ratings = _readRatings();
     return ratings[gameId] ?? 0;
@@ -98,6 +114,12 @@ class GameRatingService {
     return int.tryParse(value?.toString() ?? '') ?? 0;
   }
 
+  double _parseDouble(dynamic value) {
+    if (value is double) return value;
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
   Map<String, int> _readRatings() {
     final cachedData = CacheHelper.getData(key: kGameRatingsKey);
     if (cachedData is! String || cachedData.isEmpty) return {};
@@ -114,4 +136,14 @@ class GameRatingService {
       return {};
     }
   }
+}
+
+class GameRatingStats {
+  const GameRatingStats({this.average = 0, this.count = 0});
+
+  final double average;
+  final int count;
+
+  String get formattedAverage =>
+      count <= 0 ? '0.0' : average.toStringAsFixed(1);
 }

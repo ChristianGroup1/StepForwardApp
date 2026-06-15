@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
+import 'package:stepforward/core/helper_functions/rouutes.dart';
 import 'package:stepforward/core/services/preparation_list_service.dart';
+import 'package:stepforward/core/services/service_history_service.dart';
 import 'package:stepforward/core/services/team_workspace_service.dart';
 import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_text_styles.dart';
@@ -12,10 +14,7 @@ import 'package:stepforward/core/utils/custom_snak_bar.dart';
 import 'package:stepforward/core/utils/spacing.dart';
 import 'package:stepforward/core/widgets/custom_app_bar.dart';
 import 'package:stepforward/core/widgets/custom_button.dart';
-import 'package:stepforward/core/widgets/custom_empty_widget.dart';
 import 'package:stepforward/core/widgets/custom_text_field.dart';
-import 'package:stepforward/features/home/domain/models/game_model.dart';
-import 'package:stepforward/features/home/domain/models/service_history_model.dart';
 import 'package:stepforward/features/home/domain/models/team_workspace_model.dart';
 
 class TeamWorkspaceView extends StatefulWidget {
@@ -33,8 +32,6 @@ class _TeamWorkspaceViewState extends State<TeamWorkspaceView> {
   late final TextEditingController _inviteCodeController;
 
   TeamWorkspaceModel? _team;
-  List<GameModel> _teamPreparationGames = [];
-  List<ServiceHistoryModel> _teamHistory = [];
   bool _isLoading = true;
   bool _isSubmitting = false;
 
@@ -59,23 +56,13 @@ class _TeamWorkspaceViewState extends State<TeamWorkspaceView> {
   Future<void> _loadTeam() async {
     setState(() => _isLoading = true);
     final team = await teamWorkspaceService.getMyTeam();
-    List<GameModel> preparationGames = [];
-    List<ServiceHistoryModel> history = [];
-
     if (team != null) {
-      try {
-        preparationGames = await teamWorkspaceService.getTeamPreparationGames(
-          team.id,
-        );
-        history = await teamWorkspaceService.getTeamHistory(team.id);
-      } catch (_) {}
+      await _shareLocalDataWithTeam(team);
     }
 
     if (!mounted) return;
     setState(() {
       _team = team;
-      _teamPreparationGames = preparationGames;
-      _teamHistory = history;
       _isLoading = false;
     });
   }
@@ -124,63 +111,35 @@ class _TeamWorkspaceViewState extends State<TeamWorkspaceView> {
     await _runSubmittingAction(() async {
       await teamWorkspaceService.leaveTeam(team.id);
       if (!mounted) return;
-      setState(() {
-        _team = null;
-        _teamPreparationGames = [];
-        _teamHistory = [];
-      });
+      setState(() => _team = null);
       showSnackBar(context, text: 'تم الخروج من الفريق');
     });
   }
 
-  Future<void> _syncPreparationWithTeam() async {
-    final team = _team;
-    if (team == null) return;
-
-    final localGames = preparationListService.getGames();
-    if (localGames.isEmpty) {
-      showSnackBar(context, text: 'قائمة التحضير الحالية فارغة');
-      return;
-    }
-
-    await _runSubmittingAction(() async {
-      await teamWorkspaceService.saveTeamPreparationGames(
-        teamId: team.id,
-        games: localGames,
-      );
-      if (!mounted) return;
-      setState(() => _teamPreparationGames = localGames);
-      showSnackBar(context, text: 'تم تحديث تحضير الفريق');
-    });
-  }
-
-  Future<void> _addTeamHistory(ServiceHistoryModel history) async {
-    final team = _team;
-    if (team == null) return;
-
-    await _runSubmittingAction(() async {
-      await teamWorkspaceService.addTeamHistory(
-        teamId: team.id,
-        history: history,
-      );
-      final updatedHistory = await teamWorkspaceService.getTeamHistory(team.id);
-      if (!mounted) return;
-      setState(() => _teamHistory = updatedHistory);
-      showSnackBar(context, text: 'تم حفظ الخدمة للفريق');
-    });
-  }
-
   Future<void> _setTeamAndRefresh(TeamWorkspaceModel team) async {
-    final preparationGames = await teamWorkspaceService.getTeamPreparationGames(
-      team.id,
-    );
-    final history = await teamWorkspaceService.getTeamHistory(team.id);
+    await _shareLocalDataWithTeam(team);
     if (!mounted) return;
-    setState(() {
-      _team = team;
-      _teamPreparationGames = preparationGames;
-      _teamHistory = history;
-    });
+    setState(() => _team = team);
+  }
+
+  Future<void> _shareLocalDataWithTeam(TeamWorkspaceModel team) async {
+    try {
+      final games = preparationListService.getGames();
+      for (final game in games) {
+        await teamWorkspaceService.addTeamPreparationGame(
+          teamId: team.id,
+          game: game,
+        );
+      }
+
+      final history = serviceHistoryService.getCachedHistory();
+      for (final item in history) {
+        await teamWorkspaceService.addTeamHistory(
+          teamId: team.id,
+          history: item,
+        );
+      }
+    } catch (_) {}
   }
 
   Future<void> _runSubmittingAction(Future<void> Function() action) async {
@@ -375,9 +334,21 @@ class _TeamWorkspaceViewState extends State<TeamWorkspaceView> {
           ),
         ),
         verticalSpace(14),
-        _buildPreparationSection(),
+        _TeamFeatureCard(
+          icon: Icons.checklist_rounded,
+          title: 'تحضير الفريق',
+          subtitle: 'الألعاب والأدوات المشتركة للفريق',
+          onTap: () =>
+              context.pushNamed(Routes.teamPreparationView, arguments: team),
+        ),
         verticalSpace(14),
-        _buildTeamHistorySection(),
+        _TeamFeatureCard(
+          icon: Icons.history_rounded,
+          title: 'خدمات الفريق',
+          subtitle: 'الخدمات القديمة المشتركة بين أعضاء الفريق',
+          onTap: () =>
+              context.pushNamed(Routes.teamServiceHistoryView, arguments: team),
+        ),
         verticalSpace(18),
         TextButton.icon(
           onPressed: _isSubmitting ? null : _leaveTeam,
@@ -390,298 +361,62 @@ class _TeamWorkspaceViewState extends State<TeamWorkspaceView> {
       ],
     );
   }
-
-  Widget _buildPreparationSection() {
-    final tools = _teamPreparationGames
-        .expand((game) => _extractTools(game.tools).map((tool) => (game, tool)))
-        .toList();
-
-    return _SectionBox(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.checklist_rounded,
-                color: AppColors.primaryColor,
-              ),
-              horizontalSpace(8),
-              const Expanded(
-                child: Text('تحضير الفريق', style: TextStyles.bold19),
-              ),
-            ],
-          ),
-          verticalSpace(10),
-          CustomButton(
-            text: _isSubmitting
-                ? 'جاري التحديث...'
-                : 'مزامنة قائمة التحضير الحالية',
-            height: 46,
-            borderRadius: 12,
-            onPressed: _isSubmitting ? null : _syncPreparationWithTeam,
-          ),
-          verticalSpace(12),
-          if (_teamPreparationGames.isEmpty)
-            const CustomEmptyWidget(
-              title: 'لا توجد قائمة تحضير للفريق',
-              subtitle: 'أضف ألعاب لقائمة التحضير ثم اضغط مزامنة.',
-            )
-          else ...[
-            Text(
-              'الألعاب: ${_teamPreparationGames.length} | الأدوات: ${tools.length}',
-              style: TextStyles.semiBold13,
-            ),
-            verticalSpace(8),
-            ..._teamPreparationGames.map((game) {
-              final gameTools = _extractTools(game.tools);
-              return ExpansionTile(
-                tilePadding: EdgeInsets.zero,
-                childrenPadding: const EdgeInsets.only(bottom: 8),
-                title: Text(game.name, style: TextStyles.bold16),
-                subtitle: Text(
-                  '${gameTools.length} أدوات',
-                  style: TextStyles.regular13,
-                ),
-                children: gameTools
-                    .map(
-                      (tool) => ListTile(
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                        leading: const Icon(
-                          Icons.check_circle_outline_rounded,
-                          color: AppColors.primaryColor,
-                        ),
-                        title: Text(tool, style: TextStyles.regular14),
-                      ),
-                    )
-                    .toList(),
-              );
-            }),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTeamHistorySection() {
-    return _SectionBox(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.history_rounded, color: AppColors.primaryColor),
-              horizontalSpace(8),
-              const Expanded(
-                child: Text('خدمات الفريق', style: TextStyles.bold19),
-              ),
-              IconButton(
-                tooltip: 'إضافة خدمة',
-                onPressed: _isSubmitting ? null : _showAddHistorySheet,
-                icon: const Icon(
-                  Icons.add_circle_outline_rounded,
-                  color: AppColors.primaryColor,
-                ),
-              ),
-            ],
-          ),
-          if (_teamHistory.isEmpty)
-            const CustomEmptyWidget(
-              title: 'لا توجد خدمات محفوظة',
-              subtitle: 'اضغط + واحفظ خدمة للفريق كله.',
-            )
-          else
-            ..._teamHistory.map(
-              (item) => ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(item.title, style: TextStyles.bold16),
-                subtitle: Text(
-                  [
-                    if (item.place.isNotEmpty) item.place,
-                    if (item.ageGroup.isNotEmpty) item.ageGroup,
-                    _formatDate(item.date),
-                  ].join(' - '),
-                  style: TextStyles.regular13,
-                ),
-                trailing: Text(
-                  '${item.games.length} ألعاب',
-                  style: TextStyles.semiBold13.copyWith(
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  void _showAddHistorySheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (_) => _AddTeamHistorySheet(onSave: _addTeamHistory),
-    );
-  }
-
-  List<String> _extractTools(String value) {
-    final plainText = value
-        .replaceAll(RegExp(r'<br\s*/?>', caseSensitive: false), '\n')
-        .replaceAll(RegExp(r'</(p|li|div)>', caseSensitive: false), '\n')
-        .replaceAll(RegExp(r'<[^>]*>'), ' ')
-        .replaceAll('&nbsp;', ' ')
-        .replaceAll('&amp;', '&')
-        .replaceAll('&quot;', '"')
-        .replaceAll('&#39;', "'")
-        .replaceAll(RegExp(r'[•\-]+'), '\n')
-        .replaceAll(RegExp(r'\r'), '\n')
-        .trim();
-
-    final lines = plainText
-        .split(RegExp(r'\n+'))
-        .map((line) => line.replaceAll(RegExp(r'\s+'), ' ').trim())
-        .where((line) => line.isNotEmpty)
-        .toList();
-
-    if (lines.isNotEmpty) return lines;
-    return plainText.isEmpty ? [] : [plainText];
-  }
-
-  String _formatDate(DateTime date) => '${date.day}/${date.month}/${date.year}';
 }
 
-class _AddTeamHistorySheet extends StatefulWidget {
-  const _AddTeamHistorySheet({required this.onSave});
+class _TeamFeatureCard extends StatelessWidget {
+  const _TeamFeatureCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
 
-  final Future<void> Function(ServiceHistoryModel history) onSave;
-
-  @override
-  State<_AddTeamHistorySheet> createState() => _AddTeamHistorySheetState();
-}
-
-class _AddTeamHistorySheetState extends State<_AddTeamHistorySheet> {
-  final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _placeController = TextEditingController();
-  final _ageGroupController = TextEditingController();
-  final _gamesController = TextEditingController();
-  final _notesController = TextEditingController();
-  DateTime _date = DateTime.now();
-  bool _isSaving = false;
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _placeController.dispose();
-    _ageGroupController.dispose();
-    _gamesController.dispose();
-    _notesController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _date,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
-    );
-    if (picked == null) return;
-    setState(() => _date = picked);
-  }
-
-  Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isSaving = true);
-    final games = _gamesController.text
-        .split(RegExp(r'[\n,،]+'))
-        .map((game) => game.trim())
-        .where((game) => game.isNotEmpty)
-        .toList();
-
-    final history = ServiceHistoryModel(
-      id: '',
-      title: _titleController.text.trim(),
-      place: _placeController.text.trim(),
-      date: _date,
-      games: games,
-      ageGroup: _ageGroupController.text.trim(),
-      notes: _notesController.text.trim(),
-      createdAt: DateTime.now(),
-    );
-
-    await widget.onSave(history);
-    if (!mounted) return;
-    Navigator.of(context).pop();
-  }
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, 16, 16, bottomInset + 16),
-      child: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+    return _SectionBox(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
             children: [
-              const Text('إضافة خدمة للفريق', style: TextStyles.bold19),
-              verticalSpace(14),
-              CustomTextFormField(
-                controller: _titleController,
-                hintText: 'اسم الخدمة',
-                textInputType: TextInputType.text,
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: AppColors.primaryColor),
               ),
-              verticalSpace(10),
-              CustomTextFormField(
-                controller: _placeController,
-                hintText: 'المكان',
-                textInputType: TextInputType.text,
-                needsValidation: false,
+              horizontalSpace(12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: TextStyles.bold16),
+                    verticalSpace(4),
+                    Text(
+                      subtitle,
+                      style: TextStyles.regular13.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.68),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              verticalSpace(10),
-              CustomTextFormField(
-                controller: _ageGroupController,
-                hintText: 'السن أو المرحلة',
-                textInputType: TextInputType.text,
-                needsValidation: false,
-              ),
-              verticalSpace(10),
-              CustomTextFormField(
-                controller: _gamesController,
-                hintText: 'الألعاب المستخدمة، كل لعبة في سطر',
-                textInputType: TextInputType.multiline,
-                textInputAction: TextInputAction.newline,
-                minLines: 2,
-                maxLines: 5,
-                needsValidation: false,
-              ),
-              verticalSpace(10),
-              CustomTextFormField(
-                controller: _notesController,
-                hintText: 'ملاحظات',
-                textInputType: TextInputType.multiline,
-                textInputAction: TextInputAction.newline,
-                minLines: 2,
-                maxLines: 4,
-                needsValidation: false,
-              ),
-              verticalSpace(10),
-              OutlinedButton.icon(
-                onPressed: _pickDate,
-                icon: const Icon(Icons.calendar_month_rounded),
-                label: Text('${_date.day}/${_date.month}/${_date.year}'),
-              ),
-              verticalSpace(14),
-              CustomButton(
-                text: _isSaving ? 'جاري الحفظ...' : 'حفظ للفريق',
-                onPressed: _isSaving ? null : _save,
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 18,
+                color: AppColors.primaryColor,
               ),
             ],
           ),
