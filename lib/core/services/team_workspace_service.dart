@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:stepforward/core/helper_functions/cache_helper.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
+import 'package:stepforward/core/utils/backend_endpoints.dart';
 import 'package:stepforward/core/utils/chache_helper_keys.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
@@ -22,6 +23,10 @@ class TeamWorkspaceService {
   Future<TeamWorkspaceModel?> getMyTeam() async {
     final user = getCachedUserData();
     if (user == null) return getCachedTeam();
+    final cachedTeam = getCachedTeam();
+    if (cachedTeam != null && cachedTeam.members.contains(user.id)) {
+      return cachedTeam;
+    }
 
     try {
       final snapshot = await _teams
@@ -40,6 +45,48 @@ class TeamWorkspaceService {
     } catch (_) {
       return getCachedTeam();
     }
+  }
+
+  Future<List<TeamWorkspaceModel>> getMyTeams() async {
+    final user = getCachedUserData();
+    if (user == null) {
+      final cachedTeam = getCachedTeam();
+      return cachedTeam == null ? [] : [cachedTeam];
+    }
+
+    try {
+      final snapshot = await _teams
+          .where('members', arrayContains: user.id)
+          .get();
+      final teams =
+          snapshot.docs
+              .map(
+                (doc) =>
+                    TeamWorkspaceModel.fromJson({...doc.data(), 'id': doc.id}),
+              )
+              .toList()
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      if (teams.isNotEmpty) {
+        final cachedTeam = getCachedTeam();
+        final selectedTeam = cachedTeam == null
+            ? teams.first
+            : teams.firstWhere(
+                (team) => team.id == cachedTeam.id,
+                orElse: () => teams.first,
+              );
+        await _cacheTeam(selectedTeam);
+      }
+
+      return teams;
+    } catch (_) {
+      final cachedTeam = getCachedTeam();
+      return cachedTeam == null ? [] : [cachedTeam];
+    }
+  }
+
+  Future<void> setCurrentTeam(TeamWorkspaceModel team) async {
+    await _cacheTeam(team);
   }
 
   Future<TeamWorkspaceModel> createTeam(String name) async {
@@ -110,6 +157,69 @@ class TeamWorkspaceService {
       'updatedAt': FieldValue.serverTimestamp(),
     });
     await CacheHelper.removeData(key: kTeamWorkspaceKey);
+  }
+
+  Future<void> removeTeamMember({
+    required String teamId,
+    required String userId,
+  }) async {
+    await _teams.doc(teamId).update({
+      'members': FieldValue.arrayRemove([userId]),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    if (getCachedUserData()?.id == userId) {
+      await CacheHelper.removeData(key: kTeamWorkspaceKey);
+    }
+  }
+
+  Future<bool> isCurrentUserAdmin() async {
+    final userId = getCachedUserData()?.id;
+    if (userId == null) return false;
+
+    try {
+      final doc = await _firestore
+          .collection(BackendEndpoints.getUserData)
+          .doc(userId)
+          .get();
+      return doc.data()?['isAdmin'] == true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<List<TeamMemberModel>> getTeamMembers(TeamWorkspaceModel team) async {
+    final members = <TeamMemberModel>[];
+
+    for (final userId in team.members) {
+      try {
+        final doc = await _firestore
+            .collection(BackendEndpoints.getUserData)
+            .doc(userId)
+            .get();
+        final data = doc.data();
+
+        members.add(
+          TeamMemberModel.fromJson(
+            id: userId,
+            json: data ?? const <String, dynamic>{},
+            isOwner: userId == team.ownerId,
+          ),
+        );
+      } catch (_) {
+        members.add(
+          TeamMemberModel(id: userId, isOwner: userId == team.ownerId),
+        );
+      }
+    }
+
+    members.sort((a, b) {
+      if (a.isOwner != b.isOwner) return a.isOwner ? -1 : 1;
+      if (a.isAdmin != b.isAdmin) return a.isAdmin ? -1 : 1;
+      return a.displayName.compareTo(b.displayName);
+    });
+
+    return members;
   }
 
   Future<void> saveTeamPreparationGames({
@@ -337,3 +447,49 @@ class TeamWorkspaceService {
 }
 
 final teamWorkspaceService = TeamWorkspaceService();
+
+class TeamMemberModel {
+  const TeamMemberModel({
+    required this.id,
+    this.firstName = '',
+    this.lastName = '',
+    this.email = '',
+    this.phoneNumber = '',
+    this.churchName = '',
+    this.isAdmin = false,
+    this.isOwner = false,
+  });
+
+  final String id;
+  final String firstName;
+  final String lastName;
+  final String email;
+  final String phoneNumber;
+  final String churchName;
+  final bool isAdmin;
+  final bool isOwner;
+
+  String get displayName {
+    final name = '$firstName $lastName'.trim();
+    if (name.isNotEmpty) return name;
+    if (email.isNotEmpty) return email;
+    return id;
+  }
+
+  factory TeamMemberModel.fromJson({
+    required String id,
+    required Map<String, dynamic> json,
+    required bool isOwner,
+  }) {
+    return TeamMemberModel(
+      id: id,
+      firstName: json['firstName']?.toString() ?? '',
+      lastName: json['lastName']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      phoneNumber: json['phoneNumber']?.toString() ?? '',
+      churchName: json['churchName']?.toString() ?? '',
+      isAdmin: json['isAdmin'] == true,
+      isOwner: isOwner,
+    );
+  }
+}

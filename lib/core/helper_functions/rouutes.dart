@@ -15,6 +15,7 @@ class Routes {
   static const teamWorkspaceView = '/teamWorkspaceView';
   static const teamPreparationView = '/teamPreparationView';
   static const teamServiceHistoryView = '/teamServiceHistoryView';
+  static const teamMembersView = '/teamMembersView';
   static const pdfViewerScreen = '/PdfViewerScreen';
   static const uploadIdView = '/uploadIdView';
   static const gameDetailsById = '/gameDetailsById';

@@ -12,7 +12,7 @@ Required data payload:
 
 ```json
 {
-  "gameId": "FIRESTORE_GAME_DOCUMENT_ID"
+  "gameId": "ق"
 }
 ```
 

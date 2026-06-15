@@ -32,8 +32,10 @@ class _TeamWorkspaceViewState extends State<TeamWorkspaceView> {
   late final TextEditingController _inviteCodeController;
 
   TeamWorkspaceModel? _team;
+  List<TeamWorkspaceModel> _teams = [];
   bool _isLoading = true;
   bool _isSubmitting = false;
+  bool _isTeamFormSheetOpen = false;
 
   @override
   void initState() {
@@ -54,17 +56,40 @@ class _TeamWorkspaceViewState extends State<TeamWorkspaceView> {
   }
 
   Future<void> _loadTeam() async {
-    setState(() => _isLoading = true);
-    final team = await teamWorkspaceService.getMyTeam();
-    if (team != null) {
-      await _shareLocalDataWithTeam(team);
+    final cachedTeam = teamWorkspaceService.getCachedTeam();
+    if (cachedTeam != null && mounted) {
+      setState(() {
+        _team = cachedTeam;
+        _teams = [cachedTeam];
+        _isLoading = false;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _shareLocalDataWithTeam(cachedTeam);
+      });
+    } else {
+      setState(() => _isLoading = true);
     }
+
+    final teams = await teamWorkspaceService.getMyTeams();
+    final selectedTeam = teams.isEmpty
+        ? null
+        : teams.firstWhere(
+            (team) => team.id == cachedTeam?.id,
+            orElse: () => teams.first,
+          );
 
     if (!mounted) return;
     setState(() {
-      _team = team;
+      _team = selectedTeam;
+      _teams = teams;
       _isLoading = false;
     });
+
+    if (selectedTeam != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _shareLocalDataWithTeam(selectedTeam);
+      });
+    }
   }
 
   Future<void> _createTeam() async {
@@ -76,6 +101,7 @@ class _TeamWorkspaceViewState extends State<TeamWorkspaceView> {
       _teamNameController.clear();
       await _setTeamAndRefresh(team);
       if (!mounted) return;
+      _closeTeamFormSheetIfOpen();
       showSnackBar(context, text: 'تم إنشاء الفريق');
     });
   }
@@ -100,6 +126,7 @@ class _TeamWorkspaceViewState extends State<TeamWorkspaceView> {
       _inviteCodeController.clear();
       await _setTeamAndRefresh(team);
       if (!mounted) return;
+      _closeTeamFormSheetIfOpen();
       showSnackBar(context, text: 'تم الانضمام للفريق');
     });
   }
@@ -111,15 +138,73 @@ class _TeamWorkspaceViewState extends State<TeamWorkspaceView> {
     await _runSubmittingAction(() async {
       await teamWorkspaceService.leaveTeam(team.id);
       if (!mounted) return;
-      setState(() => _team = null);
+      final remainingTeams = _teams
+          .where((item) => item.id != team.id)
+          .toList();
+      final nextTeam = remainingTeams.isEmpty ? null : remainingTeams.first;
+      if (nextTeam != null) {
+        await teamWorkspaceService.setCurrentTeam(nextTeam);
+      }
+      if (!mounted) return;
+      setState(() {
+        _teams = remainingTeams;
+        _team = nextTeam;
+      });
       showSnackBar(context, text: 'تم الخروج من الفريق');
     });
   }
 
   Future<void> _setTeamAndRefresh(TeamWorkspaceModel team) async {
-    await _shareLocalDataWithTeam(team);
+    if (!mounted) return;
+    await teamWorkspaceService.setCurrentTeam(team);
+    setState(() {
+      _team = team;
+      _teams = [team, ..._teams.where((item) => item.id != team.id)];
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _shareLocalDataWithTeam(team);
+    });
+  }
+
+  Future<void> _selectTeam(TeamWorkspaceModel team) async {
+    await teamWorkspaceService.setCurrentTeam(team);
     if (!mounted) return;
     setState(() => _team = team);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _shareLocalDataWithTeam(team);
+    });
+  }
+
+  Future<void> _openTeamFormSheet() async {
+    _isTeamFormSheetOpen = true;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) {
+        final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+        final bottomSafeArea = MediaQuery.paddingOf(context).bottom;
+        return FractionallySizedBox(
+          heightFactor: 0.78,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              16,
+              16,
+              bottomInset + bottomSafeArea + 16,
+            ),
+            child: SingleChildScrollView(child: _buildJoinOrCreateView()),
+          ),
+        );
+      },
+    );
+    _isTeamFormSheetOpen = false;
+  }
+
+  void _closeTeamFormSheetIfOpen() {
+    if (!_isTeamFormSheetOpen || !Navigator.of(context).canPop()) return;
+    Navigator.of(context).pop();
+    _isTeamFormSheetOpen = false;
   }
 
   Future<void> _shareLocalDataWithTeam(TeamWorkspaceModel team) async {
@@ -283,6 +368,10 @@ class _TeamWorkspaceViewState extends State<TeamWorkspaceView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (_teams.length > 1) ...[
+          _buildTeamsSwitcher(team),
+          verticalSpace(14),
+        ],
         _SectionBox(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -335,6 +424,21 @@ class _TeamWorkspaceViewState extends State<TeamWorkspaceView> {
         ),
         verticalSpace(14),
         _TeamFeatureCard(
+          icon: Icons.add_business_rounded,
+          title: 'فريق آخر',
+          subtitle: 'إنشاء فريق جديد أو الانضمام بكود دعوة',
+          onTap: _openTeamFormSheet,
+        ),
+        verticalSpace(14),
+        _TeamFeatureCard(
+          icon: Icons.people_alt_rounded,
+          title: 'أعضاء الفريق',
+          subtitle: 'عرض الأعضاء وإدارة الخروج أو الحذف',
+          onTap: () =>
+              context.pushNamed(Routes.teamMembersView, arguments: team),
+        ),
+        verticalSpace(14),
+        _TeamFeatureCard(
           icon: Icons.checklist_rounded,
           title: 'تحضير الفريق',
           subtitle: 'الألعاب والأدوات المشتركة للفريق',
@@ -359,6 +463,37 @@ class _TeamWorkspaceViewState extends State<TeamWorkspaceView> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildTeamsSwitcher(TeamWorkspaceModel selectedTeam) {
+    return _SectionBox(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('فرقي', style: TextStyles.bold19),
+          verticalSpace(10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _teams.map((team) {
+              final selected = team.id == selectedTeam.id;
+              return ChoiceChip(
+                selected: selected,
+                label: Text(team.name),
+                selectedColor: AppColors.secondaryColor.withValues(alpha: 0.35),
+                checkmarkColor: AppColors.primaryColor,
+                labelStyle: TextStyles.semiBold13.copyWith(
+                  color: selected
+                      ? AppColors.primaryColor
+                      : Theme.of(context).colorScheme.onSurface,
+                ),
+                onSelected: (_) => _selectTeam(team),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
     );
   }
 }

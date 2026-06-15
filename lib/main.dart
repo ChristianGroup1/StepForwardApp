@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:stepforward/core/cubits/locale_cubit.dart';
 import 'package:stepforward/core/cubits/theme_cubit.dart';
 import 'package:stepforward/core/helper_functions/cache_helper.dart';
@@ -19,6 +20,8 @@ import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_theme.dart';
 import 'package:stepforward/firebase_options.dart';
 import 'package:stepforward/generated/l10n.dart';
+
+const _sentryDsn = String.fromEnvironment('SENTRY_DSN');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,15 +53,24 @@ void main() async {
   await DeepLinkService.init();
   await NewGamesNotificationService.init();
 
-  runApp(
-    MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => LocaleCubit()),
-        BlocProvider(create: (_) => ThemeCubit()),
-      ],
-      child: const MyApp(),
-    ),
+  final app = MultiBlocProvider(
+    providers: [
+      BlocProvider(create: (_) => LocaleCubit()),
+      BlocProvider(create: (_) => ThemeCubit()),
+    ],
+    child: const MyApp(),
   );
+
+  if (_sentryDsn.isEmpty) {
+    runApp(app);
+    return;
+  }
+
+  await SentryFlutter.init((options) {
+    options.dsn = _sentryDsn;
+    options.tracesSampleRate = 1.0;
+    options.profilesSampleRate = 1.0;
+  }, appRunner: () => runApp(app));
 }
 
 class MyApp extends StatelessWidget {
@@ -113,6 +125,9 @@ class MyApp extends StatelessWidget {
                     );
                   },
                   title: 'Step Forward',
+                  navigatorObservers: _sentryDsn.isEmpty
+                      ? const []
+                      : [SentryNavigatorObserver()],
                   localizationsDelegates: [
                     S.delegate,
                     GlobalMaterialLocalizations.delegate,

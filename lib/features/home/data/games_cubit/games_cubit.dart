@@ -37,7 +37,7 @@ class GamesCubit extends Cubit<GamesState> {
     result.fold(
       (failure) => emit(GetGameFailureState(errorMessage: failure.message)),
       (games) {
-        allGames = _sortNewestFirst(games);
+        allGames = _sortNewestFirst(_visibleGames(games));
         emit(GetGamesSuccessState(games: _filteredGames()));
       },
     );
@@ -140,6 +140,8 @@ class GamesCubit extends Cubit<GamesState> {
     final normalizedSelectedTarget = _normalize(selectedTarget ?? '');
 
     return allGames.where((game) {
+      if (!game.isVisible) return false;
+
       final normalizedGoalTags = game.filterTargets.map(_normalize).toList();
       final matchesTags =
           selectedTags.isEmpty ||
@@ -182,6 +184,10 @@ class GamesCubit extends Cubit<GamesState> {
     return value.trim().toLowerCase();
   }
 
+  List<GameModel> _visibleGames(Iterable<GameModel> games) {
+    return games.where((game) => game.isVisible).toList();
+  }
+
   // Fetch games that are marked as favorites
   Future<void> fetchUserFavorites() async {
     emit(FetchUserFavoritesLoadingState());
@@ -189,7 +195,9 @@ class GamesCubit extends Cubit<GamesState> {
     result.fold(
       (failure) =>
           emit(FetchUserFavoritesFailureState(errorMessage: failure.message)),
-      (favorites) => emit(FetchUserFavoritesSuccessState(favorites: favorites)),
+      (favorites) => emit(
+        FetchUserFavoritesSuccessState(favorites: _visibleGames(favorites)),
+      ),
     );
   }
 

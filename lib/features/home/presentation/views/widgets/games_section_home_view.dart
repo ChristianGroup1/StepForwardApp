@@ -107,6 +107,9 @@ class GamesSectionHomeView extends StatelessWidget {
                           child: CustomHomeViewItem(
                             imageUrl: game.coverUrl,
                             name: game.name,
+                            isNew: context.read<GamesCubit>().isNewestGame(
+                              game,
+                            ),
                           ),
                         ),
                       );

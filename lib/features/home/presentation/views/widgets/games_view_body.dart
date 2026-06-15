@@ -163,7 +163,10 @@ class GamesViewBody extends StatelessWidget {
                   separatorBuilder: (context, index) => const MyDivider(),
                   itemBuilder: (context, index) {
                     final game = state.games[index];
-                    return CustomGameItem(gameModel: game);
+                    return CustomGameItem(
+                      gameModel: game,
+                      isNew: cubit.isNewestGame(game),
+                    );
                   },
                   itemCount: state.games.length,
                 );

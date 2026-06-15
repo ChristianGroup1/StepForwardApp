@@ -33,7 +33,9 @@ class FavoritesViewBody extends StatelessWidget {
           if (state.favorites.isEmpty) {
             return Center(
               child: CustomEmptyWidget(
-                title: isEn ? 'No favorite games yet' : 'لا توجد ألعاب مفضلة بعد',
+                title: isEn
+                    ? 'No favorite games yet'
+                    : 'لا توجد ألعاب مفضلة بعد',
                 subtitle: isEn
                     ? 'You can add games to favorites by pressing the add button on the game page.'
                     : 'يمكنك إضافة الألعاب إلى المفضلة من خلال الضغط على زر الإضافة في صفحة اللعبة.',
@@ -63,6 +65,9 @@ class FavoritesViewBody extends StatelessWidget {
               child: CustomGameItem(
                 inFavoritesView: true,
                 gameModel: state.favorites[index],
+                isNew: context.read<GamesCubit>().isNewestGame(
+                  state.favorites[index],
+                ),
               ),
             ),
             itemCount: state.favorites.length,

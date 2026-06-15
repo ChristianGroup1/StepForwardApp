@@ -7,6 +7,7 @@ import 'package:stepforward/core/errors/failures.dart';
 import 'package:stepforward/core/helper_functions/cache_helper.dart';
 import 'package:stepforward/core/services/database_service.dart';
 import 'package:stepforward/core/services/firebase_auth_service.dart';
+import 'package:stepforward/core/services/new_games_notification_service.dart';
 import 'package:stepforward/core/utils/app_locale.dart';
 import 'package:stepforward/core/utils/backend_endpoints.dart';
 import 'package:stepforward/core/utils/chache_helper_keys.dart';
@@ -50,6 +51,7 @@ class AuthRepoImpl extends AuthRepo {
 
       await addUserData(userModel: userModel);
       await saveUserData(userModel: userModel);
+      await NewGamesNotificationService.saveTokenForUser(user.uid);
       return Right(userModel);
     } on CustomException catch (e) {
       if (user != null) {
@@ -84,6 +86,7 @@ class AuthRepoImpl extends AuthRepo {
       if (isUserExist) {
         final existingUser = await getUserData(id: user.uid);
         await saveUserData(userModel: existingUser);
+        await NewGamesNotificationService.saveTokenForUser(user.uid);
         return Right(existingUser);
       } else {
         // User is signing in with Google for the first time
@@ -127,6 +130,7 @@ class AuthRepoImpl extends AuthRepo {
         data: userModel.toJson(),
       );
       await saveUserData(userModel: userModel);
+      await NewGamesNotificationService.saveTokenForUser(userModel.id);
       return Right(userModel);
     } catch (e) {
       return Left(
@@ -156,6 +160,7 @@ class AuthRepoImpl extends AuthRepo {
       );
       var userData = await getUserData(id: user.uid);
       await saveUserData(userModel: userData);
+      await NewGamesNotificationService.saveTokenForUser(user.uid);
       return Right(userData);
     } catch (e) {
       return left(CustomFailure(message: e.toString()));

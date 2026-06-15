@@ -17,6 +17,7 @@ import 'package:stepforward/features/home/presentation/views/game_details_by_id_
 import 'package:stepforward/features/home/presentation/views/main_view.dart';
 import 'package:stepforward/features/home/presentation/views/preparation_checklist_view.dart';
 import 'package:stepforward/features/home/presentation/views/service_history_view.dart';
+import 'package:stepforward/features/home/presentation/views/team_members_view.dart';
 import 'package:stepforward/features/home/presentation/views/team_preparation_view.dart';
 import 'package:stepforward/features/home/presentation/views/team_service_history_view.dart';
 import 'package:stepforward/features/home/presentation/views/team_splitter_view.dart';
@@ -134,6 +135,14 @@ Route onGenerateRoutes(RouteSettings settings) {
       return PageTransition(
         duration: const Duration(milliseconds: 50),
         child: TeamServiceHistoryView(team: team),
+        type: PageTransitionType.fade,
+      );
+    case Routes.teamMembersView:
+      AnalyticsService.logScreenView(screenName: 'TeamMembersView');
+      final team = settings.arguments as TeamWorkspaceModel;
+      return PageTransition(
+        duration: const Duration(milliseconds: 50),
+        child: TeamMembersView(team: team),
         type: PageTransitionType.fade,
       );
     case Routes.uploadIdView:

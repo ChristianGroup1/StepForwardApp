@@ -14,9 +14,13 @@ void main() {
     final listGoalTag = GameModel.fromJson({
       'goalTag': ['faith', 'team work'],
     });
+    final hiddenGame = GameModel.fromJson({'isVisible': 'false'});
+    final visibleGame = GameModel.fromJson({'isVisible': '1'});
 
     expect(stringGoalTag.goalTags, ['faith']);
     expect(listGoalTag.goalTags, ['faith', 'team work']);
+    expect(hiddenGame.isVisible, isFalse);
+    expect(visibleGame.isVisible, isTrue);
   });
 
   test('GamesCubit sorts newest games first and searches by target', () async {
@@ -41,6 +45,14 @@ void main() {
         goalTag: 'faith',
         tags: const ['Children'],
         createdAt: DateTime(2024, 1, 15),
+      ),
+      _game(
+        id: 'hidden',
+        target: 'A hidden faith game',
+        goalTag: 'faith',
+        tags: const ['Children'],
+        createdAt: DateTime(2024, 3, 1),
+        isVisible: false,
       ),
     ];
     final homeRepo = _FakeHomeRepo(games);
@@ -75,13 +87,14 @@ GameModel _game({
   required String goalTag,
   required List<String> tags,
   required DateTime createdAt,
+  bool isVisible = true,
 }) {
   return GameModel(
     coverUrl: '',
     name: id,
     id: id,
     explanation: '',
-    isVisible: true,
+    isVisible: isVisible,
     laws: '',
     tags: tags,
     target: target,

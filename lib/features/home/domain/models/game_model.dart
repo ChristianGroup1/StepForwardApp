@@ -44,7 +44,7 @@ class GameModel {
       name: json['name'] ?? '',
       explanation: json['explanation'] ?? '',
       id: json['id'] ?? '',
-      isVisible: json['isVisible'] ?? false,
+      isVisible: _boolFromJson(json['isVisible'], defaultValue: true),
       laws: json['laws'] ?? '',
       tags: List<String>.from(json['tags'] ?? []),
       target: json['target'] ?? '',
@@ -127,5 +127,17 @@ class GameModel {
     if (value is double) return value;
     if (value is num) return value.toDouble();
     return double.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  static bool _boolFromJson(dynamic value, {required bool defaultValue}) {
+    if (value == null) return defaultValue;
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+
+    final normalized = value?.toString().trim().toLowerCase();
+    if (normalized == 'true' || normalized == '1') return true;
+    if (normalized == 'false' || normalized == '0') return false;
+
+    return defaultValue;
   }
 }

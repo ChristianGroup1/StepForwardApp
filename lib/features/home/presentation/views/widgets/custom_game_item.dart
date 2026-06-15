@@ -19,10 +19,12 @@ import 'package:stepforward/features/home/presentation/views/widgets/game_rating
 class CustomGameItem extends StatefulWidget {
   final GameModel gameModel;
   final bool inFavoritesView;
+  final bool isNew;
   const CustomGameItem({
     super.key,
     required this.gameModel,
     this.inFavoritesView = false,
+    this.isNew = false,
   });
 
   @override
@@ -84,14 +86,25 @@ class _CustomGameItemState extends State<CustomGameItem> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CustomCachedNetworkImageWidget(
-              imageUrl: gameModel.coverUrl,
-              borderRadius: 16,
-              height: isDeviceInPortrait(context)
-                  ? MediaQuery.sizeOf(context).height * 0.12
-                  : MediaQuery.sizeOf(context).height * 0.5,
-              width: MediaQuery.sizeOf(context).width * 0.22,
-              fit: BoxFit.cover,
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                CustomCachedNetworkImageWidget(
+                  imageUrl: gameModel.coverUrl,
+                  borderRadius: 16,
+                  height: isDeviceInPortrait(context)
+                      ? MediaQuery.sizeOf(context).height * 0.12
+                      : MediaQuery.sizeOf(context).height * 0.5,
+                  width: MediaQuery.sizeOf(context).width * 0.22,
+                  fit: BoxFit.cover,
+                ),
+                if (widget.isNew)
+                  PositionedDirectional(
+                    top: 6,
+                    start: 6,
+                    child: _NewGameBadge(isEn: context.isEn),
+                  ),
+              ],
             ),
             horizontalSpace(16),
             Expanded(
@@ -187,6 +200,36 @@ class _CustomGameItemState extends State<CustomGameItem> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NewGameBadge extends StatelessWidget {
+  const _NewGameBadge({required this.isEn});
+
+  final bool isEn;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xFF19A974),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.16),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Text(
+          isEn ? 'NEW' : 'جديد',
+          style: TextStyles.bold13.copyWith(color: Colors.white, fontSize: 11),
         ),
       ),
     );

@@ -20,19 +20,15 @@ class HomeRepoImpl extends HomeRepo {
   @override
   Future<Either<Failure, List<GameModel>>> getGames() async {
     try {
+      await CacheHelper.removeData(key: kCachedGamesKey);
       var games =
           await databaseService.getData(path: BackendEndpoints.getGames)
               as List<Map<String, dynamic>>;
-      var gamesList = games.map((e) => GameModel.fromJson(e)).toList();
-      await _cacheList(kCachedGamesKey, gamesList.map((e) => e.toJson()));
+      var gamesList = _visibleGames(
+        games.map((e) => GameModel.fromJson(e)).toList(),
+      );
       return right(gamesList);
     } catch (e) {
-      final cachedGames = _readCachedList(
-        kCachedGamesKey,
-        (json) => GameModel.fromJson(json),
-      );
-      if (cachedGames.isNotEmpty) return right(cachedGames);
-
       return left(CustomFailure(message: e.toString()));
     }
   }
@@ -106,7 +102,7 @@ class HomeRepoImpl extends HomeRepo {
         searchText,
         BackendEndpoints.getGames,
       );
-      return right(results.map((e) => GameModel.fromJson(e)).toList());
+      return right(_visibleGames(results.map((e) => GameModel.fromJson(e))));
     } catch (e) {
       return left(CustomFailure(message: e.toString()));
     }
@@ -150,7 +146,7 @@ class HomeRepoImpl extends HomeRepo {
         return GameModel.fromJson({...gameDoc, 'id': gameId});
       });
 
-      final games = await Future.wait(gamesFutures);
+      final games = _visibleGames(await Future.wait(gamesFutures));
       await _cacheList(kCachedFavoriteGamesKey, games.map((e) => e.toJson()));
 
       return Right(games);
@@ -159,19 +155,9 @@ class HomeRepoImpl extends HomeRepo {
         kCachedFavoriteGamesKey,
         (json) => GameModel.fromJson(json),
       );
-      if (cachedFavoriteGames.isNotEmpty) return right(cachedFavoriteGames);
-
-      final cachedUser = getCachedUserData();
-      final favoriteIds = cachedUser?.favorites ?? [];
-      final cachedGames = _readCachedList(
-        kCachedGamesKey,
-        (json) => GameModel.fromJson(json),
-      );
-      final favoritesFromGamesCache = cachedGames
-          .where((game) => favoriteIds.contains(game.id))
-          .toList();
-      if (favoritesFromGamesCache.isNotEmpty) {
-        return right(favoritesFromGamesCache);
+      final visibleCachedFavoriteGames = _visibleGames(cachedFavoriteGames);
+      if (visibleCachedFavoriteGames.isNotEmpty) {
+        return right(visibleCachedFavoriteGames);
       }
 
       return Left(CustomFailure(message: e.toString()));
@@ -253,7 +239,11 @@ class HomeRepoImpl extends HomeRepo {
                 documentId: gameId,
               )
               as Map<String, dynamic>;
-      return right(GameModel.fromJson({...data, 'id': gameId}));
+      final game = GameModel.fromJson({...data, 'id': gameId});
+      if (!game.isVisible) {
+        return left(CustomFailure(message: 'Game is not visible'));
+      }
+      return right(game);
     } catch (e) {
       return left(CustomFailure(message: e.toString()));
     }
@@ -264,6 +254,10 @@ class HomeRepoImpl extends HomeRepo {
     Iterable<Map<String, dynamic>> values,
   ) async {
     await CacheHelper.saveData(key: key, value: jsonEncode(values.toList()));
+  }
+
+  List<GameModel> _visibleGames(Iterable<GameModel> games) {
+    return games.where((game) => game.isVisible).toList();
   }
 
   List<T> _readCachedList<T>(
