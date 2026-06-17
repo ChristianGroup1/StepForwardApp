@@ -394,7 +394,7 @@ class _TeamWorkspaceViewState extends State<TeamWorkspaceView> {
                 ],
               ),
               verticalSpace(10),
-              Text('الأعضاء: ${team.memberCount}', style: TextStyles.regular14),
+              _TeamCountChip(count: team.memberCount),
               verticalSpace(12),
               _InviteCodeBox(code: team.inviteCode),
               verticalSpace(12),
@@ -434,6 +434,7 @@ class _TeamWorkspaceViewState extends State<TeamWorkspaceView> {
           icon: Icons.people_alt_rounded,
           title: 'أعضاء الفريق',
           subtitle: 'عرض الأعضاء وإدارة الخروج أو الحذف',
+          trailingLabel: '${team.memberCount}',
           onTap: () =>
               context.pushNamed(Routes.teamMembersView, arguments: team),
         ),
@@ -504,12 +505,14 @@ class _TeamFeatureCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.trailingLabel,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final String? trailingLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -548,6 +551,27 @@ class _TeamFeatureCard extends StatelessWidget {
                   ],
                 ),
               ),
+              if (trailingLabel != null) ...[
+                Container(
+                  constraints: const BoxConstraints(minWidth: 30),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    trailingLabel!,
+                    style: TextStyles.bold16.copyWith(
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                ),
+                horizontalSpace(8),
+              ],
               const Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 18,
@@ -555,6 +579,41 @@ class _TeamFeatureCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TeamCountChip extends StatelessWidget {
+  const _TeamCountChip({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: AppColors.primaryColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.people_alt_rounded,
+              size: 18,
+              color: AppColors.primaryColor,
+            ),
+            horizontalSpace(6),
+            Text(
+              '$count أعضاء',
+              style: TextStyles.bold16.copyWith(color: AppColors.primaryColor),
+            ),
+          ],
         ),
       ),
     );

@@ -96,8 +96,8 @@ class TeamWorkspaceService {
   }
 
   Future<TeamWorkspaceModel> createTeam(String name) async {
-    final user = getUserData();
-    if (_auth.currentUser == null) {
+    final userId = _currentUserId;
+    if (userId == null) {
       throw FirebaseException(
         plugin: 'cloud_firestore',
         code: 'unauthenticated',
@@ -110,8 +110,8 @@ class TeamWorkspaceService {
       id: '',
       name: name.trim(),
       inviteCode: inviteCode,
-      ownerId: user.id,
-      members: [user.id],
+      ownerId: userId,
+      members: [userId],
       createdAt: DateTime.now(),
     );
 
@@ -123,8 +123,8 @@ class TeamWorkspaceService {
   }
 
   Future<TeamWorkspaceModel?> joinTeamByInviteCode(String code) async {
-    final user = getUserData();
-    if (_auth.currentUser == null) {
+    final userId = _currentUserId;
+    if (userId == null) {
       throw FirebaseException(
         plugin: 'cloud_firestore',
         code: 'unauthenticated',
@@ -137,7 +137,7 @@ class TeamWorkspaceService {
 
     final docRef = _teams.doc(normalizedCode);
     await docRef.update({
-      'members': FieldValue.arrayUnion([user.id]),
+      'members': FieldValue.arrayUnion([userId]),
       'updatedAt': FieldValue.serverTimestamp(),
     });
 
@@ -146,7 +146,7 @@ class TeamWorkspaceService {
 
     final data = doc.data()!;
     final members = List<String>.from(data['members'] ?? []);
-    if (!members.contains(user.id)) members.add(user.id);
+    if (!members.contains(userId)) members.add(userId);
     final team = TeamWorkspaceModel.fromJson({
       ...data,
       'id': doc.id,
@@ -157,9 +157,9 @@ class TeamWorkspaceService {
   }
 
   Future<void> leaveTeam(String teamId) async {
-    final user = getUserData();
+    final userId = _currentUserId ?? getUserData().id;
     await _teams.doc(teamId).update({
-      'members': FieldValue.arrayRemove([user.id]),
+      'members': FieldValue.arrayRemove([userId]),
       'updatedAt': FieldValue.serverTimestamp(),
     });
     await CacheHelper.removeData(key: kTeamWorkspaceKey);
