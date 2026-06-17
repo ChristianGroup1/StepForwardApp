@@ -37,9 +37,10 @@ class _TeamPreparationViewState extends State<TeamPreparationView> {
           game: game,
         );
       }
-    } catch (_) {
+    } catch (e) {
       // Keep the page usable with local preparation even if Firestore rules
       // reject the team sync.
+      print('TeamPreparation: _shareLocalPreparationWithTeam error: $e');
     }
   }
 

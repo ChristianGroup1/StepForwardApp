@@ -4,7 +4,7 @@
     "details": [
       {
         "appID": "APPLE_TEAM_ID.com.stepforward",
-        "paths": ["/game/*"]
+        "paths": ["/game/*", "/team/*"]
       }
     ]
   }

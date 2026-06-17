@@ -10,6 +10,7 @@ import 'package:stepforward/core/utils/chache_helper_keys.dart';
 import 'package:stepforward/core/utils/constants.dart';
 import 'package:stepforward/features/home/domain/models/game_model.dart';
 import 'package:stepforward/features/home/domain/models/service_history_model.dart';
+import 'package:stepforward/features/home/domain/models/team_game_model.dart';
 import 'package:stepforward/features/home/domain/models/team_workspace_model.dart';
 
 class TeamWorkspaceService {
@@ -19,18 +20,22 @@ class TeamWorkspaceService {
 
   CollectionReference<Map<String, dynamic>> get _teams =>
       _firestore.collection('teams');
+  CollectionReference<Map<String, dynamic>> get _teamGames =>
+      _firestore.collection('teamGames');
+
+  String? get _currentUserId => _auth.currentUser?.uid;
 
   Future<TeamWorkspaceModel?> getMyTeam() async {
-    final user = getCachedUserData();
-    if (user == null) return getCachedTeam();
+    final userId = _currentUserId;
+    if (userId == null) return getCachedTeam();
     final cachedTeam = getCachedTeam();
-    if (cachedTeam != null && cachedTeam.members.contains(user.id)) {
+    if (cachedTeam != null && cachedTeam.members.contains(userId)) {
       return cachedTeam;
     }
 
     try {
       final snapshot = await _teams
-          .where('members', arrayContains: user.id)
+          .where('members', arrayContains: userId)
           .limit(1)
           .get();
       if (snapshot.docs.isEmpty) {
@@ -48,15 +53,15 @@ class TeamWorkspaceService {
   }
 
   Future<List<TeamWorkspaceModel>> getMyTeams() async {
-    final user = getCachedUserData();
-    if (user == null) {
+    final userId = _currentUserId;
+    if (userId == null) {
       final cachedTeam = getCachedTeam();
       return cachedTeam == null ? [] : [cachedTeam];
     }
 
     try {
       final snapshot = await _teams
-          .where('members', arrayContains: user.id)
+          .where('members', arrayContains: userId)
           .get();
       final teams =
           snapshot.docs
@@ -130,13 +135,13 @@ class TeamWorkspaceService {
     if (normalizedCode.isEmpty) return null;
 
     final docRef = _teams.doc(normalizedCode);
-    final doc = await docRef.get();
-    if (!doc.exists || doc.data() == null) return null;
-
     await docRef.update({
       'members': FieldValue.arrayUnion([user.id]),
       'updatedAt': FieldValue.serverTimestamp(),
     });
+
+    final doc = await docRef.get();
+    if (!doc.exists || doc.data() == null) return null;
 
     final data = doc.data()!;
     final members = List<String>.from(data['members'] ?? []);
@@ -220,6 +225,122 @@ class TeamWorkspaceService {
     });
 
     return members;
+  }
+
+  Future<bool> canManageTeam(TeamWorkspaceModel team) async {
+    final userId = _currentUserId;
+    if (userId == null) return false;
+    if (team.ownerId == userId) return true;
+    return isCurrentUserAdmin();
+  }
+
+  Stream<List<TeamGameModel>> watchTeamGames(TeamWorkspaceModel team) {
+    return _teamGames.where('teamId', isEqualTo: team.id).snapshots().map((
+      snapshot,
+    ) {
+      final games =
+          snapshot.docs
+              .map(
+                (doc) => TeamGameModel.fromJson({...doc.data(), 'id': doc.id}),
+              )
+              .toList()
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return games;
+    });
+  }
+
+  Stream<List<TeamGameModel>> watchPublicTeamGames(TeamWorkspaceModel team) {
+    return watchTeamGames(team).map(
+      (games) =>
+          games.where((game) => game.isVisible && game.isPublic).toList(),
+    );
+  }
+
+  Future<void> addTeamGame({
+    required TeamWorkspaceModel team,
+    required TeamGameModel game,
+  }) async {
+    final canManage = await canManageTeam(team);
+    if (!canManage) {
+      throw FirebaseException(
+        plugin: 'cloud_firestore',
+        code: 'permission-denied',
+        message: 'Only team owner or app admin can manage team games.',
+      );
+    }
+
+    final docRef = _teamGames.doc();
+    await docRef.set(
+      game
+          .copyWith(
+            id: docRef.id,
+            teamId: team.id,
+            teamName: team.name,
+            createdAt: DateTime.now(),
+          )
+          .toFirestore(),
+    );
+  }
+
+  Future<void> updateTeamGame({
+    required TeamWorkspaceModel team,
+    required TeamGameModel game,
+  }) async {
+    final canManage = await canManageTeam(team);
+    if (!canManage) {
+      throw FirebaseException(
+        plugin: 'cloud_firestore',
+        code: 'permission-denied',
+        message: 'Only team owner or app admin can manage team games.',
+      );
+    }
+
+    await _teamGames
+        .doc(game.id)
+        .set(
+          game
+              .copyWith(teamName: team.name, updatedAt: DateTime.now())
+              .toFirestore(),
+          SetOptions(merge: true),
+        );
+  }
+
+  Future<void> setTeamGameVisibility({
+    required TeamWorkspaceModel team,
+    required TeamGameModel game,
+    required bool isVisible,
+  }) async {
+    await updateTeamGame(
+      team: team,
+      game: game.copyWith(isVisible: isVisible),
+    );
+  }
+
+  Future<void> setTeamGamePublicStatus({
+    required TeamWorkspaceModel team,
+    required TeamGameModel game,
+    required bool isPublic,
+  }) async {
+    await updateTeamGame(
+      team: team,
+      game: game.copyWith(isPublic: isPublic),
+    );
+  }
+
+  Future<void> deleteTeamGame({
+    required TeamWorkspaceModel team,
+    required TeamGameModel game,
+  }) async {
+    final canManage = await canManageTeam(team);
+    if (!canManage) {
+      throw FirebaseException(
+        plugin: 'cloud_firestore',
+        code: 'permission-denied',
+        message: 'Only team owner or app admin can manage team games.',
+      );
+    }
+
+    await _teamGames.doc(game.id).delete();
   }
 
   Future<void> saveTeamPreparationGames({
@@ -341,18 +462,96 @@ class TeamWorkspaceService {
     required String teamId,
     required ServiceHistoryModel history,
   }) async {
-    final historyId = _historyDocumentId(history);
+    await _requireTeamAccess(teamId);
+    final historyId = _teamHistoryDocumentId(history);
     await _teams
         .doc(teamId)
         .collection('serviceHistory')
         .doc(historyId)
-        .set(history.toFirestore());
+        .set(
+          history.copyWith(id: historyId, syncId: history.syncId).toFirestore(),
+        );
+  }
+
+  Future<void> updateTeamHistory({
+    required String teamId,
+    required ServiceHistoryModel history,
+  }) async {
+    await _requireTeamAccess(teamId);
+    if (history.id.isEmpty) {
+      await addTeamHistory(teamId: teamId, history: history);
+      return;
+    }
+
+    await _teams
+        .doc(teamId)
+        .collection('serviceHistory')
+        .doc(history.id)
+        .set(history.toFirestore(), SetOptions(merge: true));
+  }
+
+  Future<void> replaceTeamHistory({
+    required String teamId,
+    required ServiceHistoryModel history,
+    ServiceHistoryModel? previousHistory,
+  }) async {
+    await _requireTeamAccess(teamId);
+
+    if (previousHistory != null) {
+      await _deletePossibleTeamHistoryDocs(
+        teamId: teamId,
+        history: previousHistory,
+      );
+    }
+
+    await addTeamHistory(teamId: teamId, history: history);
+  }
+
+  Future<void> deleteTeamHistory({
+    required String teamId,
+    required String historyId,
+  }) async {
+    await _requireTeamAccess(teamId);
+    if (historyId.isEmpty) return;
+
+    await _teams
+        .doc(teamId)
+        .collection('serviceHistory')
+        .doc(historyId)
+        .delete();
+  }
+
+  Future<void> deleteTeamHistoryByModel({
+    required String teamId,
+    required ServiceHistoryModel history,
+  }) async {
+    await _requireTeamAccess(teamId);
+    await _deletePossibleTeamHistoryDocs(teamId: teamId, history: history);
   }
 
   Future<void> addHistoryToCurrentTeam(ServiceHistoryModel history) async {
     final team = await _getCurrentTeamForBackgroundSync();
     if (team == null) return;
     await addTeamHistory(teamId: team.id, history: history);
+  }
+
+  Future<void> replaceHistoryInCurrentTeam({
+    required ServiceHistoryModel history,
+    ServiceHistoryModel? previousHistory,
+  }) async {
+    final team = await _getCurrentTeamForBackgroundSync();
+    if (team == null) return;
+    await replaceTeamHistory(
+      teamId: team.id,
+      history: history,
+      previousHistory: previousHistory,
+    );
+  }
+
+  Future<void> deleteHistoryFromCurrentTeam(ServiceHistoryModel history) async {
+    final team = await _getCurrentTeamForBackgroundSync();
+    if (team == null) return;
+    await deleteTeamHistoryByModel(teamId: team.id, history: history);
   }
 
   TeamWorkspaceModel? getCachedTeam() {
@@ -383,12 +582,45 @@ class TeamWorkspaceService {
     );
   }
 
+  Future<void> _requireAuthenticatedUser() async {
+    if (_auth.currentUser != null) return;
+
+    throw FirebaseException(
+      plugin: 'cloud_firestore',
+      code: 'unauthenticated',
+      message: 'No authenticated Firebase user found.',
+    );
+  }
+
+  Future<void> _requireTeamAccess(String teamId) async {
+    await _requireAuthenticatedUser();
+
+    final teamDoc = await _teams.doc(teamId).get();
+    if (!teamDoc.exists || teamDoc.data() == null) {
+      throw FirebaseException(
+        plugin: 'cloud_firestore',
+        code: 'not-found',
+        message: 'Team not found.',
+      );
+    }
+
+    final userId = _auth.currentUser!.uid;
+    final members = List<String>.from(teamDoc.data()!['members'] ?? []);
+    if (!members.contains(userId)) {
+      throw FirebaseException(
+        plugin: 'cloud_firestore',
+        code: 'permission-denied',
+        message: 'User is not a member of this team.',
+      );
+    }
+  }
+
   Future<TeamWorkspaceModel?> _getCurrentTeamForBackgroundSync() async {
-    final user = getCachedUserData();
-    if (user == null) return null;
+    final userId = _currentUserId;
+    if (userId == null) return null;
 
     final cachedTeam = getCachedTeam();
-    if (cachedTeam != null && cachedTeam.members.contains(user.id)) {
+    if (cachedTeam != null && cachedTeam.members.contains(userId)) {
       return cachedTeam;
     }
 
@@ -402,6 +634,27 @@ class TeamWorkspaceService {
       byId[game.id] = game;
     }
     return byId.values.toList();
+  }
+
+  String _teamHistoryDocumentId(ServiceHistoryModel history) {
+    final syncId = history.syncId.trim();
+    if (syncId.isNotEmpty) return syncId;
+    return _historyDocumentId(history);
+  }
+
+  Future<void> _deletePossibleTeamHistoryDocs({
+    required String teamId,
+    required ServiceHistoryModel history,
+  }) async {
+    final ids = <String>{
+      if (history.id.trim().isNotEmpty) history.id.trim(),
+      if (history.syncId.trim().isNotEmpty) history.syncId.trim(),
+      _historyDocumentId(history),
+    };
+
+    for (final id in ids) {
+      await _teams.doc(teamId).collection('serviceHistory').doc(id).delete();
+    }
   }
 
   String _historyDocumentId(ServiceHistoryModel history) {

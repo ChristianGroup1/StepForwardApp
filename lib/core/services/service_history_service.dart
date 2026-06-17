@@ -76,11 +76,10 @@ class ServiceHistoryService {
           .collection('serviceHistory')
           .add(history.toFirestore());
 
-      updatedHistory = history.copyWith(id: docRef.id);
+      updatedHistory = history.copyWith(id: docRef.id, syncId: docRef.id);
     } catch (_) {
-      updatedHistory = history.copyWith(
-        id: 'local_${DateTime.now().millisecondsSinceEpoch}',
-      );
+      final localId = 'local_${DateTime.now().millisecondsSinceEpoch}';
+      updatedHistory = history.copyWith(id: localId, syncId: localId);
     }
 
     final cachedHistory = getCachedHistory()
@@ -92,7 +91,52 @@ class ServiceHistoryService {
     );
   }
 
-  Future<void> deleteHistory(String historyId) async {
+  Future<void> updateHistory(
+    ServiceHistoryModel history, {
+    ServiceHistoryModel? previousHistory,
+    bool syncTeam = true,
+  }) async {
+    final localId = 'local_${DateTime.now().millisecondsSinceEpoch}';
+    final updatedHistory = history.id.isEmpty
+        ? history.copyWith(id: localId, syncId: localId)
+        : history.copyWith(
+            syncId: history.syncId.isEmpty ? history.id : history.syncId,
+          );
+
+    try {
+      final userId = getUserData().id;
+      await _firestore
+          .collection(BackendEndpoints.getUserData)
+          .doc(userId)
+          .collection('serviceHistory')
+          .doc(updatedHistory.id)
+          .set(updatedHistory.toFirestore(), SetOptions(merge: true));
+    } catch (_) {}
+
+    final cachedHistory = getCachedHistory()
+      ..removeWhere((item) => item.id == updatedHistory.id)
+      ..insert(0, updatedHistory);
+    cachedHistory.sort((a, b) => b.date.compareTo(a.date));
+    await _cacheHistory(cachedHistory);
+
+    if (syncTeam) {
+      await _runTeamSync(
+        () => teamWorkspaceService.replaceHistoryInCurrentTeam(
+          history: updatedHistory,
+          previousHistory: previousHistory,
+        ),
+      );
+    }
+  }
+
+  Future<void> deleteHistory(
+    String historyId, {
+    ServiceHistoryModel? history,
+    bool syncTeam = true,
+  }) async {
+    final historyToDelete =
+        history ?? _findHistoryById(getCachedHistory(), historyId);
+
     try {
       final userId = getUserData().id;
       await _firestore
@@ -106,6 +150,45 @@ class ServiceHistoryService {
     final cachedHistory = getCachedHistory()
       ..removeWhere((item) => item.id == historyId);
     await _cacheHistory(cachedHistory);
+
+    if (syncTeam && historyToDelete != null) {
+      await _runTeamSync(
+        () =>
+            teamWorkspaceService.deleteHistoryFromCurrentTeam(historyToDelete),
+      );
+    }
+  }
+
+  Future<void> updateSyncedHistoryFromTeam({
+    required ServiceHistoryModel history,
+    ServiceHistoryModel? previousHistory,
+  }) async {
+    final cachedHistory = getCachedHistory();
+    final matchingHistory = _findSyncedHistory(
+      cachedHistory,
+      previousHistory ?? history,
+    );
+    if (matchingHistory == null) return;
+
+    await updateHistory(
+      history.copyWith(
+        id: matchingHistory.id,
+        syncId: matchingHistory.syncId,
+        createdAt: matchingHistory.createdAt,
+      ),
+      previousHistory: matchingHistory,
+      syncTeam: false,
+    );
+  }
+
+  Future<void> deleteSyncedHistoryFromTeam(ServiceHistoryModel history) async {
+    final matchingHistory = _findSyncedHistory(getCachedHistory(), history);
+    if (matchingHistory == null) return;
+    await deleteHistory(
+      matchingHistory.id,
+      history: matchingHistory,
+      syncTeam: false,
+    );
   }
 
   Future<void> _cacheHistory(List<ServiceHistoryModel> history) async {
@@ -119,6 +202,44 @@ class ServiceHistoryService {
     try {
       await action();
     } catch (_) {}
+  }
+
+  ServiceHistoryModel? _findSyncedHistory(
+    List<ServiceHistoryModel> history,
+    ServiceHistoryModel target,
+  ) {
+    for (final item in history) {
+      if (item.id == target.id ||
+          item.id == target.syncId ||
+          item.syncId == target.id ||
+          item.syncId == target.syncId ||
+          _historySignature(item) == _historySignature(target)) {
+        return item;
+      }
+    }
+    return null;
+  }
+
+  ServiceHistoryModel? _findHistoryById(
+    List<ServiceHistoryModel> history,
+    String historyId,
+  ) {
+    for (final item in history) {
+      if (item.id == historyId) return item;
+    }
+    return null;
+  }
+
+  String _historySignature(ServiceHistoryModel history) {
+    final games = [...history.games]
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    return [
+      history.title,
+      history.place,
+      history.ageGroup,
+      '${history.date.year}-${history.date.month}-${history.date.day}',
+      ...games,
+    ].map((value) => value.trim().toLowerCase()).join('|');
   }
 }
 

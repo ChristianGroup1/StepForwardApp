@@ -13,6 +13,9 @@ class GameModel {
   final DateTime? createdAt;
   final double ratingAverage;
   final int ratingCount;
+  final bool isTeamGame;
+  final String teamId;
+  final String teamName;
 
   GameModel({
     required this.coverUrl,
@@ -28,6 +31,9 @@ class GameModel {
     this.createdAt,
     this.ratingAverage = 0,
     this.ratingCount = 0,
+    this.isTeamGame = false,
+    this.teamId = '',
+    this.teamName = '',
     Object? goalTag = '',
   }) : goalTags = _goalTagsFromJson(goalTag);
 
@@ -53,6 +59,9 @@ class GameModel {
       videoLink: json['videoLink'] ?? '',
       ratingAverage: _doubleFromJson(json['ratingAverage']),
       ratingCount: _intFromJson(json['ratingCount']),
+      isTeamGame: _boolFromJson(json['isTeamGame'], defaultValue: false),
+      teamId: json['teamId']?.toString() ?? '',
+      teamName: json['teamName']?.toString() ?? '',
       createdAt: _dateFromJson(
         json['createdAt'] ?? json['created_at'] ?? json['updatedAt'],
       ),
@@ -74,6 +83,9 @@ class GameModel {
       'videoLink': videoLink,
       'ratingAverage': ratingAverage,
       'ratingCount': ratingCount,
+      'isTeamGame': isTeamGame,
+      'teamId': teamId,
+      'teamName': teamName,
       'createdAt': createdAt?.toIso8601String(),
     };
   }

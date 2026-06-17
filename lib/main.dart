@@ -21,7 +21,11 @@ import 'package:stepforward/core/utils/app_theme.dart';
 import 'package:stepforward/firebase_options.dart';
 import 'package:stepforward/generated/l10n.dart';
 
-const _sentryDsn = String.fromEnvironment('SENTRY_DSN');
+const _sentryDsn = String.fromEnvironment(
+  'SENTRY_DSN',
+  defaultValue:
+      'https://b4cb38f373e0b0dcaa4d937ad8a46af8@o4511268451254272.ingest.de.sentry.io/4511572013350992',
+);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,9 +72,10 @@ void main() async {
 
   await SentryFlutter.init((options) {
     options.dsn = _sentryDsn;
+    options.sendDefaultPii = true;
     options.tracesSampleRate = 1.0;
     options.profilesSampleRate = 1.0;
-  }, appRunner: () => runApp(app));
+  }, appRunner: () => runApp(SentryWidget(child: app)));
 }
 
 class MyApp extends StatelessWidget {

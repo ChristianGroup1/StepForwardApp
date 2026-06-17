@@ -22,8 +22,11 @@
       }
     }
   },
+  "firestore": {
+    "rules": "firestore.rules"
+  },
   "hosting": {
-    "public": "build/web",
+    "public": "redirect-site/out",
     "ignore": [
       "firebase.json",
       "**/node_modules/**"
@@ -59,11 +62,11 @@
     "rewrites": [
       {
         "source": "/game/**",
-        "destination": "/game/redirect.html"
+        "destination": "/game/index.html"
       },
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source": "/team/**",
+        "destination": "/team/index.html"
       }
     ]
   }

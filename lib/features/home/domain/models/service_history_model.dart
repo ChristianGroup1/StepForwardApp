@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ServiceHistoryModel {
-  const ServiceHistoryModel({
+  ServiceHistoryModel({
     required this.id,
     required this.title,
     required this.place,
@@ -10,7 +10,8 @@ class ServiceHistoryModel {
     required this.ageGroup,
     required this.notes,
     required this.createdAt,
-  });
+    String? syncId,
+  }) : syncId = syncId == null || syncId.isEmpty ? id : syncId;
 
   final String id;
   final String title;
@@ -20,6 +21,7 @@ class ServiceHistoryModel {
   final String ageGroup;
   final String notes;
   final DateTime createdAt;
+  final String syncId;
 
   factory ServiceHistoryModel.fromJson(Map<String, dynamic> json) {
     return ServiceHistoryModel(
@@ -31,6 +33,7 @@ class ServiceHistoryModel {
       ageGroup: json['ageGroup'] ?? '',
       notes: json['notes'] ?? '',
       createdAt: _dateFromJson(json['createdAt']) ?? DateTime.now(),
+      syncId: json['syncId'] ?? json['id'] ?? '',
     );
   }
 
@@ -44,6 +47,7 @@ class ServiceHistoryModel {
       'ageGroup': ageGroup,
       'notes': notes,
       'createdAt': createdAt.toIso8601String(),
+      'syncId': syncId,
     };
   }
 
@@ -56,6 +60,7 @@ class ServiceHistoryModel {
       'ageGroup': ageGroup,
       'notes': notes,
       'createdAt': Timestamp.fromDate(createdAt),
+      'syncId': syncId,
     };
   }
 
@@ -68,6 +73,7 @@ class ServiceHistoryModel {
     String? ageGroup,
     String? notes,
     DateTime? createdAt,
+    String? syncId,
   }) {
     return ServiceHistoryModel(
       id: id ?? this.id,
@@ -78,6 +84,7 @@ class ServiceHistoryModel {
       ageGroup: ageGroup ?? this.ageGroup,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
+      syncId: syncId ?? this.syncId,
     );
   }
 

@@ -13,6 +13,7 @@ class Routes {
   static const teamSplitterView = '/teamSplitterView';
   static const serviceHistoryView = '/serviceHistoryView';
   static const teamWorkspaceView = '/teamWorkspaceView';
+  static const teamInviteView = '/teamInviteView';
   static const teamPreparationView = '/teamPreparationView';
   static const teamServiceHistoryView = '/teamServiceHistoryView';
   static const teamMembersView = '/teamMembersView';

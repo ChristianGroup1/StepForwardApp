@@ -17,6 +17,7 @@ import 'package:stepforward/features/home/presentation/views/game_details_by_id_
 import 'package:stepforward/features/home/presentation/views/main_view.dart';
 import 'package:stepforward/features/home/presentation/views/preparation_checklist_view.dart';
 import 'package:stepforward/features/home/presentation/views/service_history_view.dart';
+import 'package:stepforward/features/home/presentation/views/team_invite_view.dart';
 import 'package:stepforward/features/home/presentation/views/team_members_view.dart';
 import 'package:stepforward/features/home/presentation/views/team_preparation_view.dart';
 import 'package:stepforward/features/home/presentation/views/team_service_history_view.dart';
@@ -119,6 +120,15 @@ Route onGenerateRoutes(RouteSettings settings) {
       return PageTransition(
         duration: const Duration(milliseconds: 50),
         child: TeamWorkspaceView(initialInviteCode: inviteCode),
+        type: PageTransitionType.fade,
+      );
+    case Routes.teamInviteView:
+      AnalyticsService.logScreenView(screenName: 'TeamInviteView');
+      final inviteCode = settings.arguments as String;
+
+      return PageTransition(
+        duration: const Duration(milliseconds: 50),
+        child: TeamInviteView(inviteCode: inviteCode),
         type: PageTransitionType.fade,
       );
     case Routes.teamPreparationView:

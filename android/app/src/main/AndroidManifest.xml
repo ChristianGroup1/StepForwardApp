@@ -59,6 +59,16 @@
                     android:host="game" />
             </intent-filter>
 
+            <!-- Deep link: stepforward://team/{inviteCode} -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="stepforward"
+                    android:host="team" />
+            </intent-filter>
+
             <!-- App Links: https://stepforwardteam.com/game/{id}
                  Enables verified deep linking so that clicking the shared HTTPS
                  link in WhatsApp / SMS opens the app directly (no browser step).
@@ -72,6 +82,17 @@
                     android:scheme="https"
                     android:host="stepforwardteam.com"
                     android:pathPrefix="/game/" />
+            </intent-filter>
+
+            <!-- App Links: https://stepforwardteam.com/team/{inviteCode} -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="stepforwardteam.com"
+                    android:pathPrefix="/team/" />
             </intent-filter>
         </activity>
 

@@ -69,11 +69,83 @@ class _TeamServiceHistoryViewState extends State<TeamServiceHistoryView> {
       if (!mounted) return;
       showSnackBar(context, text: 'تم حفظ الخدمة للفريق');
     } on FirebaseException catch (error) {
+      if (mounted) {
+        showSnackBar(
+          context,
+          text: error.code == 'permission-denied'
+              ? 'Firebase رفض الحفظ: راجع صلاحيات teams/serviceHistory'
+              : 'Firebase error: ${error.code}',
+          color: Colors.red,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> _updateHistory(
+    ServiceHistoryModel history, {
+    ServiceHistoryModel? previousHistory,
+  }) async {
+    try {
+      await teamWorkspaceService.updateTeamHistory(
+        teamId: widget.team.id,
+        history: history,
+      );
+      await serviceHistoryService.updateSyncedHistoryFromTeam(
+        history: history,
+        previousHistory: previousHistory,
+      );
+      if (!mounted) return;
+      showSnackBar(context, text: 'تم حفظ التعديل للفريق');
+    } on FirebaseException catch (error) {
+      if (mounted) {
+        showSnackBar(
+          context,
+          text: error.code == 'permission-denied'
+              ? 'Firebase رفض التعديل: هذه الخدمة متاحة لأعضاء الفريق فقط'
+              : 'Firebase error: ${error.code}',
+          color: Colors.red,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> _deleteHistory(ServiceHistoryModel history) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('حذف الخدمة'),
+        content: Text('هل تريد حذف "${history.title}" من خدمات الفريق؟'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('إلغاء'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('حذف'),
+          ),
+        ],
+      ),
+    );
+    if (shouldDelete != true) return;
+
+    try {
+      await teamWorkspaceService.deleteTeamHistory(
+        teamId: widget.team.id,
+        historyId: history.id,
+      );
+      await serviceHistoryService.deleteSyncedHistoryFromTeam(history);
+      if (!mounted) return;
+      showSnackBar(context, text: 'تم حذف الخدمة من الفريق');
+    } on FirebaseException catch (error) {
       if (!mounted) return;
       showSnackBar(
         context,
         text: error.code == 'permission-denied'
-            ? 'Firebase رفض الحفظ: راجع صلاحيات teams/serviceHistory'
+            ? 'Firebase رفض الحذف: هذه الخدمة متاحة لأعضاء الفريق فقط'
             : 'Firebase error: ${error.code}',
         color: Colors.red,
       );
@@ -86,6 +158,19 @@ class _TeamServiceHistoryViewState extends State<TeamServiceHistoryView> {
       isScrollControlled: true,
       useSafeArea: true,
       builder: (_) => _AddTeamHistorySheet(onSave: _addHistory),
+    );
+  }
+
+  Future<void> _openEditSheet(ServiceHistoryModel history) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => _AddTeamHistorySheet(
+        initialHistory: history,
+        onSave: (updatedHistory) =>
+            _updateHistory(updatedHistory, previousHistory: history),
+      ),
     );
   }
 
@@ -146,7 +231,13 @@ class _TeamServiceHistoryViewState extends State<TeamServiceHistoryView> {
                   subtitle: 'جرّب اسم خدمة أو مكان أو لعبة مختلف.',
                 )
               else
-                ...filteredHistory.map((item) => _TeamHistoryCard(item: item)),
+                ...filteredHistory.map(
+                  (item) => _TeamHistoryCard(
+                    item: item,
+                    onEdit: _openEditSheet,
+                    onDelete: _deleteHistory,
+                  ),
+                ),
             ],
           );
         },
@@ -156,9 +247,15 @@ class _TeamServiceHistoryViewState extends State<TeamServiceHistoryView> {
 }
 
 class _TeamHistoryCard extends StatelessWidget {
-  const _TeamHistoryCard({required this.item});
+  const _TeamHistoryCard({
+    required this.item,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   final ServiceHistoryModel item;
+  final ValueChanged<ServiceHistoryModel> onEdit;
+  final ValueChanged<ServiceHistoryModel> onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -176,9 +273,34 @@ class _TeamHistoryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            item.title,
-            style: TextStyles.bold16.copyWith(color: AppColors.primaryColor),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  item.title,
+                  style: TextStyles.bold16.copyWith(
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    tooltip: 'تعديل',
+                    onPressed: () => onEdit(item),
+                    icon: const Icon(Icons.edit_outlined),
+                  ),
+                  IconButton(
+                    tooltip: 'حذف',
+                    onPressed: () => onDelete(item),
+                    color: Colors.red,
+                    icon: const Icon(Icons.delete_outline_rounded),
+                  ),
+                ],
+              ),
+            ],
           ),
           verticalSpace(8),
           Text(
@@ -222,8 +344,9 @@ class _TeamHistoryCard extends StatelessWidget {
 }
 
 class _AddTeamHistorySheet extends StatefulWidget {
-  const _AddTeamHistorySheet({required this.onSave});
+  const _AddTeamHistorySheet({this.initialHistory, required this.onSave});
 
+  final ServiceHistoryModel? initialHistory;
   final Future<void> Function(ServiceHistoryModel history) onSave;
 
   @override
@@ -239,6 +362,21 @@ class _AddTeamHistorySheetState extends State<_AddTeamHistorySheet> {
   final _notesController = TextEditingController();
   DateTime _date = DateTime.now();
   bool _isSaving = false;
+  bool get _isEditing => widget.initialHistory != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final history = widget.initialHistory;
+    if (history == null) return;
+
+    _titleController.text = history.title;
+    _placeController.text = history.place;
+    _ageGroupController.text = history.ageGroup;
+    _gamesController.text = history.games.join('\n');
+    _notesController.text = history.notes;
+    _date = history.date;
+  }
 
   @override
   void dispose() {
@@ -271,20 +409,26 @@ class _AddTeamHistorySheetState extends State<_AddTeamHistorySheet> {
         .where((game) => game.isNotEmpty)
         .toList();
 
+    final initialHistory = widget.initialHistory;
     final history = ServiceHistoryModel(
-      id: '',
+      id: initialHistory?.id ?? '',
       title: _titleController.text.trim(),
       place: _placeController.text.trim(),
       date: _date,
       games: games,
       ageGroup: _ageGroupController.text.trim(),
       notes: _notesController.text.trim(),
-      createdAt: DateTime.now(),
+      createdAt: initialHistory?.createdAt ?? DateTime.now(),
+      syncId: initialHistory?.syncId,
     );
 
-    await widget.onSave(history);
-    if (!mounted) return;
-    Navigator.of(context).pop();
+    try {
+      await widget.onSave(history);
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } catch (_) {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   @override
@@ -317,7 +461,10 @@ class _AddTeamHistorySheetState extends State<_AddTeamHistorySheet> {
                 ),
               ),
               verticalSpace(14),
-              const Text('إضافة خدمة للفريق', style: TextStyles.bold19),
+              Text(
+                _isEditing ? 'تعديل خدمة الفريق' : 'إضافة خدمة للفريق',
+                style: TextStyles.bold19,
+              ),
               verticalSpace(14),
               Expanded(
                 child: SingleChildScrollView(
@@ -388,7 +535,11 @@ class _AddTeamHistorySheetState extends State<_AddTeamHistorySheet> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.save_outlined),
-                  label: Text(_isSaving ? 'جاري الحفظ...' : 'حفظ للفريق'),
+                  label: Text(
+                    _isSaving
+                        ? 'جاري الحفظ...'
+                        : (_isEditing ? 'حفظ التعديل' : 'حفظ للفريق'),
+                  ),
                 ),
               ),
             ],

@@ -56,9 +56,7 @@ class DeepLinkService {
     } else if (_pendingTeamInviteCode != null) {
       final code = _pendingTeamInviteCode!;
       _pendingTeamInviteCode = null;
-      Navigator.of(
-        context,
-      ).pushNamed(Routes.teamWorkspaceView, arguments: code);
+      Navigator.of(context).pushNamed(Routes.teamInviteView, arguments: code);
     }
   }
 
@@ -153,7 +151,7 @@ class DeepLinkService {
       final nav = navigatorKey.currentState;
       if (nav == null) return;
       nav.pushNamedAndRemoveUntil(Routes.mainView, (route) => false);
-      nav.pushNamed(Routes.teamWorkspaceView, arguments: inviteCode);
+      nav.pushNamed(Routes.teamInviteView, arguments: inviteCode);
     });
   }
 

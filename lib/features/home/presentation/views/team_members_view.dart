@@ -164,7 +164,10 @@ class _TeamMembersViewState extends State<TeamMembersView> {
                 (member) => _TeamMemberCard(
                   member: member,
                   currentUserId: _currentUserId,
-                  canRemove: _isAdmin && member.id != _currentUserId,
+                  canRemove:
+                      (_isAdmin || _team.ownerId == _currentUserId) &&
+                      member.id != _currentUserId &&
+                      !member.isOwner,
                   isSubmitting: _isSubmitting,
                   onRemove: () => _confirmRemoveMember(member),
                 ),

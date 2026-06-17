@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:stepforward/core/cubits/locale_cubit.dart';
 import 'package:stepforward/core/helper_functions/extentions.dart';
@@ -48,6 +49,7 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
   String? _translatedTools;
   String? _translatedLaws;
   String? _translatedTarget;
+  String? _translatedGoalTag;
   List<String>? _translatedTags;
 
   bool _isTranslating = false;
@@ -305,7 +307,8 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
       'explanation': game.explanation,
       'tools': game.tools,
       'laws': game.laws,
-      'target': game.goalTag,
+      'target': game.target,
+      'goalTag': game.goalTag,
     });
 
     final translatedTagsList = await Future.wait(
@@ -319,6 +322,7 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
         _translatedTools = fields['tools'];
         _translatedLaws = fields['laws'];
         _translatedTarget = fields['target'];
+        _translatedGoalTag = fields['goalTag'];
         _translatedTags = translatedTagsList;
         _isTranslating = false;
         _translationDone = true;
@@ -442,8 +446,11 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
           final displayLaws = isEn
               ? (_translatedLaws ?? widget.game.laws)
               : widget.game.laws;
+          final displayTarget = isEn
+              ? (_translatedTarget ?? widget.game.target)
+              : widget.game.target;
           final displayGoalTag = isEn
-              ? (_translatedTarget ?? widget.game.goalTag)
+              ? (_translatedGoalTag ?? widget.game.goalTag)
               : widget.game.goalTag;
           final displayTags = isEn
               ? (_translatedTags ?? widget.game.tags)
@@ -579,13 +586,19 @@ class _GameDetailsViewBodyState extends State<GameDetailsViewBody> {
                             Text(displayLaws, style: TextStyles.regular16),
                             const MyDivider(height: 50),
                           ],
-                          if (displayGoalTag.trim().isNotEmpty) ...[
+                          if (displayTarget.trim().isNotEmpty ||
+                              displayGoalTag.trim().isNotEmpty) ...[
                             Text(
                               isEn ? 'Goal' : 'الهدف',
                               style: TextStyles.bold19,
                             ),
                             verticalSpace(8),
-                            _GoalTagChip(label: displayGoalTag),
+                            if (displayTarget.trim().isNotEmpty)
+                              Html(data: displayTarget),
+                            if (displayGoalTag.trim().isNotEmpty) ...[
+                              verticalSpace(8),
+                              _GoalTagChip(label: displayGoalTag),
+                            ],
                             const MyDivider(height: 50),
                           ],
                           _GameRatingSection(

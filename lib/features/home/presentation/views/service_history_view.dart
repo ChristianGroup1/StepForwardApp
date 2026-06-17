@@ -51,9 +51,19 @@ class _ServiceHistoryViewState extends State<ServiceHistoryView> {
   }
 
   Future<void> _deleteHistory(ServiceHistoryModel item) async {
-    await serviceHistoryService.deleteHistory(item.id);
+    await serviceHistoryService.deleteHistory(item.id, history: item);
     if (!mounted) return;
     setState(() => _history.removeWhere((history) => history.id == item.id));
+  }
+
+  Future<void> _updateHistory(
+    ServiceHistoryModel item, {
+    ServiceHistoryModel? previousHistory,
+  }) async {
+    await serviceHistoryService.updateHistory(
+      item,
+      previousHistory: previousHistory,
+    );
   }
 
   Future<void> _openAddSheet() async {
@@ -65,6 +75,21 @@ class _ServiceHistoryViewState extends State<ServiceHistoryView> {
     );
 
     if (added == true) await _loadHistory();
+  }
+
+  Future<void> _openEditSheet(ServiceHistoryModel item) async {
+    final updated = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => _AddServiceHistorySheet(
+        initialHistory: item,
+        onUpdate: (updatedHistory) =>
+            _updateHistory(updatedHistory, previousHistory: item),
+      ),
+    );
+
+    if (updated == true) await _loadHistory();
   }
 
   @override
@@ -121,6 +146,7 @@ class _ServiceHistoryViewState extends State<ServiceHistoryView> {
               ...filteredHistory.map(
                 (item) => _ServiceHistoryCard(
                   item: item,
+                  onEdit: () => _openEditSheet(item),
                   onDelete: () => _deleteHistory(item),
                 ),
               ),
@@ -133,9 +159,14 @@ class _ServiceHistoryViewState extends State<ServiceHistoryView> {
 }
 
 class _ServiceHistoryCard extends StatelessWidget {
-  const _ServiceHistoryCard({required this.item, required this.onDelete});
+  const _ServiceHistoryCard({
+    required this.item,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   final ServiceHistoryModel item;
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   @override
@@ -167,10 +198,20 @@ class _ServiceHistoryCard extends StatelessWidget {
                   ),
                 ),
               ),
-              IconButton(
-                tooltip: isEn ? 'Delete' : 'حذف',
-                onPressed: onDelete,
-                icon: const Icon(Icons.delete_outline, color: Colors.red),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    tooltip: isEn ? 'Edit' : 'تعديل',
+                    onPressed: onEdit,
+                    icon: const Icon(Icons.edit_outlined),
+                  ),
+                  IconButton(
+                    tooltip: isEn ? 'Delete' : 'حذف',
+                    onPressed: onDelete,
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  ),
+                ],
               ),
             ],
           ),
@@ -249,7 +290,10 @@ class _InfoRow extends StatelessWidget {
 }
 
 class _AddServiceHistorySheet extends StatefulWidget {
-  const _AddServiceHistorySheet();
+  const _AddServiceHistorySheet({this.initialHistory, this.onUpdate});
+
+  final ServiceHistoryModel? initialHistory;
+  final Future<void> Function(ServiceHistoryModel history)? onUpdate;
 
   @override
   State<_AddServiceHistorySheet> createState() =>
@@ -265,6 +309,21 @@ class _AddServiceHistorySheetState extends State<_AddServiceHistorySheet> {
   final _notesController = TextEditingController();
   DateTime _date = DateTime.now();
   bool _isSaving = false;
+  bool get _isEditing => widget.initialHistory != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final history = widget.initialHistory;
+    if (history == null) return;
+
+    _titleController.text = history.title;
+    _placeController.text = history.place;
+    _gamesController.text = history.games.join('\n');
+    _ageGroupController.text = history.ageGroup;
+    _notesController.text = history.notes;
+    _date = history.date;
+  }
 
   @override
   void dispose() {
@@ -293,18 +352,24 @@ class _AddServiceHistorySheetState extends State<_AddServiceHistorySheet> {
 
     setState(() => _isSaving = true);
     try {
-      await serviceHistoryService.addHistory(
-        ServiceHistoryModel(
-          id: '',
-          title: _titleController.text.trim(),
-          place: _placeController.text.trim(),
-          date: _date,
-          games: _extractGames(),
-          ageGroup: _ageGroupController.text.trim(),
-          notes: _notesController.text.trim(),
-          createdAt: DateTime.now(),
-        ),
+      final initialHistory = widget.initialHistory;
+      final history = ServiceHistoryModel(
+        id: initialHistory?.id ?? '',
+        title: _titleController.text.trim(),
+        place: _placeController.text.trim(),
+        date: _date,
+        games: _extractGames(),
+        ageGroup: _ageGroupController.text.trim(),
+        notes: _notesController.text.trim(),
+        createdAt: initialHistory?.createdAt ?? DateTime.now(),
+        syncId: initialHistory?.syncId,
       );
+
+      if (_isEditing) {
+        await widget.onUpdate?.call(history);
+      } else {
+        await serviceHistoryService.addHistory(history);
+      }
 
       if (!mounted) return;
       Navigator.of(context).pop(true);
@@ -361,7 +426,9 @@ class _AddServiceHistorySheetState extends State<_AddServiceHistorySheet> {
               ),
               verticalSpace(14),
               Text(
-                isEn ? 'Add Old Service' : 'إضافة خدمة قديمة',
+                _isEditing
+                    ? (isEn ? 'Edit Old Service' : 'تعديل خدمة قديمة')
+                    : (isEn ? 'Add Old Service' : 'إضافة خدمة قديمة'),
                 style: TextStyles.bold19.copyWith(
                   color: AppColors.primaryColor,
                 ),
@@ -440,7 +507,13 @@ class _AddServiceHistorySheetState extends State<_AddServiceHistorySheet> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.save_outlined),
-                  label: Text(isEn ? 'Save service' : 'حفظ الخدمة'),
+                  label: Text(
+                    _isSaving
+                        ? (isEn ? 'Saving...' : 'جاري الحفظ...')
+                        : _isEditing
+                        ? (isEn ? 'Save changes' : 'حفظ التعديل')
+                        : (isEn ? 'Save service' : 'حفظ الخدمة'),
+                  ),
                 ),
               ),
             ],
