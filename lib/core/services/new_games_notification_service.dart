@@ -18,28 +18,32 @@ class NewGamesNotificationService {
   static bool _authListenerStarted = false;
 
   static Future<void> init() async {
-    final messaging = FirebaseMessaging.instance;
+    try {
+      final messaging = FirebaseMessaging.instance;
 
-    await messaging.requestPermission(alert: true, badge: true, sound: true);
+      await messaging.requestPermission(alert: true, badge: true, sound: true);
 
-    await messaging.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+      await messaging.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
-    await messaging.subscribeToTopic(newGamesTopic);
-    await saveCurrentUserToken();
-    _listenToTokenChanges();
-    _listenToAuthChanges();
+      await messaging.subscribeToTopic(newGamesTopic);
+      await saveCurrentUserToken();
+      _listenToTokenChanges();
+      _listenToAuthChanges();
 
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+      FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
 
-    final initialMessage = await messaging.getInitialMessage();
-    if (initialMessage != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _handleMessage(initialMessage);
-      });
+      final initialMessage = await messaging.getInitialMessage();
+      if (initialMessage != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _handleMessage(initialMessage);
+        });
+      }
+    } catch (e) {
+      debugPrint('NewGamesNotificationService init failed: $e');
     }
   }
 

@@ -20,15 +20,20 @@ class HomeRepoImpl extends HomeRepo {
   @override
   Future<Either<Failure, List<GameModel>>> getGames() async {
     try {
-      await CacheHelper.removeData(key: kCachedGamesKey);
       var games =
           await databaseService.getData(path: BackendEndpoints.getGames)
               as List<Map<String, dynamic>>;
       var gamesList = _visibleGames(
         games.map((e) => GameModel.fromJson(e)).toList(),
       );
+      await _cacheList(kCachedGamesKey, gamesList.map((e) => e.toJson()));
       return right(gamesList);
     } catch (e) {
+      final cachedGames = _visibleGames(
+        _readCachedList(kCachedGamesKey, (json) => GameModel.fromJson(json)),
+      );
+      if (cachedGames.isNotEmpty) return right(cachedGames);
+
       return left(CustomFailure(message: e.toString()));
     }
   }
@@ -245,6 +250,12 @@ class HomeRepoImpl extends HomeRepo {
       }
       return right(game);
     } catch (e) {
+      final cachedGames = _visibleGames(
+        _readCachedList(kCachedGamesKey, (json) => GameModel.fromJson(json)),
+      );
+      final matchingGames = cachedGames.where((game) => game.id == gameId);
+      if (matchingGames.isNotEmpty) return right(matchingGames.first);
+
       return left(CustomFailure(message: e.toString()));
     }
   }

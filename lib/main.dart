@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +18,7 @@ import 'package:stepforward/core/helper_functions/rouutes.dart';
 import 'package:stepforward/core/services/deep_link_service.dart';
 import 'package:stepforward/core/services/get_it_service.dart';
 import 'package:stepforward/core/services/new_games_notification_service.dart';
+import 'package:stepforward/core/services/offline_sync_service.dart';
 import 'package:stepforward/core/services/openai_translation_service.dart';
 import 'package:stepforward/core/utils/app_colors.dart';
 import 'package:stepforward/core/utils/app_theme.dart';
@@ -30,6 +34,9 @@ const _sentryDsn = String.fromEnvironment(
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+  );
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await CacheHelper.init();
   //Bloc.observer = MyBlocObserver();
@@ -55,7 +62,8 @@ void main() async {
 
   // Initialise deep-link handling (stepforward://game/{id}).
   await DeepLinkService.init();
-  await NewGamesNotificationService.init();
+  offlineSyncService.start();
+  unawaited(NewGamesNotificationService.init());
 
   final app = MultiBlocProvider(
     providers: [

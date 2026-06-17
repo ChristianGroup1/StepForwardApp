@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:stepforward/core/helper_functions/cache_helper.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
+import 'package:stepforward/core/services/offline_sync_service.dart';
 import 'package:stepforward/core/utils/backend_endpoints.dart';
 import 'package:stepforward/core/utils/chache_helper_keys.dart';
 import 'package:stepforward/core/utils/constants.dart';
@@ -348,10 +349,25 @@ class TeamWorkspaceService {
     required List<GameModel> games,
   }) async {
     final uniqueGames = _uniqueGamesById(games);
-    await _teams.doc(teamId).collection('shared').doc('preparation').set({
+    final data = {
       'games': uniqueGames.map((game) => game.toJson()).toList(),
       'updatedAt': FieldValue.serverTimestamp(),
-    });
+    };
+    try {
+      await _teams
+          .doc(teamId)
+          .collection('shared')
+          .doc('preparation')
+          .set(data);
+    } catch (_) {
+      await offlineSyncService.queueSet(
+        documentPath: _teamPreparationPath(teamId),
+        data: {
+          'games': uniqueGames.map((game) => game.toJson()).toList(),
+          'updatedAt': DateTime.now(),
+        },
+      );
+    }
   }
 
   Future<void> addTeamPreparationGame({
@@ -464,13 +480,23 @@ class TeamWorkspaceService {
   }) async {
     await _requireTeamAccess(teamId);
     final historyId = _teamHistoryDocumentId(history);
-    await _teams
-        .doc(teamId)
-        .collection('serviceHistory')
-        .doc(historyId)
-        .set(
-          history.copyWith(id: historyId, syncId: history.syncId).toFirestore(),
-        );
+    final data = history
+        .copyWith(id: historyId, syncId: history.syncId)
+        .toFirestore();
+    try {
+      await _teams
+          .doc(teamId)
+          .collection('serviceHistory')
+          .doc(historyId)
+          .set(data);
+    } catch (_) {
+      await offlineSyncService.queueSet(
+        documentPath: _teamHistoryPath(teamId, historyId),
+        data: history
+            .copyWith(id: historyId, syncId: history.syncId)
+            .toFirestore(),
+      );
+    }
   }
 
   Future<void> updateTeamHistory({
@@ -483,11 +509,18 @@ class TeamWorkspaceService {
       return;
     }
 
-    await _teams
-        .doc(teamId)
-        .collection('serviceHistory')
-        .doc(history.id)
-        .set(history.toFirestore(), SetOptions(merge: true));
+    try {
+      await _teams
+          .doc(teamId)
+          .collection('serviceHistory')
+          .doc(history.id)
+          .set(history.toFirestore(), SetOptions(merge: true));
+    } catch (_) {
+      await offlineSyncService.queueSet(
+        documentPath: _teamHistoryPath(teamId, history.id),
+        data: history.toFirestore(),
+      );
+    }
   }
 
   Future<void> replaceTeamHistory({
@@ -514,11 +547,17 @@ class TeamWorkspaceService {
     await _requireTeamAccess(teamId);
     if (historyId.isEmpty) return;
 
-    await _teams
-        .doc(teamId)
-        .collection('serviceHistory')
-        .doc(historyId)
-        .delete();
+    try {
+      await _teams
+          .doc(teamId)
+          .collection('serviceHistory')
+          .doc(historyId)
+          .delete();
+    } catch (_) {
+      await offlineSyncService.queueDelete(
+        documentPath: _teamHistoryPath(teamId, historyId),
+      );
+    }
   }
 
   Future<void> deleteTeamHistoryByModel({
@@ -595,24 +634,33 @@ class TeamWorkspaceService {
   Future<void> _requireTeamAccess(String teamId) async {
     await _requireAuthenticatedUser();
 
-    final teamDoc = await _teams.doc(teamId).get();
-    if (!teamDoc.exists || teamDoc.data() == null) {
-      throw FirebaseException(
-        plugin: 'cloud_firestore',
-        code: 'not-found',
-        message: 'Team not found.',
-      );
+    final userId = _auth.currentUser!.uid;
+    try {
+      final teamDoc = await _teams.doc(teamId).get();
+      if (!teamDoc.exists || teamDoc.data() == null) {
+        throw FirebaseException(
+          plugin: 'cloud_firestore',
+          code: 'not-found',
+          message: 'Team not found.',
+        );
+      }
+
+      final members = List<String>.from(teamDoc.data()!['members'] ?? []);
+      if (members.contains(userId)) return;
+    } catch (_) {
+      final cachedTeam = getCachedTeam();
+      if (cachedTeam != null &&
+          cachedTeam.id == teamId &&
+          cachedTeam.members.contains(userId)) {
+        return;
+      }
     }
 
-    final userId = _auth.currentUser!.uid;
-    final members = List<String>.from(teamDoc.data()!['members'] ?? []);
-    if (!members.contains(userId)) {
-      throw FirebaseException(
-        plugin: 'cloud_firestore',
-        code: 'permission-denied',
-        message: 'User is not a member of this team.',
-      );
-    }
+    throw FirebaseException(
+      plugin: 'cloud_firestore',
+      code: 'permission-denied',
+      message: 'User is not a member of this team.',
+    );
   }
 
   Future<TeamWorkspaceModel?> _getCurrentTeamForBackgroundSync() async {
@@ -642,6 +690,14 @@ class TeamWorkspaceService {
     return _historyDocumentId(history);
   }
 
+  String _teamPreparationPath(String teamId) {
+    return 'teams/$teamId/shared/preparation';
+  }
+
+  String _teamHistoryPath(String teamId, String historyId) {
+    return 'teams/$teamId/serviceHistory/$historyId';
+  }
+
   Future<void> _deletePossibleTeamHistoryDocs({
     required String teamId,
     required ServiceHistoryModel history,
@@ -653,7 +709,13 @@ class TeamWorkspaceService {
     };
 
     for (final id in ids) {
-      await _teams.doc(teamId).collection('serviceHistory').doc(id).delete();
+      try {
+        await _teams.doc(teamId).collection('serviceHistory').doc(id).delete();
+      } catch (_) {
+        await offlineSyncService.queueDelete(
+          documentPath: _teamHistoryPath(teamId, id),
+        );
+      }
     }
   }
 

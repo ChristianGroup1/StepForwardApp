@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:stepforward/core/helper_functions/cache_helper.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
+import 'package:stepforward/core/services/offline_sync_service.dart';
 import 'package:stepforward/core/services/team_workspace_service.dart';
 import 'package:stepforward/core/utils/backend_endpoints.dart';
 import 'package:stepforward/core/utils/chache_helper_keys.dart';
@@ -80,6 +81,10 @@ class ServiceHistoryService {
     } catch (_) {
       final localId = 'local_${DateTime.now().millisecondsSinceEpoch}';
       updatedHistory = history.copyWith(id: localId, syncId: localId);
+      await offlineSyncService.queueSet(
+        documentPath: _userHistoryPath(localId),
+        data: updatedHistory.toFirestore(),
+      );
     }
 
     final cachedHistory = getCachedHistory()
@@ -104,14 +109,15 @@ class ServiceHistoryService {
           );
 
     try {
-      final userId = getUserData().id;
       await _firestore
-          .collection(BackendEndpoints.getUserData)
-          .doc(userId)
-          .collection('serviceHistory')
-          .doc(updatedHistory.id)
+          .doc(_userHistoryPath(updatedHistory.id))
           .set(updatedHistory.toFirestore(), SetOptions(merge: true));
-    } catch (_) {}
+    } catch (_) {
+      await offlineSyncService.queueSet(
+        documentPath: _userHistoryPath(updatedHistory.id),
+        data: updatedHistory.toFirestore(),
+      );
+    }
 
     final cachedHistory = getCachedHistory()
       ..removeWhere((item) => item.id == updatedHistory.id)
@@ -138,14 +144,12 @@ class ServiceHistoryService {
         history ?? _findHistoryById(getCachedHistory(), historyId);
 
     try {
-      final userId = getUserData().id;
-      await _firestore
-          .collection(BackendEndpoints.getUserData)
-          .doc(userId)
-          .collection('serviceHistory')
-          .doc(historyId)
-          .delete();
-    } catch (_) {}
+      await _firestore.doc(_userHistoryPath(historyId)).delete();
+    } catch (_) {
+      await offlineSyncService.queueDelete(
+        documentPath: _userHistoryPath(historyId),
+      );
+    }
 
     final cachedHistory = getCachedHistory()
       ..removeWhere((item) => item.id == historyId);
@@ -202,6 +206,10 @@ class ServiceHistoryService {
     try {
       await action();
     } catch (_) {}
+  }
+
+  String _userHistoryPath(String historyId) {
+    return '${BackendEndpoints.getUserData}/${getUserData().id}/serviceHistory/$historyId';
   }
 
   ServiceHistoryModel? _findSyncedHistory(

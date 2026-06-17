@@ -13,3 +13,4 @@ const kPreparationCheckedToolsKey = 'kPreparationCheckedToolsKey';
 const kRecentlyOpenedItemsKey = 'kRecentlyOpenedItemsKey';
 const kServiceHistoryKey = 'kServiceHistoryKey';
 const kTeamWorkspaceKey = 'kTeamWorkspaceKey';
+const kPendingFirestoreWritesKey = 'kPendingFirestoreWritesKey';

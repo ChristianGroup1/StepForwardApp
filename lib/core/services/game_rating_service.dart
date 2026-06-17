@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:stepforward/core/helper_functions/cache_helper.dart';
 import 'package:stepforward/core/helper_functions/get_user_data.dart';
+import 'package:stepforward/core/services/offline_sync_service.dart';
 import 'package:stepforward/core/utils/backend_endpoints.dart';
 import 'package:stepforward/core/utils/chache_helper_keys.dart';
 
@@ -52,8 +53,8 @@ class GameRatingService {
     final sanitizedRating = rating.clamp(1, 5);
     await _saveLocalRating(gameId: gameId, rating: sanitizedRating);
 
+    final userId = getUserData().id;
     try {
-      final userId = getUserData().id;
       final firestore = FirebaseFirestore.instance;
       final gameRef = firestore
           .collection(BackendEndpoints.getGames)
@@ -87,6 +88,11 @@ class GameRatingService {
       });
       return true;
     } catch (_) {
+      await offlineSyncService.queueRating(
+        gameId: gameId,
+        userId: userId,
+        rating: sanitizedRating,
+      );
       return false;
     }
   }
