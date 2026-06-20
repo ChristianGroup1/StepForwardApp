@@ -1,0 +1,31 @@
+export const governments = [
+  "القاهرة",
+  "الجيزة",
+  "الإسكندرية",
+  "الدقهلية",
+  "الشرقية",
+  "الغربية",
+  "الفيوم",
+  "كفر الشيخ",
+  "بني سويف",
+  "المنوفية",
+  "البحيرة",
+  "القليوبية",
+  "دمياط",
+  "بورسعيد",
+  "سوهاج",
+  "أسيوط",
+  "المنيا",
+  "قنا",
+  "الأقصر",
+  "أسوان",
+];
+
+export const BackendEndpoints = {
+  addUserData: "users",
+  getUserData: "users",
+  getUserFavorites: "users",
+  getGames: "games",
+  getBrothers: "brothers",
+  getBooks: "books",
+};
